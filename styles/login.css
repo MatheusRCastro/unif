@@ -1,3 +1,10 @@
+input{
+  margin-top: 15px;
+  margin-bottom: 15px;
+  width: 20em;
+  border-radius: 5px;
+}
+
 body {
   background-color: black;
   align-items: center;
@@ -15,6 +22,7 @@ body {
   margin-right: 60px;
   align-items: center;
   text-align: center;
+  justify-content: center;
 }
 
 p {
