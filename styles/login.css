@@ -1,0 +1,25 @@
+body {
+  background-color: black;
+  align-items: center;
+}
+
+.bloco {
+  padding: 100px;
+  border-color: black;
+  background-color: white;
+  border-radius: 30px;
+  width: 30%;
+  height: 30em;
+  margin-top: 8em;
+  float: right;
+  margin-right: 60px;
+  align-items: center;
+}
+
+p {
+  margin: 0px;
+}
+
+#imagem {
+  width: 48em;
+}
