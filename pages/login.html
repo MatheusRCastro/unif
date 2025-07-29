@@ -13,8 +13,15 @@
         <img src="/./images/unif.jpg" id="imagem">
 
         <div class="bloco">
-            <input type="text" placeholder="E-mail ou CPF" style="margin-top: 7em;"> <br>
-            <input type="password" placeholder="senha">
+            <input id= "email" type="text" placeholder="E-mail" style="margin-top: 7em;" oninput="confereCamposEmail()"> <br>
+            
+            <p id="emailInvalido" style="color: rgb(214, 53, 53); display: none;">E-mail informado inválido</p>
+            <p id="emailVazio" style="color: rgb(214, 53, 53); display: none;">Campo de e-mail vazio</p>
+            
+            <input id= "senha" type="password" placeholder="senha" oninput="confereCamposSenha()">
+
+            <p id="senhaIncorreta" style="color: rgb(214, 53, 53); display: none;">Senha informada incorreta</p>
+            <p id="senhaVazia" style="color: rgb(214, 53, 53); display: none;">Campo de senha vazio</p>
 
             <p>Esqueceu sua senha? <a class="hiperLink" href="" style="color: rgb(214, 53, 53);">Redefina</a></p>
 
@@ -24,5 +31,7 @@
             <p>Não tem conta? <a class="hiperLink"  href="" style="color: lightskyblue;">Cadastrar</a></p>
         </div>
     </main>
+
+    <script src="/./scripts/login.js"></script>
 </body>
 </html>
