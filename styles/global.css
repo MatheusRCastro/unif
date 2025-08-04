@@ -5,10 +5,6 @@
     text-decoration: none;
 }
 
-.hiperLink:hover{
-    text-decoration: solid;
-    font-size: 1.2em;
-}
 
 .buttonSolid{
     border-radius: 5px;
