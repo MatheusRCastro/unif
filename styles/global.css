@@ -1,13 +1,16 @@
-.hiperLink{
-    border: none;
-    color: black;
-    background-color: white;
-    text-decoration: none;
+.hiperLink {
+  border: none;
+  color: black;
+  background-color: white;
+  text-decoration: none;
 }
 
+body {
+  background-color: black;
+}
 
-.buttonSolid{
-    border-radius: 5px;
-    color: white;
-    background-color: black;
+.buttonSolid {
+  border-radius: 5px;
+  color: white;
+  background-color: black;
 }

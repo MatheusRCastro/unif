@@ -1,0 +1,19 @@
+#imagem {
+  width: 48em;
+}
+
+.container {
+  display: flex;
+  justify-content: center; /* Alinha os itens horizontalmente no centro */
+  align-items: center; /* Alinha os itens verticalmente no centro */
+  gap: 10px; /* Espaçamento entre a imagem e o link */
+}
+
+a {
+  text-decoration: none;
+  color: white;
+}
+
+a:hover {
+  color: rgb(55, 173, 55);
+}
