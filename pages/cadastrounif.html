@@ -9,67 +9,67 @@
 </head>
 
 <body>
-  <div class="container">
-    <div class="logo-box">
-      <img src="/./images/unif.jpg" alt="Logo UNIF" class="logo">
+
+  <div class="logo-box">
+    <img src="/./images/unif.jpg" alt="Logo UNIF" class="logo">
 
 
-    </div>
+  </div>
 
-    <div class="form-box">
-      <h2>CADASTRE SUA CONTA :</h2>
-      <form id="cadastroForm">
-        <div class="scrollable-form">
-          <input type="email" placeholder="E-mail" required>
-          <input type="text" placeholder="CPF" required>
-          <div class="password-container">
-            <input type="password" placeholder="Senha" required>
+  <div class="form-box">
+    <h2>CADASTRE SUA CONTA :</h2>
+    <form id="cadastroForm">
+      <div class="scrollable-form">
+        <input type="email" placeholder="E-mail" required>
+        <input type="text" placeholder="CPF" required>
+        <div class="password-container">
+          <input type="password" placeholder="Senha" required>
 
-          </div>
-          <div class="password-container">
-            <input type="password" placeholder="Confirmar senha" required>
+        </div>
+        <div class="password-container">
+          <input type="password" placeholder="Confirmar senha" required>
 
-          </div>
-          <input type="text" placeholder="Número de telefone" required>
-          <div class="with-arrow">
-            <input type="text" placeholder="Informe sua instituição" required>
+        </div>
+        <input type="text" placeholder="Número de telefone" required>
+        <div class="with-arrow">
+          <input type="text" placeholder="Informe sua instituição" required>
 
-          </div>
-          <div class="with-arrow">
-            <input type="text" placeholder="Faz uso de algum medicamento? (se não, deixar em branco)">
+        </div>
+        <div class="with-arrow">
+          <input type="text" placeholder="Faz uso de algum medicamento? (se não, deixar em branco)">
 
-          </div>
-
-          <label for="Oa">Selecione uma opção alimentar:</label>
-          <select id="Oa" name="Oa" style="margin-bottom: 12px;">
-            <option value="Oa1">Veganismo</option>
-            <option value="Oa2">Vegetarianismo</option>
-            <option value="Oa3">Tradicional</option>
-          </select>
-
-          <input type="text" placeholder="Tem alguma alergia?(se não, deixar em branco)">
-          <input type="text" placeholder="Tem alguma restrição alimentar?(se não, deixar em branco)">
-
-          <label>Você é um professor acompanhante?</label>
-          <div class="radio-group with-arrow">
-            <button type="button" onclick="mostrarCampos(true)">Sim</button>
-            <button type="button" onclick="mostrarCampos(false)">Não</button>
-
-          </div>
-
-          <div id="camposProf" style="display: none;">
-            <input type="text" placeholder="Informe o número de contato da sua instituição">
-            <input type="email" placeholder="Informe o e-mail de contato da sua instituição">
-          </div>
         </div>
 
-        <button type="submit">Submeter</button>
-      </form>
-    </div>
+        <label for="Oa">Selecione uma opção alimentar:</label>
+        <select id="Oa" name="Oa" style="margin-bottom: 12px;">
+          <option value="Oa1">Veganismo</option>
+          <option value="Oa2">Vegetarianismo</option>
+          <option value="Oa3">Tradicional</option>
+        </select>
+
+        <input type="text" placeholder="Tem alguma alergia?(se não, deixar em branco)">
+        <input type="text" placeholder="Tem alguma restrição alimentar?(se não, deixar em branco)">
+
+        <label>Você é um professor acompanhante?</label>
+        <div class="radio-group with-arrow">
+          <button type="button" onclick="mostrarCampos(true)">Sim</button>
+          <button type="button" onclick="mostrarCampos(false)">Não</button>
+
+        </div>
+
+        <div id="camposProf" style="display: none;">
+          <input type="text" placeholder="Informe o número de contato da sua instituição">
+          <input type="email" placeholder="Informe o e-mail de contato da sua instituição">
+        </div>
+      </div>
+
+      <button type="submit">Submeter</button>
+    </form>
+
   </div>
 
   <script src="/./scripts/cadastrounif.js">
-    
+
   </script>
 </body>
 

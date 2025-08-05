@@ -1,0 +1,30 @@
+.body{
+    background-color: black;
+}
+
+.text{
+    color: white;
+}
+
+.buttons{
+  
+        border-radius: 5px;
+        color: black;
+        background-color: white;
+        width: 200px; /* Define a largura dos botões */
+        height: 50px; /* Define a altura dos botões */
+        font-size: 16px; /* Ajusta o tamanho da fonte */
+        padding: 10px; /* Adiciona espaço interno */
+        border-radius: 50px;
+        margin-left: 100px;
+}
+
+
+
+#imagem {
+    width: 150px; /* Define a largura da imagem */
+   
+    margin-top: 20px; /* Adiciona espaço acima da imagem */
+    margin-bottom: 20px; /* Adiciona espaço abaixo da imagem */
+}
+
