@@ -37,6 +37,7 @@ p {
 }
 
 
-.hiperLink:hover{
-    
+a:hover{
+    color: brown;
+    size: 1.2em;
 }
