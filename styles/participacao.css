@@ -4,6 +4,8 @@
 
 .text{
     color: white;
+    margin-left: 1.5em;
+    margin-bottom: 3em;
 }
 
 .buttons{
@@ -16,15 +18,39 @@
         font-size: 16px; /* Ajusta o tamanho da fonte */
         padding: 10px; /* Adiciona espaço interno */
         border-radius: 50px;
-        margin-left: 100px;
+        margin-left: 12.4em;
+        margin-bottom: 1em;
 }
 
-
+.buttons:hover{
+    color: rgb(55, 173, 55);
+}
 
 #imagem {
-    width: 150px; /* Define a largura da imagem */
-   
-    margin-top: 20px; /* Adiciona espaço acima da imagem */
-    margin-bottom: 20px; /* Adiciona espaço abaixo da imagem */
+    width: 600px;
+    margin-top: 2.5em;
 }
+
+.usavel{
+    float: left;
+}
+
+.leitura {
+    float: right;
+    margin-right: 15em;
+    margin-top: 6.5em;
+}
+.leitura, .leitura p, .leitura h3 {
+    color: white !important;
+}
+
+span{
+    margin-left: 0.7em;
+}
+
+.leitura p{
+    font-size: large;
+}
+
+
 
