@@ -1,0 +1,43 @@
+#imagem {
+  width: 600px;
+  margin-top: 23%;
+  margin-left: 8em;
+}
+
+.right-box {
+  display: flex;
+  flex-direction: column; /* empilha as divs */
+  align-items: flex-end; /* joga para direita */
+  gap: 20px; /* espaço entre as divs */
+  position: absolute;
+  top: 20px; /* distância do topo */
+  right: 20px; /* distância da direita */
+  margin: 7em 10em 0em 0em;
+}
+
+.container {
+  background: #f9f9f9;
+  padding: 25px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  width: 250px; /* largura fixa opcional */
+}
+
+.container h3 {
+  margin-top: 0;
+}
+
+.container input {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+#caixa {
+  display: inline-block;
+}
+
+input {
+  display: block;
+}
