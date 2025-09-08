@@ -1,0 +1,78 @@
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #000; /* fundo preto */
+    color: white;
+    display: flex;
+    height: 100vh;
+}
+
+/* container geral */
+main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 40px;
+}
+
+/* logo UNIF */
+img {
+    width: 300px;
+    height: auto;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: row; 
+    gap: 30px;           
+    width: auto;       
+}
+
+#dadosDiretores, #dadosComite {
+    flex: 1;             
+    background: rgba(255, 255, 255, 0.08);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+
+#dadosComite {
+    display: flex;
+    flex-direction: column;
+}
+
+#dadosComite input {
+    width: 100%;
+}
+
+
+
+h3 {
+    text-transform: uppercase;
+    font-size: 18px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #0f6d2d;
+    padding-bottom: 5px;
+    letter-spacing: 1px;
+}
+
+p {
+    margin: 8px 0 4px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+input:focus {
+    border: 2px solid #0f6d2d;
+}
