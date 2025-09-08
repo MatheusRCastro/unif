@@ -1,35 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="/./styles/inscmesa.css">
-    <title>Document</title>
-</head>
-<body>
-
-    <div>
-        <img src="/./images/unif.png" alt="imagem da unif">
+    <title>Inscrever Mesa Diretora</title>
+    <link rel="stylesheet" href="/./styles/inscrisaoMesa.css" />
+    <link rel="stylesheet" href="/./styles/global.css" />
+  </head>
+  <body>
+    <div id="caixa">
+      <img src="/./images/unif.png" alt="imagem da unif" id="imagem" />
     </div>
-    <main>
-        <div id="dadosDiretores">
-            <h3>Dados dos diretores</h3>
-            <p>DIRETOR 1</p>
-            <input type="text" placeholder="CPF do diretor 1">
-            <p>DIRETOR 2</p>
-            <input type="text" placeholder="CPF do diretor 2">
-            <p>DIRETOR 3</p>
-            <input type="text" placeholder="CPF do diretor 3">
-        </div>
+    <div class="right-box">
+      <div class="container">
+        <h3>Dados dos diretores</h3>
+        <p>DIRETOR 1</p>
+        <input type="text" placeholder="CPF do diretor 1" />
+        <p>DIRETOR 2</p>
+        <input type="text" placeholder="CPF do diretor 2" />
+        <p>DIRETOR 3</p>
+        <input type="text" placeholder="CPF do diretor 3" />
+      </div>
 
-        <div id="dadosComite">
-            <h3></h3>
-            <input type="text" placeholder="Tipo do cômite(ex.:CSNU)">
-            <input type="text" placeholder="Nome do cômite">
-            <input type="text" placeholder="Número de delegados">
-            <input type="text" placeholder="Data histórica do cômite">
-            <input type="text" placeholder="Descrição do cômite">
-        </div>
-    </main>
-</body>
+      <div class="container">
+        <h3>Especificações do cômite</h3>
+        <input type="text" placeholder="Tipo do cômite (ex.: CSNU)" />
+        <input type="text" placeholder="Nome do cômite" />
+        <input type="text" placeholder="Número de delegados" />
+        <input type="text" placeholder="Data histórica do cômite" />
+        <input type="text" placeholder="Descrição do cômite" />
+        <button>Submeter</button>
+      </div>
+    </div>
+  </body>
+
+  <style>
+    button {
+      background-color: rgb(31, 165, 31);
+      border-radius: 5px;
+      color: white;
+      width: 10em;
+      margin-left: 4em;
+      margin-top: 1em;
+    }
+    button:hover {
+      background-color: rgb(36, 146, 36);
+    }
+  </style>
 </html>
