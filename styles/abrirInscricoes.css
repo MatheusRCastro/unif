@@ -1,0 +1,20 @@
+.bloco {
+    display: flex;
+    flex-direction: column; /* empilha em coluna */
+    align-items: center;    /* centraliza no eixo horizontal */
+    gap: 10px;    
+    color: white;          /* espaço automático entre os itens */
+  }
+  
+button{
+    width: 300px;
+}
+
+.logo{
+    float: right;
+    margin-bottom: 5000em;
+}
+
+p{
+    font-size: xx-large;
+}
