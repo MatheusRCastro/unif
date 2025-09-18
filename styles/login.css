@@ -1,43 +1,101 @@
-input{
-  margin-top: 15px;
-  margin-bottom: 15px;
-  width: 20em;
-  border-radius: 5px;
-  height: 1.5em;
-}
-
+/* Fundo */
 body {
-  background-color: black;
-  align-items: center;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, black 30%, #1a5c1a 70%);
+  display: flex;
   justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-.bloco {
-  padding: 50px;
-  border-color: black;
-  background-color: white;
-  border-radius: 30px;
-  width: 30%;
-  height: 30em;
-  margin-top: 8em;
-  float: right;
-  margin-right: 100px;
+/* Container principal */
+.container {
+  display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 80px;
+}
+
+/* Logo */
+.logo img {
+  width: 250px;
+}
+
+/* Formulário */
+.formulario {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
   text-align: center;
-  justify-content: center;
+  width: 350px;
 }
 
-p {
-  margin: 20px;
-  margin-left: 0px;
+.formulario h2 {
+  margin-bottom: 20px;
+  font-size: 18px;
+  text-transform: uppercase;
 }
 
-#imagem {
-  width: 48em;
+/* Inputs */
+form input {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid black;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
+/* Texto de recuperar senha */
+.recuperar {
+  font-size: 13px;
+  margin-bottom: 20px;
+}
 
-a:hover{
-    color: brown;
-    size: 1.2em;
+.recuperar a {
+  color: red;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Botão */
+form button {
+  background: black;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+}
+
+form button:hover {
+  background: #1fa51f;
+}
+
+/* Links de rodapé */
+.links {
+  font-size: 13px;
+}
+
+.links a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.erro {
+  display: none;
+  color: red;
+  font-size: 12px;
+  text-align: left;
+  margin-bottom: 5px;
 }
