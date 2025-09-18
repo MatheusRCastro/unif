@@ -5,37 +5,74 @@
     <meta charset="UTF-8">
     <title>UNIF - Eventos</title>
     <link rel="stylesheet" href="/./styles/eventos.css">
+    <link rel="stylesheet" href="/./styles/global.css">
+    <script src="/./scripts/sidebar.js" defer></script>
 </head>
 
 <body>
-    <div class="container">
-        <div class="cards">
-            <div class="card">
-                <p><strong>UNIF: 2023</strong><br>
-                    Evento <strong>concluído.</strong><br>
-                    <a href="#">Confira como foi o evento !</a>
-                </p>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+    <div class="container-sidebar">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Menu</h2>
             </div>
+            <ul class="sidebar-menu">
+                <li data-tooltip="Início">
+                    <a href="inicio.html"><i class="fas fa-home"></i> <span>Início</span></a>
+                </li>
+                <li data-tooltip="Perfil">
+                    <a href="#"><i class="fas fa-user"></i> <span>Perfil</span></a>
+                </li>
+                <li data-tooltip="Mensagens">
+                    <a href="#"><i class="fas fa-envelope"></i> <span>Mensagens</span></a>
+                </li>
+                <li data-tooltip="Configurações">
+                    <a href="#"><i class="fas fa-cog"></i> <span>Configurações</span></a>
+                </li>
+                <li data-tooltip="Ajuda">
+                    <a href="#"><i class="fas fa-question-circle"></i> <span>Ajuda</span></a>
+                </li>
+            </ul>
+        </nav>
 
-            <div class="card">
-                <p><strong>UNIF: 2024</strong><br>
-                    Evento <strong>concluído.</strong><br>
-                    <a href="#">Confira como foi o evento !</a>
-                </p>
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="container">
+                <div class="cards">
+                    <div class="card">
+                        <p><strong>UNIF: 2023</strong><br>
+                            Evento <strong>concluído.</strong><br>
+                            <a href="#">Confira como foi o evento !</a>
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <p><strong>UNIF: 2024</strong><br>
+                            Evento <strong>concluído.</strong><br>
+                            <a href="#">Confira como foi o evento !</a>
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <p><strong>UNIF: 2025</strong><br>
+                            Veja o <strong>andamento</strong> do evento.<br>
+                            <a href="#">Participe ou confira o andamento do evento !</a>
+                        </p>
+                    </div>
+                </div>
+
+                <img style="height: 500px;" src="/./images/unif.png" alt="Logo UNIF" class="logo">
+
             </div>
-
-            <div class="card">
-                <p><strong>UNIF: 2025</strong><br>
-                    Veja o <strong>andamento</strong> do evento.<br>
-                    <a href="#">Participe ou confira o andamento do evento !</a>
-                </p>
-            </div>
-        </div>
-
-            <img style="height: 500px;" src="/./images/unif.png" alt="Logo UNIF" class="logo">
-
-        </div>
     </div>
+    </main>
+    </div>
+
+
+
 </body>
 
 </html>

@@ -14,3 +14,104 @@ body {
   color: white;
   background-color: black;
 }
+
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
+
+.container-sidebar {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar inicia recolhida */
+.sidebar {
+  width: 70px;
+  background-color: #2e353b;
+  color: white;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+/* Expande ao passar o mouse */
+.sidebar:hover {
+  width: 250px;
+}
+
+/* Cabeçalho escondido quando recolhida */
+.sidebar .sidebar-header h2,
+.sidebar .sidebar-menu li span {
+  display: none;
+}
+
+/* Mostra textos e cabeçalho quando expandida */
+.sidebar:hover .sidebar-header h2,
+.sidebar:hover .sidebar-menu li span {
+  display: inline;
+}
+
+/* Lista da sidebar */
+.sidebar-menu {
+  list-style: none;
+}
+
+.sidebar-menu li {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s;
+  text-align: center;
+}
+
+.sidebar-menu li:hover {
+  background-color: #34495e;
+}
+
+.sidebar-menu a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Ícones centralizados quando recolhida */
+}
+
+.sidebar-menu i {
+  font-size: 1.5rem;
+  margin-right: 0;
+}
+
+/* Ajusta quando expandida */
+.sidebar:hover .sidebar-menu li {
+  text-align: left;
+}
+
+.sidebar:hover .sidebar-menu a {
+  justify-content: flex-start;
+}
+
+.sidebar:hover .sidebar-menu i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+/* Conteúdo Principal */
+.main-content {
+  flex: 1;
+  padding: 20px;
+  background-color: rgb(26, 25, 25);
+  color: white;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+  }
+
+  .sidebar:hover {
+    width: 200px; /* Sidebar expande menos em telas pequenas */
+  }
+}

@@ -1,5 +1,5 @@
 #imagem {
-  width: 40em;
+  width: 25em;
   max-width: 100%; /* Garante que a imagem não ultrapasse o container */
   height: auto;
   display: block;
@@ -17,7 +17,6 @@
   display: flex;
   justify-content: center; /* Centraliza o link internamente */
 }
-
 
 a {
   text-decoration: none;
@@ -71,23 +70,33 @@ body {
   min-height: 100vh;
 }
 
-/* Estilos da Sidebar */
+/* Sidebar inicia recolhida */
 .sidebar {
-  width: 250px;
+  width: 70px;
   background-color: #2e353b;
   color: white;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
+  overflow: hidden;
 }
 
-.sidebar-header {
-  padding: 20px;
-  background-color: #1a252f;
+/* Expande ao passar o mouse */
+.sidebar:hover {
+  width: 250px;
 }
 
-.sidebar-header h2 {
-  font-size: 1.5rem;
+/* Cabeçalho escondido quando recolhida */
+.sidebar .sidebar-header h2,
+.sidebar .sidebar-menu li span {
+  display: none;
 }
 
+/* Mostra textos e cabeçalho quando expandida */
+.sidebar:hover .sidebar-header h2,
+.sidebar:hover .sidebar-menu li span {
+  display: inline;
+}
+
+/* Itens da sidebar */
 .sidebar-menu {
   list-style: none;
 }
@@ -96,6 +105,7 @@ body {
   padding: 15px 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   transition: background-color 0.3s;
+  text-align: center;
 }
 
 .sidebar-menu li:hover {
@@ -107,9 +117,24 @@ body {
   text-decoration: none;
   display: flex;
   align-items: center;
+  justify-content: center; /* Centraliza ícones quando recolhida */
 }
 
 .sidebar-menu i {
+  font-size: 1.5rem;
+  margin-right: 0;
+}
+
+/* Ajusta quando expandida */
+.sidebar:hover .sidebar-menu li {
+  text-align: left;
+}
+
+.sidebar:hover .sidebar-menu a {
+  justify-content: flex-start;
+}
+
+.sidebar:hover .sidebar-menu i {
   margin-right: 10px;
   font-size: 1.2rem;
 }
@@ -121,42 +146,13 @@ body {
   background-color: rgb(26, 25, 25);
 }
 
-/* Sidebar recolhível (opcional) */
-.sidebar.collapsed {
-  width: 70px;
-}
-
-.sidebar.collapsed .sidebar-header h2,
-.sidebar.collapsed .sidebar-menu li span {
-  display: none;
-}
-
-.sidebar.collapsed .sidebar-menu li {
-  text-align: center;
-}
-
-.sidebar.collapsed .sidebar-menu i {
-  margin-right: 0;
-  font-size: 1.5rem;
-}
-
 /* Responsividade */
 @media (max-width: 768px) {
   .sidebar {
-      width: 70px;
+    width: 70px;
   }
   
-  .sidebar-header h2,
-  .sidebar-menu li span {
-      display: none;
-  }
-  
-  .sidebar-menu li {
-      text-align: center;
-  }
-  
-  .sidebar-menu i {
-      margin-right: 0;
-      font-size: 1.5rem;
+  .sidebar:hover {
+    width: 200px; /* sidebar menor em telas pequenas */
   }
 }

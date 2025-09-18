@@ -58,9 +58,9 @@ body {
   background: white;
   padding: 30px 25px;
   border-radius: 30px;
-  width: 320px;
+  width: 400px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-  float: right;
+  margin-right: 100px;
 }
 
 h2 {
