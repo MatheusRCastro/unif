@@ -1,15 +1,14 @@
 body {
-    margin: 0;
-    padding: 0;
-    background-color: #000;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to right, black 30%, #1a5c1a 70%);
+  color: #fff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
   .container {
     display: flex;
     gap: 50px;

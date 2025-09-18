@@ -6,7 +6,7 @@
 }
 
 body {
-  background-color: black;
+  background: linear-gradient(to right, black 30%, #1a5c1a 70%);
 }
 
 .buttonSolid {
