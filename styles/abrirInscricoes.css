@@ -1,28 +1,32 @@
 .bloco {
     display: flex;
-    flex-direction: column; /* empilha em coluna */
-    align-items: center;    /* centraliza no eixo horizontal */
-    gap: 10px;    
-    color: white;          /* espaço automático entre os itens */
+    flex-direction: column;
+    /* empilha em coluna */
+    align-items: center;
+    /* centraliza no eixo horizontal */
+    gap: 10px;
+    color: white;
+    /* espaço automático entre os itens */
     margin-top: 10em;
-  }
-  
-button{
+    margin-left: -300px;
+}
+
+button {
     width: 300px;
     border-radius: 5px;
     height: 30px;
 }
 
-button:hover{
+button:hover {
     background-color: rgb(31, 165, 31);
 }
 
-.logo{
-    float: right;
-    position: absolute;
-    right: 1000px;
+.logo {
+    position: fixed;
+    top: 200px;   /* distância do topo */
+    right: 100px; /* distância da direita */
 }
 
-p{
+p {
     font-size: xx-large;
 }
