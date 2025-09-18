@@ -38,6 +38,24 @@
   display: inline-block;
 }
 
-input {
+input ,textarea {
+  display: block;
+}
+
+#descricaoComite{
+  height: 40px;
+}
+
+textarea{
+  resize: none;
+  width: 103%;
+}
+
+button {
+  background-color: rgb(31, 165, 31);
+  border-radius: 5px;
+  color: white;
+  width: 10em;
+  margin: 1em auto 0 auto; /* centraliza horizontalmente */
   display: block;
 }
