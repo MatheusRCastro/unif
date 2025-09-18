@@ -1,35 +1,47 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="/./styles/login.css">
-    <link rel="stylesheet" href="/./styles/global.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - UNIF</title>
+  <link rel="stylesheet" href="/./styles/login.css">
+  <script src="/./scripts/login.js" defer></script>
 </head>
+
 <body>
-    <main>
+  <div class="container">
+    <!-- Logo -->
+    <div class="logo">
+      <img src="/./images/unif.png" alt="Logo UNIF">
+    </div>
 
-        <img src="/./images/unif.jpg" id="imagem">
+    <!-- Formulário de Login -->
+    <div class="formulario">
+      <h2>Entrar na sua conta :</h2>
+      <form onsubmit="buttonConfirmar(); return false;">
+        <input type="text" id="email" placeholder="E-mail ou CPF" onblur="confereCamposEmail()">
+        <span id="emailVazio" class="erro">⚠️ Preencha o campo de e-mail</span>
+        <span id="emailInvalido" class="erro">⚠️ E-mail inválido</span>
+        <span id="emailNaoCadastrado" class="erro">⚠️ E-mail não cadastrado</span>
 
-        <div class="bloco">
-            <input id= "email" type="text" placeholder="E-mail" style="margin-top: 7em;" oninput="confereCamposEmail()"> <br>
-            
-            <p id="emailInvalido" style="color: rgb(214, 53, 53); display: none;">E-mail informado inválido</p>
-            <p id="emailVazio" style="color: rgb(214, 53, 53); display: none;">Campo de e-mail vazio</p>
-            
-            <input id= "senha" type="password" placeholder="senha" oninput="confereCamposSenha()">
+        <input type="password" id="senha" placeholder="Senha" onblur="confereCamposSenha()">
+        <span id="senhaVazia" class="erro">⚠️ Preencha o campo de senha</span>
+        <span id="senhaIncorreta" class="erro">⚠️ Senha incorreta</span>
 
-            <p id="senhaIncorreta" style="color: rgb(214, 53, 53); display: none;">Senha informada incorreta</p>
-            <p id="senhaVazia" style="color: rgb(214, 53, 53); display: none;">Campo de senha vazio</p>
+        <p class="recuperar">
+          Esqueceu sua senha? <a href="#">Redefina</a>
+        </p>
 
-            <p>Esqueceu sua senha? <a class="hiperLink" href="" style="color: rgb(214, 53, 53);">Redefina</a></p>
+        <button type="submit">Confirmar</button>
 
-            <button onclick="" class="buttonSolid" style="margin-top: 15px; margin-bottom: 15px; width: 15em; height: 1.7em;">CONFIRMAR</button>
-            <p>Não tem conta? <a class="hiperLink"  href="cadastrounif.html" style="color: lightskyblue;">Cadastrar</a></p>
-        </div>
-    </main>
-
-    <script src="/./scripts/login.js"></script>
+        <p class="links">
+          Já tem conta? <a href="#">Login</a>. <br>
+          Não tem conta? <a href="#">Cadastrar</a>.
+        </p>
+      </form>
+    </div>
+  </div>
 </body>
+
 </html>
