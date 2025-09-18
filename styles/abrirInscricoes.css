@@ -4,15 +4,23 @@
     align-items: center;    /* centraliza no eixo horizontal */
     gap: 10px;    
     color: white;          /* espaço automático entre os itens */
+    margin-top: 10em;
   }
   
 button{
     width: 300px;
+    border-radius: 5px;
+    height: 30px;
+}
+
+button:hover{
+    background-color: rgb(31, 165, 31);
 }
 
 .logo{
     float: right;
-    margin-bottom: 5000em;
+    position: absolute;
+    right: 1000px;
 }
 
 p{
