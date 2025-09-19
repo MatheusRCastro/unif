@@ -1,0 +1,93 @@
+/* ==========================
+   Estilos da página Delegações
+   ========================== */
+
+/* Container principal da tela */
+.delegacoes-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 80px;
+    min-height: 100vh;
+    color: black;
+}
+
+/* Título */
+.delegacoes-titulo {
+    padding: 6px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Card de análise */
+.delegacoes-card {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Campos de informação */
+.delegacoes-campo {
+    border-bottom: 1px solid black;
+    padding: 12px;
+    font-size: 14px;
+}
+
+/* Área da justificativa */
+.delegacoes-justificativa {
+    padding: 10px;
+    border-radius: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #333;
+    margin-top: 6px;
+}
+
+/* Botões de aprovação/reprovação */
+.delegacoes-botoes {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    padding: 12px;
+}
+
+.delegacoes-btn {
+    border: none;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.delegacoes-btn:hover {
+    transform: scale(1.05);
+}
+
+.delegacoes-aprovar {
+    background: #2ecc71;
+    color: white;
+}
+
+.delegacoes-reprovar {
+    background: #e74c3c;
+    color: white;
+}
+
+/* Logo */
+.delegacoes-logo img {
+    max-width: 350px;
+    display: block;
+    margin: 0 auto;
+}
+
+.form-container{
+    background-color: white;
+    border-radius: 10px;
+    padding: 70px;
+}
