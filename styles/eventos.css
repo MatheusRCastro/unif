@@ -1,55 +1,88 @@
+/* Reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-.container {
+    font-family: "Segoe UI", sans-serif;
+  }
+  
+  /* Layout principal */
+  .container {
     display: flex;
     gap: 60px;
     align-items: center;
-}
-
-.cards {
+    justify-content: center;
+    margin: 8em auto;
+    flex-wrap: wrap; /* responsividade */
+    max-width: 1200px;
+    padding: 20px;
+  }
+  
+  /* Cards */
+  .cards {
     display: flex;
     flex-direction: column;
-    gap: 30px;
-}
-
-.card {
-    background-color: white;
-    border-radius: 40px;
-    padding: 20px 30px;
-    width: 270px;
+    gap: 25px;
+  }
+  
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 25px 30px;
+    width: 280px;
     text-align: center;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
-}
-
-.card p {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  }
+  
+  .card p {
     font-size: 15px;
-    color: black;
+    color: #333;
     line-height: 1.6;
-}
-
-.card a {
+  }
+  
+  .card a {
     text-decoration: none;
+    font-weight: 500;
     color: #1E90FF;
-}
-
-.card a:hover {
+    transition: color 0.2s ease;
+  }
+  
+  .card a:hover {
+    color: #0056b3;
     text-decoration: underline;
-}
-
-.logo-box {
-    background-color: white;
-    border-radius: 40px;
+  }
+  
+  /* Logo */
+  .logo-box {
+    background: #fff;
+    border-radius: 20px;
     padding: 20px;
     text-align: center;
-    width: 200px;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
-}
-
-.container{
-    margin-left: 32em;
-    margin-top: 10em;
-}
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  }
+  
+  .logo {
+    height: 220px;
+    width: auto;
+    object-fit: contain;
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .container {
+      flex-direction: column;
+      gap: 40px;
+      margin: 4em auto;
+    }
+  
+    .cards {
+      align-items: center;
+    }
+  }
+  
