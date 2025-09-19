@@ -1,96 +1,42 @@
-#imagem {
-  width: 25em;
-  max-width: 100%; /* Garante que a imagem não ultrapasse o container */
-  height: auto;
-  display: block;
-  margin: 0 auto; /* Centraliza a imagem */
-}
-
-.contain {
-  background-color: white;
-  text-align: center;
-  width: 25%;
-  border-radius: 10px;
-  height: 2em;
-  margin: 30px auto 0; /* Centraliza e mantém margem superior */
-  line-height: 2em;
-  display: flex;
-  justify-content: center; /* Centraliza o link internamente */
-}
-
-a {
-  text-decoration: none;
-  color: white;
-}
-
-.cabecalho {
-  background-color: white;
-  text-align: center;
-  width: 35%;
-  border-radius: 10px;
-  margin: 0 auto; /* Centralização adicional para garantir */
-  padding: 15px; /* Adiciona algum espaço interno */
-  margin-top: 10px;
-  height: 3em;
-  line-height: 1em;
-}
-
-body {
-  text-align: center;
-  align-items: center;
-}
-
-.wraper {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Centraliza horizontalmente todos os elementos filhos */
-  justify-content: center; /* Centraliza verticalmente (opcional) */
-  gap: 20px;
-  padding: 20px;
-  width: 100%; /* Garante que o wrapper ocupe toda a largura disponível */
-}
-
-#ajudaCor {
-  color: black;
-}
-
-#ajudaCor:hover {
-  color: rgb(55, 173, 55);
-}
-
+/* Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: 'Arial', sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
 }
 
+/* Layout principal */
 .container {
   display: flex;
   min-height: 100vh;
 }
 
-/* Sidebar inicia recolhida */
+/* Sidebar */
 .sidebar {
   width: 70px;
-  background-color: #2e353b;
+  background: linear-gradient(180deg, #1c1c1c, #2e353b);
   color: white;
   transition: all 0.3s ease;
   overflow: hidden;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5);
 }
 
-/* Expande ao passar o mouse */
 .sidebar:hover {
   width: 250px;
 }
 
-/* Cabeçalho escondido quando recolhida */
+.sidebar-header {
+  text-align: center;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 .sidebar .sidebar-header h2,
 .sidebar .sidebar-menu li span {
   display: none;
 }
 
-/* Mostra textos e cabeçalho quando expandida */
 .sidebar:hover .sidebar-header h2,
 .sidebar:hover .sidebar-menu li span {
   display: inline;
@@ -103,13 +49,14 @@ body {
 
 .sidebar-menu li {
   padding: 15px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  transition: background-color 0.3s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.3s, transform 0.2s;
   text-align: center;
 }
 
 .sidebar-menu li:hover {
-  background-color: #34495e;
+  background-color: #3d4a58;
+  transform: translateX(5px);
 }
 
 .sidebar-menu a {
@@ -117,21 +64,13 @@ body {
   text-decoration: none;
   display: flex;
   align-items: center;
-  justify-content: center; /* Centraliza ícones quando recolhida */
+  justify-content: center;
+  font-weight: 500;
 }
 
 .sidebar-menu i {
   font-size: 1.5rem;
-  margin-right: 0;
-}
-
-/* Ajusta quando expandida */
-.sidebar:hover .sidebar-menu li {
-  text-align: left;
-}
-
-.sidebar:hover .sidebar-menu a {
-  justify-content: flex-start;
+  transition: color 0.3s;
 }
 
 .sidebar:hover .sidebar-menu i {
@@ -139,20 +78,95 @@ body {
   font-size: 1.2rem;
 }
 
-/* Conteúdo Principal */
+/* Área principal */
 .main-content {
   flex: 1;
+  padding: 30px;
+  background: linear-gradient(135deg, #000, #1a5c1a);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wraper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
   padding: 20px;
-  background-color: rgb(26, 25, 25);
+}
+
+
+/* Cabeçalho */
+.cabecalho {
+  background: white;
+  color: #1a5c1a;
+  font-weight: bold;
+  font-size: 1.3rem;
+  text-align: center;
+  padding: 15px 25px;
+  border-radius: 12px;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Logo */
+#imagem {
+  width: 280px;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.5));
+  transition: transform 0.3s ease;
+}
+
+#imagem:hover {
+  transform: scale(1.05);
+}
+
+/* Botão */
+.contain {
+  background: linear-gradient(90deg, #ffffff);
+  text-align: center;
+  width: 50%;
+  border-radius: 30px;
+  padding: 12px 0;
+  margin: 20px auto 0;
+  transition: transform 0.2s, box-shadow 0.3s;
+}
+
+.contain:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.5);
+}
+
+#ajudaCor {
+  color: #1a5c1a;
+  font-size: 1.1rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+#ajudaCor:hover {
+  color: #1fa51f;
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
   .sidebar {
-    width: 70px;
+    width: 60px;
   }
-  
   .sidebar:hover {
-    width: 200px; /* sidebar menor em telas pequenas */
+    width: 180px;
+  }
+  #imagem {
+    width: 200px;
+  }
+  .contain {
+    width: 70%;
+  }
+  .cabecalho {
+    width: 90%;
+    font-size: 1.1rem;
   }
 }
