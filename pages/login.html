@@ -20,21 +20,26 @@
     <div class="formulario">
       <h2>Entrar na sua conta :</h2>
       <form onsubmit="buttonConfirmar(); return false;">
+        <!-- Campo Email -->
         <input type="text" id="email" placeholder="E-mail ou CPF" onblur="confereCamposEmail()">
         <span id="emailVazio" class="erro">⚠️ Preencha o campo de e-mail</span>
         <span id="emailInvalido" class="erro">⚠️ E-mail inválido</span>
         <span id="emailNaoCadastrado" class="erro">⚠️ E-mail não cadastrado</span>
 
+        <!-- Campo Senha -->
         <input type="password" id="senha" placeholder="Senha" onblur="confereCamposSenha()">
         <span id="senhaVazia" class="erro">⚠️ Preencha o campo de senha</span>
         <span id="senhaIncorreta" class="erro">⚠️ Senha incorreta</span>
 
+        <!-- Recuperar senha -->
         <p class="recuperar">
           Esqueceu sua senha? <a href="#">Redefina</a>
         </p>
 
+        <!-- Botão -->
         <button type="submit">Confirmar</button>
 
+        <!-- Links extras -->
         <p class="links">
           Já tem conta? <a href="#">Login</a>. <br>
           Não tem conta? <a href="#">Cadastrar</a>.

@@ -1,34 +1,47 @@
-let email = document.getElementById("email");
-let senha = document.getElementById("senha");
+// Seleciona os inputs
+const email = document.getElementById("email");
+const senha = document.getElementById("senha");
 
-// Lista de emails/senhas "cadastrados" (mock)
+// "Banco de dados" mock de usuários
 const usuarios = {
   "teste@email.com": "123456",
   "admin@unif.com": "admin"
 };
 
+// Função principal de login
 function buttonConfirmar() {
   confereCamposEmail();
   confereCamposSenha();
 
-  // Se não há erros visíveis, tenta login
-  if (
-    document.getElementById("emailVazio").style.display === "none" &&
-    document.getElementById("emailInvalido").style.display === "none" &&
-    document.getElementById("emailNaoCadastrado").style.display === "none" &&
-    document.getElementById("senhaVazia").style.display === "none" &&
-    document.getElementById("senhaIncorreta").style.display === "none"
-  ) {
-    alert("Login realizado com sucesso!");
+  // Lista de erros
+  const erros = [
+    "emailVazio",
+    "emailInvalido",
+    "emailNaoCadastrado",
+    "senhaVazia",
+    "senhaIncorreta"
+  ];
+
+  const temErro = erros.some(
+    (id) => document.getElementById(id).style.display === "block"
+  );
+
+  if (!temErro) {
+    alert("✅ Login realizado com sucesso!");
+    // Redireciona para a página principal (ajuste o caminho)
+    // window.location.href = "/./pages/dashboard.html";
   }
 }
 
+/* -------------------
+   FUNÇÕES DE EMAIL
+------------------- */
 function emailValido() {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (regex.test(email.value)) {
-    document.getElementById("emailInvalido").style.display = "none";
-  } else if (email.value.trim() !== "") {
+  if (email.value.trim() !== "" && !regex.test(email.value)) {
     document.getElementById("emailInvalido").style.display = "block";
+  } else {
+    document.getElementById("emailInvalido").style.display = "none";
   }
 }
 
@@ -48,6 +61,9 @@ function emailCadastrado() {
   }
 }
 
+/* -------------------
+   FUNÇÕES DE SENHA
+------------------- */
 function senhaEstaVazio() {
   if (senha.value.trim() === "") {
     document.getElementById("senhaVazia").style.display = "block";
@@ -68,9 +84,12 @@ function senhaIncorreta() {
   }
 }
 
+/* -------------------
+   FUNÇÕES GERAIS
+------------------- */
 function confereCamposEmail() {
-  emailValido();
   emailEstaVazio();
+  emailValido();
   emailCadastrado();
 }
 
