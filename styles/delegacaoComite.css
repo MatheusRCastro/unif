@@ -8,9 +8,7 @@
 
 /* Fundo com gradiente animado */
 body {
-  background: linear-gradient(-45deg, #000, #0f5132, #2ecc71, #000);
-  background-size: 400% 400%;
-  animation: gradientMove 12s ease infinite;
+  
   min-height: 100vh;
   display: flex;
   flex-direction: column;

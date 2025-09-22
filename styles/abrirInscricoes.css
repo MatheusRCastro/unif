@@ -1,30 +1,4 @@
-/* Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', Arial, sans-serif;
-  }
-  
-  /* Fundo com gradiente animado */
-  body {
-    background: linear-gradient(-45deg, #000, #0f5132, #2ecc71, #000);
-    background-size: 400% 400%;
-    animation: gradientMove 12s ease infinite;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  @keyframes gradientMove {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  
-  /* Bloco */
-  /* Reset básico */
+/* Reset básico */
 body {
     margin: 0;
     padding: 0;
@@ -67,33 +41,89 @@ body {
 /* Linhas internas */
 .row {
     display: flex;
-    flex-direction: column;
-    /* empilha em coluna */
+    justify-content: space-between;
     align-items: center;
-    /* centraliza no eixo horizontal */
+    margin: 12px 0;
     gap: 10px;
-    color: white;
-    /* espaço automático entre os itens */
-    margin-top: 10em;
-    margin-left: -300px;
 }
 
-button {
-    width: 300px;
-    border-radius: 5px;
-    height: 30px;
+.label {
+    font-weight: bold;
+    font-size: 16px;
 }
 
-button:hover {
-    background-color: rgb(31, 165, 31);
+/* Inputs */
+.row input {
+    flex: 0 0 200px;
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 2px solid #aaa;
+    border-radius: 8px;
+    background: #f0f0f0;
 }
 
-.logo {
-    position: fixed;
-    top: 200px;   /* distância do topo */
-    right: 100px; /* distância da direita */
+/* Botões em colunas esquerda e direita */
+.buttons {
+    display: flex;
+    gap: 40px; /* espaço entre colunas */
 }
 
-p {
-    font-size: xx-large;
+.buttons .col {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* espaço entre botões na coluna */
+}
+
+/* Botões */
+.btn {
+    background: #fff;
+    color: #000;
+    padding: 12px 25px;
+    font-size: 16px;
+    border: 2px solid #000;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    width: 200px; /* largura dos botões */
+}
+
+.btn:hover {
+    background: #ddd;
+}
+
+/* Seta vertical entre botões */
+.arrow {
+    font-size: 28px;
+    color: #fff;
+    text-align: center;
+    margin: 5px 0;
+}
+
+/* Responsividade */
+@media screen and (max-width: 1100px) {
+    .container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media screen and (max-width: 750px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+
+    .buttons {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .buttons .col {
+        flex-direction: row;
+        gap: 15px;
+    }
+
+    .row input {
+        flex: 1;
+    }
 }
