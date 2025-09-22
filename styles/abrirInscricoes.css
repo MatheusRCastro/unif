@@ -1,32 +1,66 @@
-.bloco {
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', Arial, sans-serif;
+  }
+  
+  /* Fundo com gradiente animado */
+  body {
+    background: linear-gradient(-45deg, #000, #0f5132, #2ecc71, #000);
+    background-size: 400% 400%;
+    animation: gradientMove 12s ease infinite;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  @keyframes gradientMove {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  /* Bloco */
+  .bloco {
     display: flex;
     flex-direction: column;
-    /* empilha em coluna */
     align-items: center;
-    /* centraliza no eixo horizontal */
     gap: 10px;
     color: white;
-    /* espaço automático entre os itens */
     margin-top: 10em;
     margin-left: -300px;
-}
-
-button {
+  }
+  
+  button {
     width: 300px;
     border-radius: 5px;
     height: 30px;
-}
-
-button:hover {
+    cursor: pointer;
+    border: none;
+    transition: 0.3s;
+  }
+  
+  button:hover {
     background-color: rgb(31, 165, 31);
-}
-
-.logo {
+    color: white;
+    box-shadow: 0 0 10px rgba(31,165,31,0.7);
+  }
+  
+  /* Logo */
+  .logo {
     position: fixed;
-    top: 200px;   /* distância do topo */
-    right: 100px; /* distância da direita */
-}
-
-p {
+    top: 50%;          /* centraliza na vertical */
+    
+    transform: translateY(-50%); /* corrige o centro */
+    width: 120px;      /* aumenta um pouco */
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+  }
+  
+  
+  p {
     font-size: xx-large;
-}
+  }
+  
