@@ -1,31 +1,60 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/./styles/global.css">
-    <link rel="stylesheet" href="/./styles/abrirInscricoes.css">
-    <script src="/./scripts/abrirIncricao.js" defer></script>
-    <title>Abrir Inscrições</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel UNIF</title>
+  <link rel="stylesheet" href="/./styles/global.css">
+  <link rel="stylesheet" href="/./styles/abrirInscricoes.css">
+  <script src="/./scripts/cadastrarUnif.js" ></script>
 </head>
-
 <body>
-    <div class="bloco">
-        <button id="abrirIncricaoComite">Abrir inscrições para comitês</button>
-        <p id="etapa1">↓</p>
-        <button id="abrirIncricaoStaff">Abrir inscrições para staff</button>
-        <p id="etapa2">↓</p>
-        <button id="avaliarComiteInscrito">Avaliar comitês inscritos</button>
-        <p id="etapa3">↓</p>
-        <button id="avaliarDelegacoesInscritas">Avaliar delegações submetidas</button>
-        <p id="etapa4">↓</p>
-        <button id="avaliarPagamentos">Avaliar pagamentos</button>
+  <div class="container">
+    <!-- Datas e Inscrições -->
+    <div class="box">
+      <h3>Datas e Inscrições</h3>
+      <div class="row"><span class="label">Data da UNIF</span><input type="text"></div>
+      <div class="row"><span class="label">Começo Inscrição de mesa</span><input type="text"></div>
+      <div class="row"><span class="label">Fim Inscrições de mesa</span><input type="text"></div>
+      <div class="row"><span class="label">Começo inscrição Staff</span><input type="text"></div>
+      <div class="row"><span class="label">Fim das Inscrições</span><input type="text"></div>
+      <div class="row"><span class="label">Começo das Inscrições</span><input type="text"></div>
+      <div class="row"><span class="label">Fim das Inscrições</span><input type="text"></div>
     </div>
 
-    <div class="logo">
-        <img src="/./images/unif.png" alt="Logo UNIF">
-      </div>
-</body>
+    <!-- Números de inscritos -->
+    <div class="box">
+      <h3>Estatísticas</h3>
+      <div class="row"><span class="label">Número de inscritos</span><input type="text"></div>
+      <div class="row"><span class="label">Número de staffs inscritos</span><input type="text"></div>
+      <div class="row"><span class="label">Número de Mesas inscritas</span><input type="text"></div>
+    </div>
 
+    <!-- CPFs -->
+    <div class="box">
+      <h3>Secretários</h3>
+      <div class="row"><span class="label">CPF do sec. Geral</span><input type="text"></div>
+      <div class="row"><span class="label">CPF do sec. Acadêmico</span><input type="text"></div>
+      <div class="row"><span class="label">CPF do sec. de Relações Públicas</span><input type="text"></div>
+      <div class="row"><span class="label">CPF do sec. de Marketing</span><input type="text"></div>
+      <div class="row"><span class="label">CPF do sec. de Finanças</span><input type="text"></div>
+      <div class="row"><span class="label">CPF do sec. de Logística</span><input type="text"></div>
+      <div class="row"><span class="label">CPF do sec. Administrativo</span><input type="text"></div>
+    </div>
+
+    <!-- Botões -->
+    <div class="buttons">
+        <div class="col left">
+          <button class="btn">Criar UNIF</button>
+          <button class="btn">Avaliar Comitês</button>
+        </div>
+        <div class="col right">
+          <button class="btn">Avaliar pagamentos</button>
+          <span class="arrow">↓</span>
+          <button class="btn">Avaliar delegações</button>
+        </div>
+      </div>
+      
+  </div>
+</body>
 </html>
