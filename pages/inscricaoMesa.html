@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
   <meta charset="UTF-8" />
@@ -14,6 +14,7 @@
   <div id="caixa">
     <img src="/./images/unif.png" alt="imagem da unif" id="imagem" />
   </div>
+
   <div class="right-box">
     <div class="container">
       <h3>Dados dos diretores</h3>
@@ -26,32 +27,23 @@
     </div>
 
     <div class="container">
-      <h3>Especificações do cômite</h3>
-      <input type="text" placeholder="Tipo do cômite (ex.: CSNU)" />
-      <input type="text" placeholder="Nome do cômite" />
+      <h3>Especificações do comitê</h3>
+      <input type="text" placeholder="Tipo do comitê (ex.: CSNU)" />
+      <input type="text" placeholder="Nome do comitê" />
       <input type="text" placeholder="Número de delegados" />
-      <input type="text" placeholder="Data histórica do cômite" />
+      <input type="text" placeholder="Data histórica do comitê" />
       <textarea name="descricao_comite" id="descricaoComite" rows="10"
         placeholder="Digite aqui a descrição do comitê..."></textarea>
-      <button>Submeter</button>
+
+      <p>O COMITE É EM DUPLA?</p>
+      <div class="dupla-btns">
+        <button>Sim</button>
+        <button>Não</button>
+      </div>
+
+      <button class="submit-btn">Submeter</button>
     </div>
   </div>
 </body>
-
-<style>
-  button {
-    background-color: rgb(31, 165, 31);
-    border-radius: 5px;
-    color: white;
-    width: 10em;
-    margin-left: 4em;
-    margin-top: 1em;
-    display: block;
-  }
-
-  button:hover {
-    background-color: rgb(36, 146, 36);
-  }
-</style>
 
 </html>

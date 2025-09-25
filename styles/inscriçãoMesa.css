@@ -20,7 +20,7 @@
   padding: 25px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  width: 250px; /* largura fixa opcional */
+  width: 500px; /* largura fixa */
 }
 
 .container h3 {
@@ -38,19 +38,21 @@
   display: inline-block;
 }
 
-input ,textarea {
+input,
+textarea {
   display: block;
 }
 
-#descricaoComite{
+#descricaoComite {
   height: 40px;
 }
 
-textarea{
+textarea {
   resize: none;
   width: 103%;
 }
 
+/* estilo geral dos botões */
 button {
   background-color: rgb(31, 165, 31);
   border-radius: 5px;
@@ -58,4 +60,27 @@ button {
   width: 10em;
   margin: 1em auto 0 auto; /* centraliza horizontalmente */
   display: block;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: rgb(36, 146, 36);
+}
+
+/* grupo dos botões "Sim" e "Não" */
+.dupla-btns {
+  display: flex;
+  justify-content: center;
+  gap: 15px; /* espaço entre os botões */
+  margin-top: 10px;
+}
+
+.dupla-btns button {
+  width: 8em;
+  margin: 0; /* remove o margin auto padrão */
+}
+
+/* botão de submeter */
+.submit-btn {
+  margin-top: 20px;
 }
