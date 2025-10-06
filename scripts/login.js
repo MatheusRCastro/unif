@@ -2,21 +2,16 @@
 const email = document.getElementById("email");
 const senha = document.getElementById("senha");
 
-// "Banco de dados" mock de usuários
-const usuarios = {
-  "teste@email.com": "123456",
-  "admin@unif.com": "admin"
-};
-
 // Função principal de login
-function buttonConfirmar() {
+async function buttonConfirmar() {
+  // Valida campos primeiro
   confereCamposEmail();
   confereCamposSenha();
 
   // Lista de erros
   const erros = [
     "emailVazio",
-    "emailInvalido",
+    "emailInvalido", 
     "emailNaoCadastrado",
     "senhaVazia",
     "senhaIncorreta"
@@ -27,9 +22,7 @@ function buttonConfirmar() {
   );
 
   if (!temErro) {
-    alert("✅ Login realizado com sucesso!");
-    // Redireciona para a página principal (ajuste o caminho)
-    // window.location.href = "/./pages/dashboard.html";
+    await fazerLogin();
   }
 }
 
@@ -37,8 +30,10 @@ function buttonConfirmar() {
    FUNÇÕES DE EMAIL
 ------------------- */
 function emailValido() {
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (email.value.trim() !== "" && !regex.test(email.value)) {
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const regexCPF = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+  
+  if (email.value.trim() !== "" && !regexEmail.test(email.value) && !regexCPF.test(email.value)) {
     document.getElementById("emailInvalido").style.display = "block";
   } else {
     document.getElementById("emailInvalido").style.display = "none";
@@ -54,11 +49,8 @@ function emailEstaVazio() {
 }
 
 function emailCadastrado() {
-  if (email.value.trim() !== "" && !(email.value in usuarios)) {
-    document.getElementById("emailNaoCadastrado").style.display = "block";
-  } else {
-    document.getElementById("emailNaoCadastrado").style.display = "none";
-  }
+  // Esta função será validada no servidor
+  document.getElementById("emailNaoCadastrado").style.display = "none";
 }
 
 /* -------------------
@@ -73,15 +65,8 @@ function senhaEstaVazio() {
 }
 
 function senhaIncorreta() {
-  if (
-    email.value in usuarios &&
-    senha.value.trim() !== "" &&
-    usuarios[email.value] !== senha.value
-  ) {
-    document.getElementById("senhaIncorreta").style.display = "block";
-  } else {
-    document.getElementById("senhaIncorreta").style.display = "none";
-  }
+  // Esta função será validada no servidor
+  document.getElementById("senhaIncorreta").style.display = "none";
 }
 
 /* -------------------
@@ -97,3 +82,65 @@ function confereCamposSenha() {
   senhaEstaVazio();
   senhaIncorreta();
 }
+
+/* -------------------
+   FUNÇÃO DE LOGIN COM PHP
+------------------- */
+async function fazerLogin() {
+  const formData = new FormData();
+  formData.append('email', email.value);
+  formData.append('senha', senha.value);
+
+  try {
+    const response = await fetch('/./php/login.php', {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      alert("✅ Login realizado com sucesso!");
+      
+      // Redireciona baseado no tipo de usuário
+      if (result.adm) {
+        window.location.href = "/./pages/admin/dashboard.html";
+      } else {
+        window.location.href = "/./pages/user/dashboard.html";
+      }
+    } else {
+      // Mostra erro específico
+      if (result.error === 'usernotfound') {
+        document.getElementById("emailNaoCadastrado").style.display = "block";
+      } else if (result.error === 'wrongpassword') {
+        document.getElementById("senhaIncorreta").style.display = "block";
+      } else if (result.error === 'emptyfields') {
+        alert('Por favor, preencha todos os campos.');
+      } else {
+        alert('Erro: ' + result.message);
+      }
+    }
+  } catch (error) {
+    console.error('Erro:', error);
+    alert('Erro ao conectar com o servidor.');
+  }
+}
+
+// Event listeners para limpar erros ao digitar
+email.addEventListener('input', () => {
+  document.getElementById("emailVazio").style.display = "none";
+  document.getElementById("emailInvalido").style.display = "none";
+  document.getElementById("emailNaoCadastrado").style.display = "none";
+});
+
+senha.addEventListener('input', () => {
+  document.getElementById("senhaVazia").style.display = "none";
+  document.getElementById("senhaIncorreta").style.display = "none";
+});
+
+// Enter key support
+document.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    buttonConfirmar();
+  }
+});
