@@ -1,0 +1,122 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: linear-gradient(135deg, #006837, #00b050);
+    min-height: 100vh;
+  }
+  
+  .logo-box {
+    position: absolute;
+    top: 30px;
+    left: 50px;
+  }
+  
+  .logo {
+    width: 160px;
+  }
+  
+  .profile-box {
+    background-color: #fff;
+    width: 70%;
+    max-width: 900px;
+    margin: 120px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    padding: 40px;
+  }
+  
+  .profile-box h2 {
+    color: #006837;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #00b050;
+    padding-bottom: 10px;
+  }
+  
+  .info-section {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  
+  .avatar-section {
+    text-align: center;
+  }
+  
+  .avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 2px solid #00b050;
+    margin-bottom: 10px;
+  }
+  
+  .change-btn {
+    background-color: #00b050;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 15px;
+    cursor: pointer;
+  }
+  
+  .change-btn:hover {
+    background-color: #00913f;
+  }
+  
+  .form-section {
+    flex: 1;
+    min-width: 300px;
+  }
+  
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+  }
+  
+  .input-group label {
+    font-weight: bold;
+    color: #006837;
+    margin-bottom: 5px;
+  }
+  
+  .input-group input {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+  }
+  
+  .button-group {
+    margin-top: 20px;
+  }
+  
+  .update-btn,
+  .cancel-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .update-btn {
+    background-color: #00b050;
+    color: white;
+    margin-right: 10px;
+  }
+  
+  .cancel-btn {
+    background-color: #999;
+    color: white;
+  }
+  
+  .update-btn:hover {
+    background-color: #00913f;
+  }
+  
+  .cancel-btn:hover {
+    background-color: #777;
+  }
+  
