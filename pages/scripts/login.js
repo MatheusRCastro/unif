@@ -92,7 +92,7 @@ async function fazerLogin() {
   formData.append('senha', senha.value);
 
   try {
-    const response = await fetch('/unif/php/login.php', {
+    const response = await fetch('/./php/login.php', {
       method: 'POST',
       body: formData
     });
@@ -104,9 +104,9 @@ async function fazerLogin() {
       
       // Redireciona baseado no tipo de usuário
       if (result.adm) {
-        window.location.href = "/unif/pages/admin/dashboard.html";
+        window.location.href = "/./pages/inicio.hmtl";
       } else {
-        window.location.href = "/unif/pages/user/dashboard.html";
+        window.location.href = "/./pages/inicio.html";
       }
     } else {
       // Mostra erro específico
