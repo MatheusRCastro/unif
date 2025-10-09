@@ -86,43 +86,54 @@ function confereCamposSenha() {
 /* -------------------
    FUNÇÃO DE LOGIN COM PHP
 ------------------- */
+/* -------------------
+   FUNÇÃO DE LOGIN COM PHP
+------------------- */
 async function fazerLogin() {
   const formData = new FormData();
   formData.append('email', email.value);
   formData.append('senha', senha.value);
 
   try {
-    const response = await fetch('./php/login.php', {
+    console.log('📤 Enviando dados para PHP...');
+    
+    const response = await fetch('/tcc/unif/pages/php/login.php', {
       method: 'POST',
       body: formData
     });
 
-    const result = await response.json();
+    console.log('📥 Resposta recebida, status:', response.status);
+    
+    const text = await response.text();
+    console.log('🔍 Resposta bruta do servidor:', text);
+    
+    let result;
+    try {
+      result = JSON.parse(text);
+      console.log('✅ JSON parseado com sucesso:', result);
+    } catch (parseError) {
+      console.error('❌ Erro no JSON.parse:', parseError);
+      console.error('📄 Texto que causou o erro:', text);
+      throw new Error('Resposta inválida do servidor: ' + text.substring(0, 100));
+    }
 
     if (result.success) {
+      console.log('🎉 Login bem-sucedido!');
       alert("✅ Login realizado com sucesso!");
       
-      // Redireciona baseado no tipo de usuário
       if (result.adm) {
-        window.location.href = "./inicio.hmtl";
+        window.location.href = "/tcc/unif/pages/painelControle.html";
       } else {
-        window.location.href = "./inicio.html";
+        window.location.href = "/tcc/unif/pages/inicio.html";
       }
     } else {
-      // Mostra erro específico
-      if (result.error === 'usernotfound') {
-        document.getElementById("emailNaoCadastrado").style.display = "block";
-      } else if (result.error === 'wrongpassword') {
-        document.getElementById("senhaIncorreta").style.display = "block";
-      } else if (result.error === 'emptyfields') {
-        alert('Por favor, preencha todos os campos.');
-      } else {
-        alert('Erro: ' + result.message);
-      }
+      console.log('❌ Login falhou:', result.error);
+      // ... resto do código de erro
     }
   } catch (error) {
-    console.error('Erro:', error);
-    alert('Erro ao conectar com o servidor.');
+    console.error('💥 Erro completo:', error);
+    console.error('🔗 Stack trace:', error.stack);
+    alert('Erro ao conectar com o servidor: ' + error.message);
   }
 }
 
