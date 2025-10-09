@@ -1,13 +1,21 @@
+// scripts/loadComponents.js
 document.addEventListener('DOMContentLoaded', function() {
-    const sidebar = document.querySelector('.sidebar');
-    
-    // Exemplo: recolher/expandir ao clicar no cabeçalho
-    document.querySelector('.sidebar-header').addEventListener('click', function() {
-        sidebar.classList.toggle('collapsed');
-    });
-    
-    // Ou recolher em telas pequenas
-    if (window.innerWidth < 768) {
-        sidebar.classList.add('collapsed');
-    }
-});
+    // Carregar sidebar
+    fetch('components/sidebar.html')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Sidebar não encontrada');
+        }
+        return response.text();
+      })
+      .then(data => {
+        // Insere a sidebar no container
+        const container = document.querySelector('.container');
+        if (container) {
+          container.insertAdjacentHTML('afterbegin', data);
+        }
+      })
+      .catch(error => {
+        console.error('Erro ao carregar sidebar:', error);
+      });
+  });
