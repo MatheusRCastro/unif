@@ -1,8 +1,8 @@
 <?php
 // conexao.php - CORRIGIDO
-define('HOST', '3.140.238.20');
-define('USER', 'tcc_unif');
-define('PASSWORD', 'cfN610+');
+define('HOST', 'localhost');
+define('USER', 'root');
+define('PASSWORD', '');
 define('DB', 'unif_db');
 
 // Criar um objeto de conexão
