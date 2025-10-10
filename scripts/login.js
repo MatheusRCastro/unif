@@ -97,7 +97,7 @@ async function fazerLogin() {
   try {
     console.log('📤 Enviando dados para PHP...');
     
-    const response = await fetch('/tcc/unif/pages/php/login.php', {
+    const response = await fetch('/php/login.php', {
       method: 'POST',
       body: formData
     });
@@ -122,9 +122,9 @@ async function fazerLogin() {
       alert("✅ Login realizado com sucesso!");
       
       if (result.adm) {
-        window.location.href = "/tcc/unif/pages/painelControle.html";
+        window.location.href = "/pages/painelControle.html";
       } else {
-        window.location.href = "/tcc/unif/pages/inicio.html";
+        window.location.href = "/pages/inicio.html";
       }
     } else {
       console.log('❌ Login falhou:', result.error);
