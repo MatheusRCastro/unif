@@ -19,18 +19,18 @@
 
     <!-- Formulário de Login -->
     <div class="formulario">
-      <h2>Entrar na sua conta :</h2>
-      <form id="loginForm">
+      <h2>Entrar na sua conta:</h2>
+
+      <!-- Form tradicional -->
+      <form id="loginForm" action="php/login.php" method="POST">
         <!-- Campo Email/CPF -->
         <input type="text" id="email" name="email" placeholder="E-mail ou CPF" onblur="confereCamposEmail()">
         <span id="emailVazio" class="erro">⚠️ Preencha o campo de e-mail</span>
         <span id="emailInvalido" class="erro">⚠️ E-mail ou CPF inválido</span>
-        <span id="emailNaoCadastrado" class="erro">⚠️ E-mail não cadastrado</span>
 
         <!-- Campo Senha -->
         <input type="password" id="senha" name="senha" placeholder="Senha" onblur="confereCamposSenha()">
         <span id="senhaVazia" class="erro">⚠️ Preencha o campo de senha</span>
-        <span id="senhaIncorreta" class="erro">⚠️ Senha incorreta</span>
 
         <!-- Recuperar senha -->
         <p class="recuperar">
@@ -43,7 +43,7 @@
         <!-- Links extras -->
         <p class="links">
           Já tem conta? <a href="#">Login</a>. <br>
-          Não tem conta? <a href="#">Cadastrar</a>.
+          Não tem conta? <a href="cadastrounif.html">Cadastrar</a>.
         </p>
       </form>
     </div>

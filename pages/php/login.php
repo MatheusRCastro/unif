@@ -1,41 +1,23 @@
 <?php
+session_start();
+
 // ✅ ATIVA ERROS TEMPORARIAMENTE para debug
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-session_start();
-header('Content-Type: application/json');
-
 // ✅ VERIFICA SE O ARQUIVO DE CONEXÃO EXISTE
 $conexao_path = 'conexao.php';
 if (!file_exists($conexao_path)) {
-    echo json_encode([
-        'success' => false, 
-        'error' => 'file_not_found',
-        'message' => 'Arquivo conexao.php não encontrado'
-    ]);
+    header("Location: ../login.html?erro=database_error");
     exit();
 }
 
 require_once $conexao_path;
 
 // Verificação de conexão
-if (!$conn) {
-    echo json_encode([
-        'success' => false, 
-        'error' => 'database_error',
-        'message' => 'Conexão não estabelecida - variável $conn é nula'
-    ]);
-    exit();
-}
-
-if ($conn->connect_error) {
-    echo json_encode([
-        'success' => false, 
-        'error' => 'database_error',
-        'message' => 'Erro de conexão: ' . $conn->connect_error
-    ]);
+if (!$conn || $conn->connect_error) {
+    header("Location: ../login.html?erro=database_error");
     exit();
 }
 
@@ -44,21 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $senha = $_POST['senha'] ?? '';
     
     if (empty($email_cpf) || empty($senha)) {
-        echo json_encode(['success' => false, 'error' => 'emptyfields']);
+        header("Location: ../login.html?erro=campos_vazios");
         exit();
     }
     
     try {
-        // ✅ DEBUG - REMOVA ESTAS 3 LINHAS DEPOIS
-        echo json_encode([
-            'success' => true,
-            'debug' => '✅ Chegou até a consulta SQL - REMOVER ESTAS LINHAS',
-            'email_cpf' => $email_cpf
-        ]);
-        exit();
-        // ✅ FIM DO DEBUG - REMOVER ATÉ AQUI
-        
-        // ✅ CONSULTA REAL (atualmente comentada para debug)
+        // ✅ CONSULTA REAL no banco
         $sql = "SELECT * FROM usuario WHERE (email = ? OR cpf = ?) LIMIT 1";
         $stmt = $conn->prepare($sql);
         
@@ -84,29 +57,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['email'] = $usuario['email'];
                 $_SESSION['adm'] = $usuario['adm'];
                 
-                echo json_encode([
-                    'success' => true, 
-                    'adm' => $usuario['adm'],
-                    'nome' => $usuario['nome']
-                ]);
+                // Redireciona conforme o tipo de usuário
+                if ($usuario['adm']) {
+                    header("Location: ../painelControle.html");
+                } else {
+                    header("Location: ../inicio.html");
+                }
+                exit();
             } else {
-                echo json_encode(['success' => false, 'error' => 'wrongpassword']);
+                header("Location: ../login.html?erro=senha_incorreta");
+                exit();
             }
         } else {
-            echo json_encode(['success' => false, 'error' => 'usernotfound']);
+            header("Location: ../login.html?erro=email_nao_encontrado");
+            exit();
         }
         
         $stmt->close();
         $conn->close();
         
     } catch (Exception $e) {
-        echo json_encode([
-            'success' => false, 
-            'error' => 'exception',
-            'message' => 'Exceção: ' . $e->getMessage()
-        ]);
+        // Log do erro (opcional)
+        error_log("Erro no login: " . $e->getMessage());
+        header("Location: ../login.html?erro=database_error");
+        exit();
     }
 } else {
-    echo json_encode(['success' => false, 'message' => 'Método não permitido']);
+    header("Location: ../login.html?erro=metodo_nao_permitido");
+    exit();
 }
 ?>
