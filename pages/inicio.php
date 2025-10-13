@@ -1,3 +1,7 @@
+<?php
+  session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -16,6 +20,12 @@
 </head>
 
 <body>
+
+  <?php
+  //verifica se foi iniciada a seção do usuário
+  if (isset($_SESSION["cpf"])) {
+  ?>
+
   <div class="container">
 
     <!-- Sidebar -->
@@ -26,10 +36,10 @@
 
       <ul class="sidebar-menu">
         <li data-tooltip="Início">
-          <a href="inicio.html"><i class="fas fa-home"></i> <span>Início</span></a>
+          <a href="inicio.php"><i class="fas fa-home"></i> <span>Início</span></a>
         </li>
         <li data-tooltip="Perfil">
-          <a href="perfil.html"><i class="fas fa-user"></i> <span>Perfil</span></a>
+          <a href="perfil.php"><i class="fas fa-user"></i> <span>Perfil</span></a>
         </li>
         <li data-tooltip="Mensagens">
           <a href="mensagens.html"><i class="fas fa-envelope"></i> <span>Mensagens</span></a>
@@ -59,6 +69,19 @@
     </main>
 
   </div>
+
+  <?php
+  } else {
+      echo "Usuário não autenticado!";
+  ?>
+      <a href="login.html" class="erro-php">Se identifique aqui</a>
+  <?php
+
+  }
+
+  ?>
+
+  
 </body>
 
 </html>

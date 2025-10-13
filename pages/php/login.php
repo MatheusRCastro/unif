@@ -56,12 +56,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['nome'] = $usuario['nome'];
                 $_SESSION['email'] = $usuario['email'];
                 $_SESSION['adm'] = $usuario['adm'];
-                
+                $_SESSION['telefone'] = $usuario['telefone'];
+                $_SESSION['instituicao'] = $usuario['instituicao'];
+
                 // Redireciona conforme o tipo de usuário
                 if ($usuario['adm']) {
-                    header("Location: ../painelControle.html");
+                    header("Location: ../painelControle.php");
                 } else {
-                    header("Location: ../inicio.html");
+                    header("Location: ../inicio.php");
                 }
                 exit();
             } else {
