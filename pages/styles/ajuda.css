@@ -1,100 +1,126 @@
-body {
-    margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: linear-gradient(135deg, #006837, #00b050);
-    min-height: 100vh;
-  }
-  
-  .logo-box {
-    position: absolute;
-    top: 30px;
-    left: 50px;
-  }
-  
-  .logo {
-    width: 160px;
-  }
-  
-  .help-box {
-    background-color: #fff;
-    width: 70%;
-    max-width: 800px;
-    margin: 140px auto;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-    padding: 40px;
-  }
-  
-  .help-box h2 {
-    color: #006837;
-    margin-bottom: 10px;
-    border-bottom: 2px solid #00b050;
-    padding-bottom: 10px;
-  }
-  
-  .intro {
-    color: #333;
-    margin-bottom: 25px;
-  }
-  
-  .input-group {
-    display: flex;
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Layout principal */
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8em auto;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  padding: 20px;
+}
+
+/* Card de ajuda */
+.help-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 50px;
+  width: 800px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.help-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.help-card h2 {
+  color: #006837;
+  margin-bottom: 10px;
+  border-bottom: 2px solid #00b050;
+  padding-bottom: 8px;
+  font-size: 24px;
+}
+
+.help-card .intro {
+  color: #444;
+  margin-bottom: 30px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Campos */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  font-weight: bold;
+  color: #006837;
+  margin-bottom: 5px;
+}
+
+.input-group input,
+.input-group textarea {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  resize: vertical;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: #00b050;
+  box-shadow: 0 0 5px #00b05060;
+}
+
+/* Botões */
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.send-btn,
+.clear-btn {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s ease;
+}
+
+.send-btn {
+  background-color: #00b050;
+  color: white;
+}
+
+.clear-btn {
+  background-color: #999;
+  color: white;
+}
+
+.send-btn:hover {
+  background-color: #00913f;
+}
+
+.clear-btn:hover {
+  background-color: #777;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .container {
     flex-direction: column;
-    margin-bottom: 20px;
+    margin: 4em auto;
   }
-  
-  .input-group label {
-    font-weight: bold;
-    color: #006837;
-    margin-bottom: 5px;
+
+  .help-card {
+    width: 90%;
+    padding: 30px;
   }
-  
-  .input-group input,
-  .input-group textarea {
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 15px;
-    resize: vertical;
-  }
-  
-  .input-group input:focus,
-  .input-group textarea:focus {
-    outline: none;
-    border-color: #00b050;
-    box-shadow: 0 0 5px #00b05060;
-  }
-  
-  .button-group {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-  }
-  
-  .send-btn,
-  .clear-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  
-  .send-btn {
-    background-color: #00b050;
-    color: white;
-  }
-  
-  .clear-btn {
-    background-color: #999;
-    color: white;
-  }
-  
-  .send-btn:hover {
-    background-color: #00913f;
-  }
-  
-  .clear-btn:hover {
-    background-color: #777;
-  }
-  
+}
