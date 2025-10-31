@@ -1,69 +1,135 @@
-body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f4f4f4;
+/* ===== OVERRIDES E ESTILOS ESPECÍFICOS PARA INSCRIÇÃO ===== */
+
+/* Container principal - override do background */
+.container-sidebar {
+  background: linear-gradient(135deg, #006837, #00b050);
+}
+
+/* Sidebar - mantém do global, apenas ajustes específicos se necessário */
+.sidebar {
+  /* Estilos específicos se precisar sobrescrever algo */
+}
+
+/* Conteúdo principal - override para remover background duplicado */
+.main-content {
+  background: transparent !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  width: 100%;
+}
+
+/* Container do formulário */
+.container-form {
+  background: #fff;
+  border-radius: 15px;
+  padding: 30px;
+  width: 400px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #006837;
+  font-size: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.field label {
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #333;
+  font-weight: 500;
+}
+
+.field input {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: #00b050;
+  box-shadow: 0 0 0 2px rgba(0, 176, 80, 0.1);
+}
+
+/* Botões */
+.buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.btn {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+  min-width: 120px;
+}
+
+.btn.enviar {
+  background-color: #00b050;
+  color: #fff;
+}
+
+.btn.enviar:hover {
+  background-color: #00913f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Animação */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateY(20px);
+  }
+  to {
+      opacity: 1;
+      transform: translateY(0);
+  }
+}
+
+/* Responsividade específica para esta tela */
+@media (max-width: 768px) {
+  .container-form {
+      width: 90%;
+      max-width: 400px;
+      margin: 20px;
+      padding: 20px;
   }
   
-  .container {
-    background: #fff;
-    border-radius: 15px;
-    padding: 30px;
-    width: 400px;
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+  .main-content {
+      padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container-form {
+      padding: 15px;
   }
   
   h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
-  }
-  
-  .field {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
-  }
-  
-  .field label {
-    font-size: 14px;
-    margin-bottom: 5px;
-    color: #333;
-  }
-  
-  .field input {
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  }
-  
-  .buttons {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
+      font-size: 1.3rem;
   }
   
   .btn {
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: bold;
-    border: none;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: 0.3s;
+      min-width: 100px;
+      padding: 8px 16px;
   }
-  
-  .btn.enviar {
-    background-color: #2ecc71;
-    color: #fff;
-  }
-  
-  .btn.enviar:hover {
-    background-color: #27ae60;
-  }
-  
+}
