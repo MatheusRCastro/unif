@@ -63,7 +63,7 @@
         <img id="imagem" src="images/unif.png" alt="logo da unif" />
 
         <div class="contain">
-          <a href="eventos.html" id="ajudaCor" style="font-weight: bold">EDIÇÕES</a>
+          <a href="eventos.php" id="ajudaCor" style="font-weight: bold">EDIÇÕES</a>
         </div>
       </div>
     </main>

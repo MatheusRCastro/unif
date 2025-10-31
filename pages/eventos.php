@@ -1,0 +1,99 @@
+<?php
+session_start();
+?>
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>UNIF - Eventos</title>
+
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/eventos.css">
+    <script src="scripts/sidebar.js" defer></script>
+</head>
+
+<body>
+
+    <?php
+    //verifica se foi iniciada a seção do usuário
+    if (isset($_SESSION["cpf"])) {
+    ?>
+
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+
+        <div class="container-sidebar">
+            <!-- Sidebar -->
+            <nav class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Menu</h2>
+                </div>
+                <ul class="sidebar-menu">
+                    <li data-tooltip="Início">
+                        <a href="inicio.html"><i class="fas fa-home"></i> <span>Início</span></a>
+                    </li>
+                    <li data-tooltip="Perfil">
+                        <a href="perfil.html"><i class="fas fa-user"></i> <span>Perfil</span></a>
+                    </li>
+                    <li data-tooltip="Mensagens">
+                        <a href="mensagens.html"><i class="fas fa-envelope"></i> <span>Mensagens</span></a>
+                    </li>
+                    <li data-tooltip="Configurações">
+                        <a href="#"><i class="fas fa-cog"></i> <span>Configurações</span></a>
+                    </li>
+                    <li data-tooltip="Ajuda">
+                        <a href="ajuda.html"><i class="fas fa-question-circle"></i> <span>Ajuda</span></a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Conteúdo Principal -->
+            <main class="main-content">
+                <div class="container">
+                    <div class="cards">
+                        <div class="card">
+                            <p><strong>UNIF: 2023</strong><br>
+                                Evento <strong>concluído.</strong><br>
+                                <a href="#">Confira como foi o evento !</a>
+                            </p>
+                        </div>
+
+                        <div class="card">
+                            <p><strong>UNIF: 2024</strong><br>
+                                Evento <strong>concluído.</strong><br>
+                                <a href="#">Confira como foi o evento !</a>
+                            </p>
+                        </div>
+
+                        <div class="card">
+                            <p><strong>UNIF: 2025</strong><br>
+                                Veja o <strong>andamento</strong> do evento.<br>
+                                <a href="participacao.html">Participe ou confira o andamento do evento !</a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <img style="height: 500px;" src="images/unif.png" alt="Logo UNIF" class="logo">
+
+                </div>
+        </div>
+        </main>
+        </div>
+
+    <?php
+    } else {
+        echo "Usuário não autenticado!";
+    ?>
+        <a href="login.html" class="erro-php">Se identifique aqui</a>
+    <?php
+
+    }
+
+    ?>
+
+</body>
+
+</html>

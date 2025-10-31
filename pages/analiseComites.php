@@ -1,0 +1,75 @@
+<?php
+session_start()
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles/analiseComites.css">
+  <link rel="stylesheet" href="styles/global.css">
+  <title>Análise Comitê</title>
+</head>
+
+<body>
+
+  <?php
+  if (isset($_SESSION["cpf"])) {
+    if (isset($_SESSION["adm"]) == "true") {
+  ?>
+
+      <div class="logo">
+        <img src="images/unif.png" alt="Logo UNIF">
+      </div>
+
+      <div class="container">
+        <div class="card">
+          <h2>Análise dos comitês</h2>
+
+          <!-- Diretores lado a lado -->
+          <div class="field-row">
+            <div class="field">Diretor 1: <strong>Nome do Diretor</strong></div>
+            <div class="field">Diretor X: <strong>Nome do Diretor</strong></div>
+          </div>
+
+          <div class="field">Tema: <strong>Título do Tema</strong></div>
+          <div class="field">Tipo: <strong>Modelo ONU</strong></div>
+
+          <!-- Data e número de representações lado a lado -->
+          <div class="field-row">
+            <div class="field">Data histórica: <strong>1945</strong></div>
+            <div class="field">Número de representações: <strong>20</strong></div>
+          </div>
+
+          <div class="field large">Descrição: <br> Texto explicando o comitê...</div>
+
+          <div class="buttons">
+            <button class="btn aprovar">APROVAR</button>
+            <button class="btn reprovar">REPROVAR</button>
+          </div>
+
+          <div class="nextBefore">
+            <button class="prev"></button>
+            <button class="next"></button>
+          </div>
+        </div>
+      </div>
+
+    <?php
+    } else {
+      echo "Usuário não autorizado!";
+    }
+  } else {
+    echo "Usuário não autenticado!";
+    ?>
+
+    <a href="login.php" class="erro-php">Se identifique aqui</a>
+
+  <?php
+  }
+  ?>
+</body>
+
+</html>

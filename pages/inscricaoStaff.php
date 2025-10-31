@@ -1,3 +1,7 @@
+<?php
+  session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -10,6 +14,13 @@
 </head>
 
 <body>
+
+  <?php
+  //verifica se foi iniciada a seção do usuário
+  if (isset($_SESSION["cpf"])) {
+  ?>
+
+
   <div class="container">
     <!-- Logo -->
     <div class="logo">
@@ -26,6 +37,17 @@
       </form>
     </div>
   </div>
+
+  <?php
+} else {
+    echo "Usuário não autenticado!";
+?>
+  <a href="login.html" class="erro-php">Se identifique aqui</a>
+  <?php
+
+}
+
+?>
 </body>
 
 </html>

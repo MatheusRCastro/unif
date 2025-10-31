@@ -58,6 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['adm'] = $usuario['adm'];
                 $_SESSION['telefone'] = $usuario['telefone'];
                 $_SESSION['instituicao'] = $usuario['instituicao'];
+                $_SESSION['professor'] = $usuario['professor'];
 
                 // Redireciona conforme o tipo de usuário
                 if ($usuario['adm']) {

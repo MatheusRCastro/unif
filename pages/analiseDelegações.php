@@ -1,3 +1,7 @@
+<?php
+    session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -9,6 +13,12 @@
 </head>
 
 <body>
+
+    <?php
+  if (isset($_SESSION["cpf"])) {
+    if (isset($_SESSION["adm"]) == "true") {
+  ?>
+
     <div class="delegacoes-container">
         <div class="delegacoes-logo">
             <img src="images/unif.png" alt="Logo UNIF">
@@ -39,6 +49,21 @@
 
 
     </div>
+
+    <?php
+    } else {
+      echo "Usuário não autorizado!";
+    }
+  } else {
+    echo "Usuário não autenticado!";
+    ?>
+
+    <a href="login.php" class="erro-php">Se identifique aqui</a>
+
+  <?php
+  }
+  ?>
+
 </body>
 
 </html>

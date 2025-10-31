@@ -1,3 +1,7 @@
+<?php
+  session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -11,8 +15,21 @@
 </head>
 
 <body>
+<<<<<<< HEAD:pages/mensagens.html
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+=======
+
+  <?php
+  //verifica se foi iniciada a seção do usuário
+  if (isset($_SESSION["cpf"])) {
+  ?>
+
+  <div class="background">
+    <div class="logo-box">
+      <img src="images/unif.png" alt="Logo UNIF" class="logo">
+    </div>
+>>>>>>> 8e08e1d (verificação de sessions concluida):pages/mensagens.php
 
   <div class="container-sidebar">
     <!-- Sidebar -->
@@ -85,6 +102,17 @@
       </div>
     </main>
   </div>
+
+  <?php
+} else {
+    echo "Usuário não autenticado!";
+?>
+  <a href="login.html" class="erro-php">Se identifique aqui</a>
+  <?php
+
+}
+
+?>
 </body>
 
 </html>

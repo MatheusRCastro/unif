@@ -1,3 +1,7 @@
+<?php
+  session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -10,6 +14,12 @@
 </head>
 
 <body class="body">
+
+    <?php
+  //verifica se foi iniciada a seção do usuário
+  if (isset($_SESSION["cpf"])) {
+  ?>
+
     <div class="usavel">
         <h1 class="text"> Como deseja participar da UNIF XXXX?</h1>
 
@@ -45,6 +55,18 @@
             e administrativos que possam surgir, permitindo que a simulaçãoocorra <br> de forma fluida e organizada.
         </p>
     </div>
+
+    <?php
+  } else {
+      echo "Usuário não autenticado!";
+  ?>
+      <a href="login.html" class="erro-php">Se identifique aqui</a>
+  <?php
+
+  }
+
+  ?>
+
 </body>
 
 </html>
