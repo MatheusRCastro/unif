@@ -1,17 +1,27 @@
+<?php
+    session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="/./styles/global.css">
-    <link rel="stylesheet" href="/./styles/analiseDelegaçoes.css">
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/analiseDelegaçoes.css">
     <title>Análise das delegações</title>
 </head>
 
 <body>
+
+    <?php
+  if (isset($_SESSION["cpf"])) {
+    if (isset($_SESSION["adm"]) == "true") {
+  ?>
+
     <div class="delegacoes-container">
         <div class="delegacoes-logo">
-            <img src="/./images/unif.png" alt="Logo UNIF">
+            <img src="images/unif.png" alt="Logo UNIF">
         </div>
 
         <div class="form-container">
@@ -39,6 +49,21 @@
 
 
     </div>
+
+    <?php
+    } else {
+      echo "Usuário não autorizado!";
+    }
+  } else {
+    echo "Usuário não autenticado!";
+    ?>
+
+    <a href="login.php" class="erro-php">Se identifique aqui</a>
+
+  <?php
+  }
+  ?>
+
 </body>
 
 </html>

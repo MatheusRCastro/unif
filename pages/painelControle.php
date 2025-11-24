@@ -1,0 +1,87 @@
+<?php
+session_start()
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel UNIF</title>
+  <link rel="stylesheet" href="styles/global.css">
+  <link rel="stylesheet" href="styles/painelControle.css">
+  <script src="scripts/cadastrarUnif.js"></script>
+</head>
+
+<body>
+
+  <?php
+  if (isset($_SESSION["cpf"])) {
+    if (isset($_SESSION["adm"]) == "true") {
+  ?>
+
+      <div class="container">
+        <!-- Datas e Inscrições -->
+        <div class="box">
+          <h3>Datas e Inscrições</h3>
+          <div class="row"><span class="label">Data da UNIF</span><input type="text"></div>
+          <div class="row"><span class="label">Começo Inscrição de mesa</span><input type="text"></div>
+          <div class="row"><span class="label">Fim Inscrições de mesa</span><input type="text"></div>
+          <div class="row"><span class="label">Começo inscrição Staff</span><input type="text"></div>
+          <div class="row"><span class="label">Fim das Inscrições</span><input type="text"></div>
+          <div class="row"><span class="label">Começo das Inscrições</span><input type="text"></div>
+          <div class="row"><span class="label">Fim das Inscrições</span><input type="text"></div>
+        </div>
+
+        <!-- Números de inscritos -->
+        <div class="box">
+          <h3>Estatísticas</h3>
+          <div class="row"><span class="label">Número de inscritos</span><input type="text"></div>
+          <div class="row"><span class="label">Número de staffs inscritos</span><input type="text"></div>
+          <div class="row"><span class="label">Número de Mesas inscritas</span><input type="text"></div>
+        </div>
+
+        <!-- CPFs -->
+        <div class="box">
+          <h3>Secretários</h3>
+          <div class="row"><span class="label">CPF do sec. Geral</span><input type="text"></div>
+          <div class="row"><span class="label">CPF do sec. Acadêmico</span><input type="text"></div>
+          <div class="row"><span class="label">CPF do sec. de Relações Públicas</span><input type="text"></div>
+          <div class="row"><span class="label">CPF do sec. de Marketing</span><input type="text"></div>
+          <div class="row"><span class="label">CPF do sec. de Finanças</span><input type="text"></div>
+          <div class="row"><span class="label">CPF do sec. de Logística</span><input type="text"></div>
+          <div class="row"><span class="label">CPF do sec. Administrativo</span><input type="text"></div>
+        </div>
+
+        <!-- Botões -->
+        <div class="buttons">
+          <div class="col left">
+            <button class="btn">Criar UNIF</button>
+            <button class="btn">Avaliar Comitês</button>
+          </div>
+          <div class="col right">
+            <button class="btn">Avaliar pagamentos</button>
+            <span class="arrow">↓</span>
+            <button class="btn">Avaliar delegações</button>
+          </div>
+        </div>
+
+      </div>
+
+    <?php
+    } else {
+      echo "Usuário não autorizado!";
+    }
+  } else {
+    echo "Usuário não autenticado!";
+    ?>
+
+    <a href="login.php" class="erro-php">Se identifique aqui</a>
+
+  <?php
+  }
+  ?>
+</body>
+
+</html>

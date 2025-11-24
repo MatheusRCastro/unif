@@ -1,0 +1,55 @@
+<?php
+session_start()
+?>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscrição de Delegações</title>
+  <link rel="stylesheet" href="styles/criarDelegação.CSS">
+  <link rel="stylesheet" href="styles/global.css">
+</head>
+
+<body>
+
+  <?php
+  if (isset($_SESSION["cpf"])) {
+    if (isset($_SESSION["professor"]) == "true") {
+  ?>
+
+      <div class="container">
+        <h2>Inscrição de Delegações</h2>
+        <form>
+          <div class="field">
+            <label for="cpf">CPF do Responsável</label>
+            <input type="text" id="cpf" name="cpf" placeholder="Digite o CPF">
+          </div>
+          <div class="field">
+            <label for="escola">Nome da Escola</label>
+            <input type="text" id="escola" name="escola" placeholder="Digite o nome da escola">
+          </div>
+          <div class="buttons">
+            <button type="submit" class="btn enviar">Criar</button>
+          </div>
+        </form>
+      </div>
+
+    <?php
+    } else {
+      echo "Usuário não autorizado!";
+    }
+  } else {
+    echo "Usuário não autenticado!";
+    ?>
+
+    <a href="login.php" class="erro-php">Se identifique aqui</a>
+
+  <?php
+  }
+  ?>
+</body>
+
+</html>

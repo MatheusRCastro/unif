@@ -1,3 +1,7 @@
+<?php
+  session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
@@ -5,15 +9,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inscrição de Staff</title>
-  <link rel="stylesheet" href="/./styles/global.css">
-  <link rel="stylesheet" href="/./styles/inscricaoStaff.css">
+  <link rel="stylesheet" href="styles/global.css">
+  <link rel="stylesheet" href="styles/inscricaoStaff.css">
 </head>
 
 <body>
+
+  <?php
+  //verifica se foi iniciada a seção do usuário
+  if (isset($_SESSION["cpf"])) {
+  ?>
+
+
   <div class="container">
     <!-- Logo -->
     <div class="logo">
-      <img src="/./images/unif.png" alt="Logo UNIF">
+      <img src="images/unif.png" alt="Logo UNIF">
     </div>
 
     <!-- Formulário -->
@@ -26,6 +37,17 @@
       </form>
     </div>
   </div>
+
+  <?php
+} else {
+    echo "Usuário não autenticado!";
+?>
+  <a href="login.html" class="erro-php">Se identifique aqui</a>
+  <?php
+
+}
+
+?>
 </body>
 
 </html>

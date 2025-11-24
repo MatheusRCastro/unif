@@ -1,23 +1,33 @@
+<?php
+  session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/./styles/global.css">
-    <link rel="stylesheet" href="/./styles/participacao.css">
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/participacao.css">
     <title>inscriçao</title>
 </head>
 
 <body class="body">
+
+    <?php
+  //verifica se foi iniciada a seção do usuário
+  if (isset($_SESSION["cpf"])) {
+  ?>
+
     <div class="usavel">
         <h1 class="text"> Como deseja participar da UNIF XXXX?</h1>
 
-        <div> <button class="buttons">Delegado</button></div>
-        <div> <button class="buttons">Mesa diretora</button></div>
-        <div> <button class="buttons">Staff</button></div>
+        <div> <button class="buttons" onclick="window.location.href='entraComite.html'">Delegado</button></div>
+        <div> <button class="buttons" onclick="window.location.href='inscricaoMesa.html'">Mesa diretora</button></div>
+        <div> <button class="buttons" onclick="window.location.href='inscriçaoStaff.html'">Staff</button></div>
 
-        <img src="/./images/unif.png" alt="logo" id="imagem">
+        <img src="images/unif.png" alt="logo" id="imagem">
     </div>
 
     <div class="leitura">
@@ -45,6 +55,18 @@
             e administrativos que possam surgir, permitindo que a simulaçãoocorra <br> de forma fluida e organizada.
         </p>
     </div>
+
+    <?php
+  } else {
+      echo "Usuário não autenticado!";
+  ?>
+      <a href="login.html" class="erro-php">Se identifique aqui</a>
+  <?php
+
+  }
+
+  ?>
+
 </body>
 
 </html>
