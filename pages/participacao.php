@@ -23,9 +23,9 @@
     <div class="usavel">
         <h1 class="text"> Como deseja participar da UNIF XXXX?</h1>
 
-        <div> <button class="buttons" onclick="window.location.href='entraComite.html'">Delegado</button></div>
-        <div> <button class="buttons" onclick="window.location.href='inscricaoMesa.html'">Mesa diretora</button></div>
-        <div> <button class="buttons" onclick="window.location.href='inscriçaoStaff.html'">Staff</button></div>
+        <div> <button class="buttons" onclick="window.location.href='entraComite.php'">Delegado</button></div>
+        <div> <button class="buttons" onclick="window.location.href='inscricaoMesa.php'">Mesa diretora</button></div>
+        <div> <button class="buttons" onclick="window.location.href='inscriçaoStaff.php'">Staff</button></div>
 
         <img src="images/unif.png" alt="logo" id="imagem">
     </div>

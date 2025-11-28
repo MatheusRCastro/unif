@@ -33,19 +33,19 @@ session_start();
                 </div>
                 <ul class="sidebar-menu">
                     <li data-tooltip="Início">
-                        <a href="inicio.html"><i class="fas fa-home"></i> <span>Início</span></a>
+                        <a href="inicio.php"><i class="fas fa-home"></i> <span>Início</span></a>
                     </li>
                     <li data-tooltip="Perfil">
-                        <a href="perfil.html"><i class="fas fa-user"></i> <span>Perfil</span></a>
+                        <a href="perfil.php"><i class="fas fa-user"></i> <span>Perfil</span></a>
                     </li>
                     <li data-tooltip="Mensagens">
-                        <a href="mensagens.html"><i class="fas fa-envelope"></i> <span>Mensagens</span></a>
+                        <a href="mensagens.php"><i class="fas fa-envelope"></i> <span>Mensagens</span></a>
                     </li>
                     <li data-tooltip="Configurações">
                         <a href="#"><i class="fas fa-cog"></i> <span>Configurações</span></a>
                     </li>
                     <li data-tooltip="Ajuda">
-                        <a href="ajuda.html"><i class="fas fa-question-circle"></i> <span>Ajuda</span></a>
+                        <a href="ajuda.php"><i class="fas fa-question-circle"></i> <span>Ajuda</span></a>
                     </li>
                 </ul>
             </nav>
@@ -71,7 +71,7 @@ session_start();
                         <div class="card">
                             <p><strong>UNIF: 2025</strong><br>
                                 Veja o <strong>andamento</strong> do evento.<br>
-                                <a href="participacao.html">Participe ou confira o andamento do evento !</a>
+                                <a href="participacao.php">Participe ou confira o andamento do evento !</a>
                             </p>
                         </div>
                     </div>

@@ -65,7 +65,7 @@ body {
   color: #000;
 }
 
-.form-section input {
+.form-section input select{
   width: 100%;
   padding: 12px;
   margin: 8px 0;
@@ -75,7 +75,8 @@ body {
   transition: 0.3s;
 }
 
-.form-section input:focus {
+
+.form-section input:focus select:focus{
   border-color: #2ecc71;
   box-shadow: 0 0 8px rgba(46, 204, 113, 0.7);
   outline: none;
@@ -115,3 +116,4 @@ body {
   width: 90px;
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
 }
+

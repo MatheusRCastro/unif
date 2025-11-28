@@ -23,8 +23,8 @@
 
   <!-- Botões do topo -->
   <div class="tabs">
-    <button>Inscrever delegação</button>
-    <button>Inscrição individual</button>
+    <button onclick="window.location.href='#'">Inscrever delegação</button>
+    <button onclick="window.location.href='entraComite.php'">Inscrição individual</button>
   </div>
 
   <!-- Formulário -->

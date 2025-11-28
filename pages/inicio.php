@@ -42,13 +42,13 @@
           <a href="perfil.php"><i class="fas fa-user"></i> <span>Perfil</span></a>
         </li>
         <li data-tooltip="Mensagens">
-          <a href="mensagens.html"><i class="fas fa-envelope"></i> <span>Mensagens</span></a>
+          <a href="mensagens.php"><i class="fas fa-envelope"></i> <span>Mensagens</span></a>
         </li>
         <li data-tooltip="Configurações">
           <a href="#"><i class="fas fa-cog"></i> <span>Configurações</span></a>
         </li>
         <li data-tooltip="Ajuda">
-          <a href="ajuda.html"><i class="fas fa-question-circle"></i> <span>Ajuda</span></a>
+          <a href="ajuda.php"><i class="fas fa-question-circle"></i> <span>Ajuda</span></a>
         </li>
       </ul>
     </nav>
