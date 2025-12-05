@@ -1,24 +1,19 @@
 <?php
 session_start();
-header('Content-Type: application/json');
 
-// ✅ CONFIGURAÇÃO DE CONEXÃO
 $host = 'localhost:3307';
 $user = 'root';
 $password = '';
 $database = 'unif_db';
 
-// Conectar ao banco
 $conn = new mysqli($host, $user, $password, $database);
 
-// Verificar conexão
 if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'error' => 'database_error']);
+    echo "0:Erro de conexão com o banco";
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Coletar dados do formulário
     $cpf = $_POST['cpf'] ?? '';
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
@@ -29,19 +24,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $alergia = $_POST['alergia'] ?? '';
     $restricao_alimentar = $_POST['restricao_alimentar'] ?? '';
     $eh_professor = $_POST['eh_professor'] ?? 'false';
-    
-    // Campos opcionais do professor
-    $telefone_instituicao = $_POST['telefone_instituicao'] ?? '';
-    $email_instituicao = $_POST['email_instituicao'] ?? '';
 
-    // Validações básicas
+    // Validações
     if (empty($cpf) || empty($email) || empty($senha) || empty($telefone) || empty($instituicao)) {
-        echo json_encode(['success' => false, 'error' => 'campos_vazios']);
+        echo "0:Preencha todos os campos obrigatórios";
         exit();
     }
 
     try {
-        // Verificar se CPF já existe
+        // Verificar CPF
         $sql = "SELECT cpf FROM usuario WHERE cpf = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $cpf);
@@ -49,12 +40,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $result = $stmt->get_result();
         
         if ($result->num_rows > 0) {
-            echo json_encode(['success' => false, 'error' => 'cpf_existe']);
+            echo "0:CPF já cadastrado";
+            $stmt->close();
             exit();
         }
         $stmt->close();
 
-        // Verificar se email já existe
+        // Verificar email
         $sql = "SELECT email FROM usuario WHERE email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
@@ -62,17 +54,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $result = $stmt->get_result();
         
         if ($result->num_rows > 0) {
-            echo json_encode(['success' => false, 'error' => 'email_existe']);
+            echo "0:Email já cadastrado";
+            $stmt->close();
             exit();
         }
         $stmt->close();
 
-        // Processar opção alimentar para o banco
+        // Processar opção alimentar
         $restricao_final = '';
         if (!empty($restricao_alimentar)) {
             $restricao_final = $restricao_alimentar;
-        } else {
-            // Usar a opção do select se não tiver restrição específica
+        } elseif (!empty($opcao_alimentar)) {
             $opcoes_alimentares = [
                 'Oa1' => 'Veganismo',
                 'Oa2' => 'Vegetarianismo', 
@@ -81,10 +73,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $restricao_final = $opcoes_alimentares[$opcao_alimentar] ?? '';
         }
 
-        // Gerar um nome temporário (o usuário pode editar depois)
         $nome_temp = "Usuário " . substr($cpf, 0, 5);
 
-        // Inserir usuário no banco
+        // Inserir usuário
         $sql = "INSERT INTO usuario (cpf, nome, email, restricao_alimentar, alergia, telefone, senha, instituicao, adm) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)";
         
@@ -101,18 +92,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         );
 
         if ($stmt->execute()) {
-            echo json_encode(['success' => true, 'message' => 'Usuário cadastrado com sucesso']);
+            echo "1:Cadastro realizado com sucesso";
         } else {
-            echo json_encode(['success' => false, 'error' => 'Erro ao cadastrar: ' . $stmt->error]);
+            echo "0:Erro no cadastro: " . $stmt->error;
         }
 
         $stmt->close();
         $conn->close();
 
     } catch (Exception $e) {
-        echo json_encode(['success' => false, 'error' => 'exception', 'message' => $e->getMessage()]);
+        echo "0:Erro: " . $e->getMessage();
     }
 } else {
-    echo json_encode(['success' => false, 'error' => 'Método não permitido']);
+    echo "0:Método não permitido";
 }
 ?>

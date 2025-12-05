@@ -59,7 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['telefone'] = $usuario['telefone'];
                 $_SESSION['instituicao'] = $usuario['instituicao'];
                 $_SESSION['professor'] = $usuario['professor'];
-
+                $_SESSION['adm'] = $usuario['adm'];
+                $_SESSION['diretor'] = $usuario['diretor'];
                 // Redireciona conforme o tipo de usuário
                 if ($usuario['adm']) {
                     header("Location: ../painelControle.php");
