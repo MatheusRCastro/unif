@@ -1,52 +1,404 @@
-.text{
-    color: white;
-    margin-left: 1.5em;
-    margin-bottom: 3em;
-}
-
-.buttons{
+/* Reset e configurações gerais */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
   
-        border-radius: 5px;
-        color: black;
-        background-color: white;
-        width: 200px; /* Define a largura dos botões */
-        height: 50px; /* Define a altura dos botões */
-        font-size: 16px; /* Ajusta o tamanho da fonte */
-        padding: 10px; /* Adiciona espaço interno */
-        border-radius: 50px;
-        margin-left: 12.4em;
-        margin-bottom: 1em;
-}
-
-.buttons:hover{
-    color: rgb(55, 173, 55);
-}
-
-#imagem {
-    width: 600px;
-    margin-top: 2.5em;
-}
-
-.usavel{
-    float: left;
-}
-
-.leitura {
-    float: right;
-    margin-right: 15em;
-    margin-top: 6.5em;
-}
-.leitura, .leitura p, .leitura h3 {
-    color: white !important;
-}
-
-span{
-    margin-left: 0.7em;
-}
-
-.leitura p{
-    font-size: large;
-}
-
-
-
+  .page-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  
+  /* Cabeçalho da página */
+  .page-header {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    padding: 25px 30px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+  }
+  
+  .logo-small {
+    width: 80px;
+    height: auto;
+    filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  }
+  
+  .header-text h1 {
+    color: white;
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  
+  .header-text p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  
+  /* Layout do formulário */
+  .form-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+  }
+  
+  @media (max-width: 900px) {
+    .form-wrapper {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  /* Cards do formulário */
+  .form-card {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(10px);
+    border-radius: 10px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .form-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  }
+  
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(46, 204, 113, 0.4);
+  }
+  
+  .card-header i {
+    font-size: 1.3rem;
+    color: #2ecc71;
+    width: 24px;
+    text-align: center;
+  }
+  
+  .card-header h2 {
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+  
+  /* Grupos de input */
+  .input-group {
+    margin-bottom: 20px;
+  }
+  
+  .input-group:last-child {
+    margin-bottom: 0;
+  }
+  
+  .input-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+  
+  .input-group label i {
+    color: #2ecc71;
+    font-size: 1rem;
+    width: 18px;
+    text-align: center;
+  }
+  
+  .input-group input,
+  .input-group select,
+  .input-group textarea {
+    width: 100%;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    color: #333;
+    transition: all 0.2s ease;
+  }
+  
+  .input-group input:focus,
+  .input-group select:focus,
+  .input-group textarea:focus {
+    outline: none;
+    border-color: #2ecc71;
+    background: white;
+    box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+  }
+  
+  .input-group textarea {
+    resize: vertical;
+    min-height: 100px;
+    font-family: inherit;
+  }
+  
+  /* Layout em linha para campos menores */
+  .form-row {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .half-width {
+    flex: 1;
+  }
+  
+  /* Contador de caracteres */
+  .char-counter {
+    text-align: right;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    margin-top: 5px;
+  }
+  
+  /* Seção de radio buttons */
+  .radio-section {
+    margin-top: 10px;
+  }
+  
+  .radio-label {
+    display: block;
+    color: white;
+    font-weight: 500;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+  }
+  
+  .radio-buttons {
+    display: flex;
+    gap: 25px;
+  }
+  
+  .radio-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  
+  .radio-button input[type="radio"] {
+    display: none;
+  }
+  
+  .radio-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #2ecc71;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.2s ease;
+  }
+  
+  .radio-button input[type="radio"]:checked + .radio-custom::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: #2ecc71;
+    border-radius: 50%;
+  }
+  
+  .radio-text {
+    color: white;
+    font-size: 0.95rem;
+  }
+  
+  /* Nota informativa */
+  .form-note {
+    background: rgba(46, 204, 113, 0.1);
+    border: 1px solid rgba(46, 204, 113, 0.25);
+    border-radius: 6px;
+    padding: 12px 15px;
+    margin-top: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .form-note i {
+    color: #2ecc71;
+    font-size: 1rem;
+    margin-top: 2px;
+  }
+  
+  .form-note p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
+  /* Botões de ação */
+  .action-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 25px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .btn-back,
+  .btn-submit {
+    padding: 14px 30px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    min-width: 180px;
+  }
+  
+  .btn-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .btn-back:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+  }
+  
+  .btn-submit {
+    background: linear-gradient(to right, #2ecc71, #27ae60);
+    color: white;
+    box-shadow: 0 2px 10px rgba(46, 204, 113, 0.3);
+  }
+  
+  .btn-submit:hover {
+    background: linear-gradient(to right, #27ae60, #219653);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+  }
+  
+  /* Página de erro de autenticação */
+  .auth-error-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  
+  .error-card {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    max-width: 450px;
+    width: 100%;
+  }
+  
+  .error-card i {
+    font-size: 3rem;
+    color: #ff6b6b;
+    margin-bottom: 20px;
+  }
+  
+  .error-card h2 {
+    color: #ff6b6b;
+    margin-bottom: 15px;
+    font-size: 1.5rem;
+  }
+  
+  .error-card p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 25px;
+    line-height: 1.5;
+  }
+  
+  .btn-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(to right, #2ecc71, #27ae60);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-login:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+  }
+  
+  /* Responsividade */
+  @media (max-width: 768px) {
+    .page-wrapper {
+      padding: 15px;
+    }
+    
+    .page-header {
+      padding: 20px;
+    }
+    
+    .header-content {
+      flex-direction: column;
+      text-align: center;
+      gap: 15px;
+    }
+    
+    .header-text h1 {
+      font-size: 1.5rem;
+    }
+    
+    .form-card {
+      padding: 20px;
+    }
+    
+    .form-row {
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .action-buttons {
+      flex-direction: column;
+      padding: 20px;
+    }
+    
+    .btn-back,
+    .btn-submit {
+      width: 100%;
+      min-width: auto;
+    }
+    
+    .radio-buttons {
+      flex-direction: column;
+      gap: 15px;
+    }
+  }
