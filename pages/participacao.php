@@ -49,7 +49,7 @@
                 </div>
 
                 <div class="role-card">
-                    <button class="role-btn" onclick="window.location.href='inscricaoStaff.php'">
+                    <button class="role-btn" onclick="window.location.href='inscriçaoStaff.php'">
                         <div class="role-icon">👨‍💻</div>
                         <span class="role-title">Staff</span>
                     </button>
