@@ -302,7 +302,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marcar_presenca'])) {
 
     <?php
     if (isset($_SESSION["cpf"])) {
-        if ((isset($_SESSION["adm"]) && $_SESSION["adm"] == true) || (isset($_SESSION["diretor"]) && $_SESSION["diretor"] == true)) {
+        if ((isset($_SESSION["adm"]) && $_SESSION["adm"] == true) || 
+            (isset($_SESSION["diretor_aprovado"]) && $_SESSION["diretor_aprovado"] == true)) {
 
             $comites = array();
             $delegados = array();

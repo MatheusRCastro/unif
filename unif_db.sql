@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Tempo de geração: 27/11/2025 às 20:02
+-- Tempo de geração: 08/12/2025 às 12:22
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -77,6 +77,39 @@ CREATE TABLE `delegado` (
 -- --------------------------------------------------------
 
 --
+-- Estrutura para tabela `diretor`
+--
+
+CREATE TABLE `diretor` (
+  `id_diretor` int(11) NOT NULL,
+  `cpf` varchar(14) NOT NULL,
+  `id_comite` int(11) NOT NULL,
+  `aprovado` tinyint(1) DEFAULT 0,
+  `data_inscricao` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura para tabela `presenca_delegado`
+--
+
+CREATE TABLE `presenca_delegado` (
+  `id_presenca` int(11) NOT NULL,
+  `cpf_delegado` varchar(14) NOT NULL,
+  `id_unif` int(11) NOT NULL,
+  `id_comite` int(11) NOT NULL,
+  `sabado_manha_1` tinyint(1) DEFAULT 0,
+  `sabado_manha_2` tinyint(1) DEFAULT 0,
+  `sabado_tarde_1` tinyint(1) DEFAULT 0,
+  `sabado_tarde_2` tinyint(1) DEFAULT 0,
+  `domingo_manha_1` tinyint(1) DEFAULT 0,
+  `domingo_manha_2` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Estrutura para tabela `secretario`
 --
 
@@ -96,7 +129,8 @@ CREATE TABLE `staff` (
   `cpf` varchar(14) NOT NULL,
   `id_unif` int(11) DEFAULT NULL,
   `justificativa` varchar(500) DEFAULT NULL,
-  `inscricao_aprovada` tinyint(1) DEFAULT 0
+  `inscricao_aprovada` tinyint(1) DEFAULT 0,
+  `aprovado` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -185,6 +219,21 @@ ALTER TABLE `delegado`
   ADD KEY `id_comite` (`id_comite`);
 
 --
+-- Índices de tabela `diretor`
+--
+ALTER TABLE `diretor`
+  ADD PRIMARY KEY (`id_diretor`),
+  ADD UNIQUE KEY `unique_diretor_comite` (`cpf`,`id_comite`),
+  ADD KEY `fk_diretor_comite` (`id_comite`);
+
+--
+-- Índices de tabela `presenca_delegado`
+--
+ALTER TABLE `presenca_delegado`
+  ADD PRIMARY KEY (`id_presenca`),
+  ADD UNIQUE KEY `unique_presenca` (`cpf_delegado`,`id_unif`,`id_comite`);
+
+--
 -- Índices de tabela `secretario`
 --
 ALTER TABLE `secretario`
@@ -227,6 +276,18 @@ ALTER TABLE `delegacao`
   MODIFY `id_delegacao` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de tabela `diretor`
+--
+ALTER TABLE `diretor`
+  MODIFY `id_diretor` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de tabela `presenca_delegado`
+--
+ALTER TABLE `presenca_delegado`
+  MODIFY `id_presenca` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de tabela `unif`
 --
 ALTER TABLE `unif`
@@ -259,6 +320,13 @@ ALTER TABLE `delegacao`
 ALTER TABLE `delegado`
   ADD CONSTRAINT `delegado_ibfk_1` FOREIGN KEY (`id_comite`) REFERENCES `comite` (`id_comite`),
   ADD CONSTRAINT `delegado_ibfk_2` FOREIGN KEY (`cpf`) REFERENCES `usuario` (`cpf`);
+
+--
+-- Restrições para tabelas `diretor`
+--
+ALTER TABLE `diretor`
+  ADD CONSTRAINT `fk_diretor_comite` FOREIGN KEY (`id_comite`) REFERENCES `comite` (`id_comite`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_diretor_usuario` FOREIGN KEY (`cpf`) REFERENCES `usuario` (`cpf`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Restrições para tabelas `secretario`

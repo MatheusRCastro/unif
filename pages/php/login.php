@@ -60,8 +60,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['instituicao'] = $usuario['instituicao'];
                 $_SESSION['professor'] = $usuario['professor'];
                 $_SESSION['adm'] = $usuario['adm'];
-                $_SESSION['diretor'] = $usuario['diretor'];
-                // Redireciona conforme o tipo de usuário
+                
+                // ✅ VERIFICA SE É DIRETOR DE COMITÊ APROVADO
+                if (!$usuario['adm']) { // Só verifica se não for admin
+                    $cpf = $usuario['cpf'];
+                    
+                    // Consulta para verificar se o usuário é diretor aprovado de algum comitê
+                    $sql_diretor = "SELECT d.*, c.comite_aprovado 
+                                   FROM diretor d 
+                                   INNER JOIN comite c ON d.id_comite = c.id_comite 
+                                   WHERE d.cpf = ? AND d.aprovado = 1 AND c.comite_aprovado = 1";
+                    $stmt_diretor = $conn->prepare($sql_diretor);
+                    
+                    if ($stmt_diretor) {
+                        $stmt_diretor->bind_param("s", $cpf);
+                        $stmt_diretor->execute();
+                        $result_diretor = $stmt_diretor->get_result();
+                        
+                        if ($result_diretor->num_rows > 0) {
+                            $diretor_info = $result_diretor->fetch_assoc();
+                            $_SESSION['id_comite'] = $diretor_info['id_comite'];
+                            $_SESSION['id_diretor'] = $diretor_info['id_diretor'];
+                            $_SESSION['diretor_aprovado'] = true;
+                            
+                            // Redireciona para a página de chamada
+                            header("Location: ../chamada.php");
+                            $stmt_diretor->close();
+                            $stmt->close();
+                            $conn->close();
+                            exit();
+                        }
+                        $stmt_diretor->close();
+                    }
+                }
+                
+                // Redireciona conforme o tipo de usuário (se não for diretor aprovado)
                 if ($usuario['adm']) {
                     header("Location: ../painelControle.php");
                 } else {

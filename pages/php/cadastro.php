@@ -1,14 +1,9 @@
 <?php
 session_start();
+require_once 'conexao.php'; // Inclui o arquivo de conexão
 
-$host = 'localhost:3307';
-$user = 'root';
-$password = '';
-$database = 'unif_db';
-
-$conn = new mysqli($host, $user, $password, $database);
-
-if ($conn->connect_error) {
+// Verificar se a conexão foi estabelecida
+if (!$conn || $conn->connect_error) {
     echo "0:Erro de conexão com o banco";
     exit();
 }
@@ -75,12 +70,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         $nome_temp = "Usuário " . substr($cpf, 0, 5);
 
+        // Processar campo professor
+        $professor_value = 0;
+        if ($eh_professor === 'true' || $eh_professor === true) {
+            $professor_value = 1;
+        }
+
         // Inserir usuário
-        $sql = "INSERT INTO usuario (cpf, nome, email, restricao_alimentar, alergia, telefone, senha, instituicao, adm) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)";
+        $sql = "INSERT INTO usuario (cpf, nome, email, restricao_alimentar, alergia, telefone, senha, instituicao, adm, professor) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)";
         
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssssss", 
+        $stmt->bind_param("ssssssssi", 
             $cpf, 
             $nome_temp, 
             $email, 
@@ -88,7 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $alergia, 
             $telefone, 
             $senha, 
-            $instituicao
+            $instituicao,
+            $professor_value
         );
 
         if ($stmt->execute()) {
@@ -98,7 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         $stmt->close();
-        $conn->close();
 
     } catch (Exception $e) {
         echo "0:Erro: " . $e->getMessage();
@@ -106,4 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
     echo "0:Método não permitido";
 }
+
+// Não fechar a conexão aqui, pois ela é gerenciada pelo arquivo conexao.php
 ?>

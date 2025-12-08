@@ -61,29 +61,30 @@ document.querySelector('form').addEventListener('submit', function(e) {
       <h2>CADASTRE SUA CONTA :</h2>
       <form id="cadastroForm">
         <div class="scrollable-form">
-          <input type="email" placeholder="E-mail" required>
-          <input type="text" placeholder="CPF" required>
+          <!-- Adicione name em todos os campos -->
+          <input type="email" name="email" placeholder="E-mail" required>
+          <input type="text" name="cpf" placeholder="CPF" required>
 
           <div class="password-container">
-            <input type="password" placeholder="Senha" required>
+            <input type="password" name="senha" placeholder="Senha" required>
           </div>
           <div class="password-container">
-            <input type="password" placeholder="Confirmar senha" required>
+            <input type="password" name="confirmar_senha" placeholder="Confirmar senha" required>
           </div>
 
-          <input type="text" placeholder="Número de telefone" required>
-          <input type="text" placeholder="Informe sua instituição" required>
-          <input type="text" placeholder="Faz uso de algum medicamento? (se não, deixar em branco)">
+          <input type="text" name="telefone" placeholder="Número de telefone" required>
+          <input type="text" name="instituicao" placeholder="Informe sua instituição" required>
+          <input type="text" name="medicamento" placeholder="Faz uso de algum medicamento? (se não, deixar em branco)">
 
           <label for="Oa">Selecione uma opção alimentar:</label>
-          <select id="Oa" name="Oa">
+          <select id="Oa" name="opcao_alimentar">
             <option value="Oa1">Veganismo</option>
             <option value="Oa2">Vegetarianismo</option>
             <option value="Oa3">Tradicional</option>
           </select>
 
-          <input type="text" placeholder="Tem alguma alergia? (se não, deixar em branco)">
-          <input type="text" placeholder="Tem alguma restrição alimentar? (se não, deixar em branco)">
+          <input type="text" name="alergia" placeholder="Tem alguma alergia? (se não, deixar em branco)">
+          <input type="text" name="restricao_alimentar" placeholder="Tem alguma restrição alimentar? (se não, deixar em branco)">
 
           <label>Você é um professor acompanhante?</label>
           <div class="radio-group">
@@ -91,9 +92,12 @@ document.querySelector('form').addEventListener('submit', function(e) {
             <button type="button" onclick="mostrarCampos(false)">Não</button>
           </div>
 
+          <!-- Campo hidden para enviar se é professor -->
+          <input type="hidden" name="eh_professor" id="eh_professor" value="false">
+
           <div id="camposProf">
-            <input type="text" placeholder="Informe o número de contato da sua instituição">
-            <input type="email" placeholder="Informe o e-mail de contato da sua instituição">
+            <input type="text" name="telefone_instituicao" placeholder="Informe o número de contato da sua instituição">
+            <input type="email" name="email_instituicao" placeholder="Informe o e-mail de contato da sua instituição">
           </div>
         </div>
 
