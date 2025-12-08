@@ -325,6 +325,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       margin-bottom: 20px;
       color: #bdc3c7;
     }
+
+    .representacoes-info {
+      background: #f0f7ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      border-left: 4px solid #3498db;
+    }
+
+    .representacoes-info h4 {
+      margin: 0 0 12px 0;
+      color: #34495e;
+      font-size: 1.1em;
+    }
   </style>
 </head>
 <body>
@@ -334,6 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_SESSION["adm"]) && $_SESSION["adm"] == true) {
       
       $comites = array();
+      $representacoes_por_comite = array(); // Nova variável para armazenar representações
       $filtro = $_GET['filtro'] ?? 'todos';
       $unif_atual = null;
       $id_unif = null;
@@ -347,7 +362,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $unif_atual = $result_unif->fetch_assoc();
           $id_unif = $unif_atual['id_unif'];
           
-          // Buscar comitês da UNIF atual
+          // Buscar comitês da UNIF atual (SEM a coluna representacao)
           $sql_comites = "
           SELECT 
               c.id_comite,
@@ -357,7 +372,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               c.num_delegados,
               c.descricao_comite,
               c.comite_aprovado,
-              c.representacao,
               u1.nome as diretor1,
               u2.nome as diretor2,
               u3.nome as diretor3,
@@ -382,6 +396,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           if ($result_comites && $result_comites->num_rows > 0) {
             while($row = $result_comites->fetch_assoc()) {
               $comites[] = $row;
+              
+              // Buscar representações para este comitê (se a tabela existir)
+              $sql_reps = "SELECT nome_representacao FROM representacao WHERE id_comite = ?";
+              $stmt_reps = $conn->prepare($sql_reps);
+              $stmt_reps->bind_param("i", $row['id_comite']);
+              $stmt_reps->execute();
+              $result_reps = $stmt_reps->get_result();
+              
+              $representacoes = array();
+              if ($result_reps && $result_reps->num_rows > 0) {
+                while($rep_row = $result_reps->fetch_assoc()) {
+                  $representacoes[] = $rep_row['nome_representacao'];
+                }
+              }
+              $stmt_reps->close();
+              
+              $representacoes_por_comite[$row['id_comite']] = $representacoes;
             }
           }
           $stmt->close();
@@ -444,6 +475,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           if ($filtro === 'aprovados' && $status !== 'aprovado') continue;
           if ($filtro === 'reprovados' && $status !== 'reprovado') continue;
           if ($filtro === 'pendentes' && $status !== 'pendente') continue;
+          
+          // Obter representações para este comitê
+          $representacoes = $representacoes_por_comite[$comite['id_comite']] ?? array();
         ?>
           <div class="comite-card <?php echo $status; ?>">
             <div class="status <?php echo $status; ?>"><?php echo $status_text; ?></div>
@@ -453,7 +487,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <p><strong>🏷️ Tipo:</strong> <?php echo htmlspecialchars($comite['tipo_comite']); ?></p>
               <p><strong>📅 Data:</strong> <?php echo date('d/m/Y', strtotime($comite['data_comite'])); ?></p>
               <p><strong>👥 Número de delegados:</strong> <?php echo $comite['num_delegados']; ?></p>
-              <p><strong>🌍 Representações:</strong> <?php echo htmlspecialchars($comite['representacao']); ?></p>
+              
+              <?php if (!empty($representacoes)): ?>
+                <div class="representacoes-info">
+                  <h4>🌍 Representações disponíveis:</h4>
+                  <p><?php echo htmlspecialchars(implode(', ', $representacoes)); ?></p>
+                  <p><em>Total: <?php echo count($representacoes); ?> representação(ões)</em></p>
+                </div>
+              <?php endif; ?>
               
               <?php if (!empty($comite['descricao_comite'])): ?>
                 <p><strong>📝 Descrição:</strong> <?php echo htmlspecialchars($comite['descricao_comite']); ?></p>
