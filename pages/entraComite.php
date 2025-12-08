@@ -117,10 +117,10 @@
     <!-- Coluna direita -->
     <div class="form-section">
       <h3>Dados do aluno</h3>
-      <input type="text" name="cpf" placeholder="CPF" value="<?php echo $_SESSION['cpf']; ?>" readonly>
+      <input type="text" name="cpf" placeholder="CPF" value="<?php echo $_SESSION['cpf']; ?>" readonly style="width: 100%">
       
       <!-- COMITÊ DESEJADO -->
-      <select name="comite_desejado" id="comite_desejado" required onchange="carregarRepresentacoes()">
+      <select name="comite_desejado" id="comite_desejado" required onchange="carregarRepresentacoes()" style="width: 100%">
         <option value="">Selecione o comitê desejado</option>
         <?php foreach($comites as $comite): ?>
           <option value="<?php echo $comite['id_comite']; ?>" data-representacao="<?php echo htmlspecialchars($comite['representacao']); ?>">
@@ -129,7 +129,7 @@
         <?php endforeach; ?>
       </select>
       
-      <select name="segunda_opcao_comite" id="segunda_opcao_comite">
+      <select name="segunda_opcao_comite" id="segunda_opcao_comite" style="width: 100%">
         <option value="">Segunda opção de comitê (opcional)</option>
         <?php foreach($comites as $comite): ?>
           <option value="<?php echo $comite['id_comite']; ?>">
@@ -138,7 +138,7 @@
         <?php endforeach; ?>
       </select>
       
-      <select name="terceira_opcao_comite" id="terceira_opcao_comite">
+      <select name="terceira_opcao_comite" id="terceira_opcao_comite" style="width: 100%">
         <option value="">Terceira opção de comitê (opcional)</option>
         <?php foreach($comites as $comite): ?>
           <option value="<?php echo $comite['id_comite']; ?>">
@@ -148,11 +148,11 @@
       </select>
       
       <!-- REPRESENTAÇÃO DESEJADA - AGORA É UM SELECT DINÂMICO -->
-      <select name="representacao_desejada" id="representacao_desejada" required>
+      <select name="representacao_desejada" id="representacao_desejada" required style="width: 100%">
         <option value="">Primeiro selecione um comitê</option>
       </select>
       
-      <input type="text" name="justificativa" placeholder="Justificativa da escolha">
+      <textarea name="justificativa" placeholder="Justificativa da escolha" style="resize: none; width: 100%; height: 10em;"></textarea>
     </div>
   </form>
 
