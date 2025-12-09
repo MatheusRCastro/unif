@@ -131,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['criar_unif'])) {
           }
           
           // Número de staffs
-          $sql_staffs = "SELECT COUNT(*) as total FROM staff WHERE id_unif = ? AND inscricao_aprovada = true";
+          $sql_staffs = "SELECT COUNT(*) as total FROM staff WHERE id_unif = ? AND status_inscricao = 'aprovado'";
           $stmt = $conn->prepare($sql_staffs);
           $stmt->bind_param("i", $id_unif);
           $stmt->execute();
