@@ -1,0 +1,69 @@
+/* Estilos globais que podem ser reutilizados */
+.staffs-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.staffs-logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.staffs-logo img {
+    max-width: 200px;
+    height: auto;
+}
+
+.form-container {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+}
+
+.staffs-titulo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #3498db;
+    position: relative;
+}
+
+.staffs-titulo::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background-color: #e74c3c;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .staffs-container {
+        padding: 10px;
+    }
+    
+    .form-container {
+        padding: 20px 15px;
+    }
+    
+    .staff-info {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .staff-botoes {
+        flex-direction: column;
+    }
+    
+    .staff-btn {
+        width: 100%;
+    }
+}
