@@ -1,9 +1,115 @@
-/* Container principal */
+/* Layout principal */
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 30px 20px;
+  display: flex;
   min-height: 100vh;
+}
+
+/* Sidebar - EXATAMENTE IGUAL À REFERÊNCIA */
+.sidebar {
+  width: 70px;
+  background: linear-gradient(180deg, #1c1c1c, #2e353b);
+  color: white;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar:hover {
+  width: 250px;
+}
+
+.sidebar-header {
+  text-align: center;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .sidebar-header h2,
+.sidebar .sidebar-menu li span {
+  display: none;
+}
+
+.sidebar:hover .sidebar-header h2,
+.sidebar:hover .sidebar-menu li span {
+  display: inline;
+}
+
+/* Itens da sidebar - IGUAL À REFERÊNCIA */
+.sidebar-menu {
+  list-style: none;
+}
+
+.sidebar-menu li {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.3s, transform 0.2s;
+  text-align: center;
+}
+
+.sidebar-menu li:hover {
+  background-color: #3d4a58;
+  transform: translateX(5px);
+}
+
+.sidebar-menu li.active {
+  background-color: rgba(46, 204, 113, 0.2);
+  border-left: 3px solid #2ecc71;
+}
+
+.sidebar-menu li.active:hover {
+  background-color: rgba(46, 204, 113, 0.3);
+}
+
+.sidebar-menu a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+.sidebar-menu a:hover {
+  color: #2ecc71;
+}
+
+.sidebar-menu li.active a {
+  color: #2ecc71;
+}
+
+.sidebar-menu i {
+  font-size: 1.5rem;
+  transition: color 0.3s;
+}
+
+.sidebar:hover .sidebar-menu i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+/* Área principal - IGUAL À REFERÊNCIA */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  background: linear-gradient(-45deg, #000, #0f5132, #2ecc71, #000);
+  background-size: 400% 400%;
+  animation: gradientMove 12s ease infinite;
+  color: white;
+  backdrop-filter: blur(3px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 1200px;
 }
 
 /* Header */
@@ -215,6 +321,14 @@
 }
 
 @media (max-width: 768px) {
+  .sidebar {
+    width: 60px;
+  }
+  
+  .sidebar:hover {
+    width: 180px;
+  }
+
   .main-title {
       font-size: 2rem;
   }
