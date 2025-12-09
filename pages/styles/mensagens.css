@@ -2,182 +2,425 @@
    UNIF - MENSAGENS
    =========================== */
 
-/* Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Segoe UI", Arial, sans-serif;
-}
-
-/* Fundo principal */
-body {
-  margin: 0;
-  background: linear-gradient(135deg, #006837, #00b050);
-  min-height: 100vh;
-}
-
-/* Sidebar (mesma identidade visual) */
-.container-sidebar {
+/* Layout principal */
+.container {
   display: flex;
   min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
+/* Sidebar - MESMO ESTILO DA REFERÊNCIA */
 .sidebar {
-  width: 80px;
-  background-color: #2f353a;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 20px;
+  width: 70px;
+  background: linear-gradient(180deg, #1c1c1c, #2e353b);
+  color: white;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5);
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
 }
 
-.sidebar-header h2 {
-  color: #fff;
-  font-size: 16px;
-  margin-bottom: 20px;
+.sidebar:hover {
+  width: 250px;
 }
 
+.sidebar-header {
+  text-align: center;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .sidebar-header h2,
+.sidebar .sidebar-menu li span {
+  display: none;
+}
+
+.sidebar:hover .sidebar-header h2,
+.sidebar:hover .sidebar-menu li span {
+  display: inline;
+}
+
+/* Itens da sidebar */
 .sidebar-menu {
   list-style: none;
-  width: 100%;
 }
 
 .sidebar-menu li {
-  width: 100%;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.3s, transform 0.2s;
   text-align: center;
-  margin-bottom: 10px;
-  position: relative;
 }
 
-.sidebar-menu li a {
+.sidebar-menu li:hover {
+  background-color: #3d4a58;
+  transform: translateX(5px);
+}
+
+.sidebar-menu li.active {
+  background-color: rgba(46, 204, 113, 0.2);
+  border-left: 3px solid #2ecc71;
+}
+
+.sidebar-menu li.active:hover {
+  background-color: rgba(46, 204, 113, 0.3);
+}
+
+.sidebar-menu a {
+  color: white;
+  text-decoration: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ccc;
-  text-decoration: none;
-  font-size: 22px;
-  padding: 15px 0;
-  transition: background 0.3s, color 0.3s;
+  font-weight: 500;
 }
 
+.sidebar-menu a:hover {
+  color: #2ecc71;
+}
 
+.sidebar-menu li.active a {
+  color: #2ecc71;
+}
 
-/* Conteúdo principal */
+.sidebar-menu i {
+  font-size: 1.5rem;
+  transition: color 0.3s;
+}
+
+.sidebar:hover .sidebar-menu i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+/* Área principal - COM BACKGROUND ANIMADO */
 .main-content {
   flex: 1;
+  background: linear-gradient(-45deg, #000, #0f5132, #2ecc71, #000);
+  background-size: 400% 400%;
+  animation: gradientMove 12s ease infinite;
+  color: white;
+  margin-left: 70px;
+  width: calc(100% - 70px);
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 60px 20px;
+  overflow-y: auto;
 }
 
-/* Caixa de mensagens */
+.sidebar:hover ~ .main-content {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  min-height: 100%;
+}
+
+/* Logo box - DIMINUÍDO */
+.logo-box {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+  margin-top: 10px;
+  flex-shrink: 0;
+}
+
+.logo {
+  width: 180px; /* DIMINUÍDO de 280px */
+  height: auto;
+  filter: drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.5));
+  transition: transform 0.3s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+/* Caixa de mensagens - COM SCROLL */
 .messages-box {
-  background-color: #fff;
-  width: 75%;
+  background: white;
+  width: 100%;
   max-width: 900px;
   border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  padding: 40px;
-  margin-top: 60px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  padding: 30px; /* Reduzido de 40px */
+  margin-bottom: 20px;
+  max-height: calc(100vh - 180px); /* Altura limitada para scroll */
+  overflow-y: auto; /* Scroll vertical */
+  flex-grow: 1;
+}
+
+/* Custom scrollbar */
+.messages-box::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages-box::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.messages-box::-webkit-scrollbar-thumb {
+  background: #2ecc71;
+  border-radius: 4px;
+}
+
+.messages-box::-webkit-scrollbar-thumb:hover {
+  background: #27ae60;
 }
 
 .messages-box h2 {
-  color: #006837;
-  margin-bottom: 10px;
-  border-bottom: 2px solid #00b050;
-  padding-bottom: 10px;
+  color: #0f5132;
+  margin-bottom: 12px; /* Reduzido */
+  border-bottom: 2px solid #2ecc71;
+  padding-bottom: 12px; /* Reduzido */
+  font-size: 1.6rem; /* Reduzido de 1.8rem */
 }
 
 .intro {
-  color: #333;
-  margin-bottom: 25px;
+  color: #666;
+  margin-bottom: 20px; /* Reduzido de 30px */
+  font-size: 1rem; /* Reduzido de 1.1rem */
+  line-height: 1.5;
 }
 
-/* Cartões de mensagem */
+/* Cartões de mensagem - COMPACTADOS */
 .message-card {
-  background-color: #ffffff;
-  border-left: 5px solid #00b050;
+  background-color: #f9f9f9;
+  border-left: 4px solid #2ecc71;
   border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 20px; /* Reduzido de 25px */
+  margin-bottom: 18px; /* Reduzido de 25px */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
 }
 
 .message-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px); /* Reduzido de -5px */
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); /* Reduzido */
 }
 
-.message-card h3,
-.message-card p {
-  color: #004225; /* Texto legível */
-  opacity: 1;
-}
-
-.message-card h3 {
-  margin-top: 0;
-  font-size: 18px;
-}
-
-.message-card p {
-  font-size: 15px;
-  line-height: 1.5;
-  margin: 5px 0;
-}
-
-/* Botões */
-.button-group {
-  margin-top: 10px;
+.message-header {
   display: flex;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px; /* Reduzido de 15px */
+}
+
+.message-header h3 {
+  color: #0f5132;
+  margin: 0;
+  font-size: 1.2rem; /* Reduzido de 1.3rem */
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Reduzido de 10px */
+}
+
+.message-header h3 i {
+  color: #2ecc71;
+  font-size: 1rem; /* Reduzido */
+}
+
+.message-time {
+  color: #888;
+  font-size: 0.85rem; /* Reduzido de 0.9rem */
+  font-style: italic;
+}
+
+.message-card p {
+  color: #333;
+  font-size: 0.95rem; /* Reduzido de 1rem */
+  line-height: 1.5;
+  margin: 6px 0; /* Reduzido de 8px */
+}
+
+/* Botões - COMPACTADOS */
+.button-group {
+  margin-top: 15px; /* Reduzido de 20px */
+  display: flex;
+  gap: 10px; /* Reduzido de 12px */
 }
 
 .read-btn,
 .delete-btn {
-  padding: 8px 16px;
+  padding: 8px 15px; /* Reduzido de 10px 18px */
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
-  font-size: 14px;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-weight: 600;
+  font-size: 0.9rem; /* Reduzido de 0.95rem */
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Reduzido de 8px */
 }
 
 .read-btn {
-  background-color: #00b050;
-  color: #fff;
+  background: linear-gradient(135deg, #2ecc71, #0f5132);
+  color: white;
 }
 
 .read-btn:hover {
-  background-color: #00913f;
-  transform: scale(1.03);
+  background: linear-gradient(135deg, #27ae60, #0a3d1f);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3); /* Reduzido */
 }
 
 .delete-btn {
-  background-color: #999;
-  color: #fff;
+  background: #f8f9fa;
+  color: #666;
+  border: 1px solid #ddd;
 }
 
 .delete-btn:hover {
-  background-color: #777;
-  transform: scale(1.03);
+  background: #e9ecef;
+  color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1); /* Reduzido */
+}
+
+/* Estilos para erro de autenticação */
+.auth-error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: linear-gradient(-45deg, #000, #0f5132, #2ecc71, #000);
+  background-size: 400% 400%;
+  animation: gradientMove 12s ease infinite;
+}
+
+.error-container {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  max-width: 500px;
+  width: 100%;
+}
+
+.error-container h2 {
+  color: #ff6b6b;
+  margin-bottom: 15px;
+}
+
+.error-container p {
+  color: white;
+  margin-bottom: 25px;
+}
+
+.auth-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, #2ecc71, #0f5132);
+  color: white;
+  padding: 12px 30px;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.auth-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
 }
 
 /* Responsividade */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .messages-box {
-    width: 90%;
-    padding: 25px;
+    width: 100%;
+    padding: 25px; /* Reduzido de 30px */
   }
+}
 
+@media (max-width: 768px) {
   .sidebar {
     width: 60px;
   }
-
-  .sidebar-menu li a {
-    font-size: 20px;
+  
+  .sidebar:hover {
+    width: 180px;
   }
+
+  .main-content {
+    margin-left: 60px;
+    width: calc(100% - 60px);
+  }
+
+  .sidebar:hover ~ .main-content {
+    margin-left: 180px;
+    width: calc(100% - 180px);
+  }
+
+  .messages-box {
+    padding: 20px;
+    width: 100%;
+    max-height: calc(100vh - 150px); /* Ajustado para mobile */
+  }
+
+  .logo {
+    width: 140px; /* Reduzido ainda mais para mobile */
+  }
+
+  .message-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .read-btn, .delete-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .messages-box h2 {
+    font-size: 1.3rem; /* Reduzido de 1.5rem */
+  }
+  
+  .message-header h3 {
+    font-size: 1.1rem; /* Reduzido de 1.1rem */
+  }
+  
+  .logo {
+    width: 120px; /* Reduzido ainda mais */
+  }
+  
+  .messages-box {
+    padding: 15px;
+    max-height: calc(100vh - 130px);
+  }
+}
+
+/* Animação suave para o scroll */
+html {
+  scroll-behavior: smooth;
 }
