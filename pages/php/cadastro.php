@@ -4,7 +4,7 @@ require_once 'conexao.php'; // Inclui o arquivo de conexão
 
 // Verificar se a conexão foi estabelecida
 if (!$conn || $conn->connect_error) {
-    echo "0:Erro de conexão com o banco";
+    echo "0:Erro de conexão com o banco de dados";
     exit();
 }
 
@@ -94,15 +94,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         );
 
         if ($stmt->execute()) {
-            echo "1:Cadastro realizado com sucesso";
+            echo "1:Cadastro realizado com sucesso!";
         } else {
-            echo "0:Erro no cadastro: " . $stmt->error;
+            // Melhor tratamento de erro
+            $erro = $stmt->error;
+            
+            // Verifica se é erro de duplicidade (embora já tenhamos verificado antes)
+            if (strpos($erro, 'Duplicate entry') !== false) {
+                if (strpos($erro, 'cpf') !== false) {
+                    echo "0:CPF já cadastrado";
+                } elseif (strpos($erro, 'email') !== false) {
+                    echo "0:Email já cadastrado";
+                } else {
+                    echo "0:Dados duplicados. Tente novamente.";
+                }
+            } else {
+                // Para outros erros, mensagem mais amigável
+                echo "0:Erro no cadastro. Tente novamente.";
+            }
+            
+            // Para debug (remova em produção)
+            // echo "0:Erro: " . $erro;
         }
 
         $stmt->close();
 
     } catch (Exception $e) {
-        echo "0:Erro: " . $e->getMessage();
+        // Tratamento mais amigável para exceções
+        echo "0:Ocorreu um erro inesperado. Tente novamente.";
+        
+        // Para debug (remova em produção)
+        // echo "0:Erro: " . $e->getMessage();
     }
 } else {
     echo "0:Método não permitido";

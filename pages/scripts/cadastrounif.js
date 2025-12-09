@@ -2,6 +2,9 @@
 // INICIALIZAÇÃO - AGUARDA O DOM CARREGAR
 // =============================================
 document.addEventListener('DOMContentLoaded', function() {
+    // DEBUG: Verifica se há JSON.parse sendo usado
+    console.log('=== INICIANDO SCRIPT ===');
+    
     // Seleciona os elementos
     const formulario = document.getElementById("cadastroForm");
     const camposProf = document.getElementById("camposProf");
@@ -75,9 +78,45 @@ document.addEventListener('DOMContentLoaded', function() {
         return regexEmail.test(email);
     }
 
+    // Função para validar CPF matematicamente
+    function validarCPFMatematicamente(cpf) {
+        // Remove caracteres não numéricos
+        cpf = cpf.replace(/\D/g, '');
+        
+        // Verifica se tem 11 dígitos
+        if (cpf.length !== 11) return false;
+        
+        // Verifica se todos os dígitos são iguais (CPF inválido)
+        if (/^(\d)\1{10}$/.test(cpf)) return false;
+        
+        // Validação do primeiro dígito verificador
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cpf.charAt(i)) * (10 - i);
+        }
+        let resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(9))) return false;
+        
+        // Validação do segundo dígito verificador
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cpf.charAt(i)) * (11 - i);
+        }
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(10))) return false;
+        
+        return true;
+    }
+
     function validarCPF(cpf) {
+        // Primeiro verifica o formato
         const regexCPF = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-        return regexCPF.test(cpf);
+        if (!regexCPF.test(cpf)) return false;
+        
+        // Depois valida matematicamente
+        return validarCPFMatematicamente(cpf);
     }
 
     function formatarCPF(cpf) {
@@ -130,6 +169,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cpfInput) {
         cpfInput.addEventListener('input', function(e) {
             e.target.value = formatarCPF(e.target.value);
+        });
+        
+        // Validação matemática em tempo real (opcional)
+        cpfInput.addEventListener('blur', function(e) {
+            const cpf = e.target.value;
+            if (cpf && !validarCPF(cpf)) {
+                // Pode adicionar uma mensagem visual aqui se quiser
+                console.log('CPF inválido matematicamente');
+            }
         });
     }
 
@@ -188,9 +236,9 @@ document.addEventListener('DOMContentLoaded', function() {
             mensagemErro = '⚠️ Por favor, insira um e-mail válido';
             valido = false;
         }
-        // Valida CPF
+        // Valida CPF (agora com validação matemática)
         else if (!validarCPF(dados.cpf)) {
-            mensagemErro = '⚠️ Por favor, insira um CPF válido no formato: 000.000.000-00';
+            mensagemErro = '⚠️ Por favor, insira um CPF válido';
             valido = false;
         }
         // Valida senha
@@ -240,9 +288,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // =============================================
-    // ENVIO DO FORMULÁRIO
+    // ENVIO DO FORMULÁRIO (SEM JSON - SOMENTE TEXTO)
     // =============================================
     async function enviarCadastro(dados) {
+        console.log('=== DEBUG: Iniciando enviarCadastro ===');
+        
         try {
             // Mostra loading
             const botaoSubmit = formulario.querySelector('button[type="submit"]');
@@ -250,63 +300,92 @@ document.addEventListener('DOMContentLoaded', function() {
             botaoSubmit.textContent = 'Cadastrando...';
             botaoSubmit.disabled = true;
 
+            // Cria FormData
             const formData = new FormData();
             
             // Adiciona todos os dados ao FormData
-            Object.keys(dados).forEach(key => {
-                formData.append(key, dados[key]);
-            });
+            formData.append('cpf', dados.cpf);
+            formData.append('email', dados.email);
+            formData.append('senha', dados.senha);
+            formData.append('telefone', dados.telefone);
+            formData.append('instituicao', dados.instituicao);
+            formData.append('medicamento', dados.medicamento);
+            formData.append('opcao_alimentar', dados.opcao_alimentar);
+            formData.append('alergia', dados.alergia);
+            formData.append('restricao_alimentar', dados.restricao_alimentar);
+            formData.append('eh_professor', dados.eh_professor ? 'true' : 'false');
+            
+            // Se for professor, adiciona campos extras (se existirem)
+            if (dados.eh_professor) {
+                if (dados.telefone_instituicao) {
+                    formData.append('telefone_instituicao', dados.telefone_instituicao);
+                }
+                if (dados.email_instituicao) {
+                    formData.append('email_instituicao', dados.email_instituicao);
+                }
+            }
 
+            // DEBUG: Verifica o que está sendo enviado
+            console.log('Dados sendo enviados:');
+            for (let [key, value] of formData.entries()) {
+                console.log(key + ': ' + value);
+            }
+
+            // Faz a requisição - NÃO USA JSON
+            console.log('Fazendo requisição para php/cadastro.php');
             const response = await fetch('php/cadastro.php', {
                 method: 'POST',
                 body: formData
             });
 
+            console.log('Status da resposta:', response.status, response.statusText);
+            
+            // OBTÉM A RESPOSTA COMO TEXTO - NÃO COMO JSON
             const resultado = await response.text();
+            console.log('Resposta do servidor (TEXTO):', resultado);
             
-            // O PHP retorna "1:mensagem" para sucesso ou "0:mensagem" para erro
-            console.log('Resposta do servidor:', resultado);
+            // Verifica se a resposta não está vazia
+            if (!resultado || resultado.trim() === '') {
+                throw new Error('Resposta vazia do servidor');
+            }
             
-            const partes = resultado.split(':');
-            const sucesso = partes[0] === '1';
-            const mensagem = partes.slice(1).join(':'); // Pega todo o resto após o primeiro ':'
-
-            if (sucesso) {
+            // Processa a resposta no formato "1:mensagem" ou "0:mensagem"
+            const primeiroCaractere = resultado.charAt(0);
+            const mensagem = resultado.substring(2); // Remove "1:" ou "0:"
+            
+            // Verifica se o formato está correto
+            if (resultado.length < 3 || !['0', '1'].includes(primeiroCaractere) || resultado.charAt(1) !== ':') {
+                console.error('Formato de resposta inválido:', resultado);
+                throw new Error('Formato de resposta inválido: ' + resultado);
+            }
+            
+            if (primeiroCaractere === '1') {
                 alert('✅ ' + mensagem);
                 window.location.href = 'login.html'; // Redireciona para login
             } else {
-                let mensagemErro = '❌ ';
-                
-                // Mensagens específicas para cada tipo de erro
-                const mensagensErro = {
-                    'CPF já cadastrado': 'CPF já cadastrado',
-                    'Email já cadastrado': 'E-mail já cadastrado', 
-                    'Preencha todos os campos obrigatórios': 'Preencha todos os campos obrigatórios',
-                    'Erro no cadastro': 'Erro no servidor',
-                    'Erro de conexão com o banco': 'Erro de conexão com o servidor'
-                };
-                
-                // Tenta encontrar uma mensagem mais amigável
-                let mensagemTratada = mensagem;
-                for (const [chave, valor] of Object.entries(mensagensErro)) {
-                    if (mensagem.includes(chave)) {
-                        mensagemTratada = valor;
-                        break;
-                    }
-                }
-                
-                mensagemErro += mensagemTratada || 'Erro desconhecido';
-                alert(mensagemErro);
+                alert('❌ ' + mensagem);
             }
 
         } catch (error) {
-            console.error('Erro:', error);
-            alert('❌ Erro ao conectar com o servidor');
+            console.error('=== ERRO DETALHADO ===');
+            console.error('Tipo:', error.name);
+            console.error('Mensagem:', error.message);
+            console.error('Stack:', error.stack);
+            console.error('====================');
+            
+            // Mensagens específicas
+            if (error.name === 'SyntaxError' && error.message.includes('JSON')) {
+                alert('❌ ERRO: Alguém está tentando usar JSON onde não deve. Verifique outros scripts.');
+            } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                alert('❌ Erro de conexão. Verifique sua internet.');
+            } else {
+                alert('❌ Erro: ' + error.message);
+            }
         } finally {
             // Restaura o botão
             const botaoSubmit = formulario.querySelector('button[type="submit"]');
             if (botaoSubmit) {
-                botaoSubmit.textContent = textoOriginal;
+                botaoSubmit.textContent = textoOriginal || 'Cadastrar';
                 botaoSubmit.disabled = false;
             }
         }
@@ -340,4 +419,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // =============================================
     // Torna a função mostrarCampos disponível globalmente
     window.mostrarCampos = mostrarCampos;
+    
+    console.log('=== SCRIPT CARREGADO COM SUCESSO ===');
 });

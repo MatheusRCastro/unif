@@ -10,43 +10,7 @@
   <script src="scripts/cadastrounif.js" defer></script>
 </head>
 
-<script>
- async function enviarCadastro(formData) {
-    try {
-        const response = await fetch('cadastro.php', {
-            method: 'POST',
-            body: formData
-        });
-        
-        const texto = await response.text();
-        console.log('Resposta do servidor:', texto);
-        
-        // Dividir a resposta pelo primeiro ":"
-        const partes = texto.split(':');
-        const status = partes[0]; // "1" para sucesso, "0" para erro
-        const mensagem = partes.slice(1).join(':'); // resto da mensagem
-        
-        if (status === '1') {
-            alert('✅ ' + mensagem);
-            // Redirecionar ou limpar formulário
-            window.location.href = 'login.html';
-        } else {
-            alert('❌ ' + mensagem);
-        }
-        
-    } catch (error) {
-        console.error('Erro na requisição:', error);
-        alert('Erro na conexão com o servidor');
-    }
-}
 
-// Uso
-document.querySelector('form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    enviarCadastro(formData);
-});
-</script>
 
 <body>
   <div class="container">
@@ -106,5 +70,7 @@ document.querySelector('form').addEventListener('submit', function(e) {
     </div>
   </div>
 </body>
+
+<!-- REMOVA ESTE SCRIPT INLINE COMPLETAMENTE! -->
 
 </html>
