@@ -289,7 +289,7 @@ INSERT INTO `usuario` (`cpf`, `nome`, `email`, `email_instituicao`, `restricao_a
 ('777.888.999-00', 'Rafael Souza', 'rafael.souza@email.com', NULL, 'Diabético', 'Ovo', '11922221111', NULL, 'rafa1617', 'Centro Universitário', 0, 'dfc5a3ac7ac6bca1b56b89985e940269', 'pendente'),
 ('888.999.000-11', 'Fernanda Rocha', 'fernanda.rocha@email.com', NULL, 'Low Carb', 'Frutos do mar', '11911110000', NULL, 'fer1819', 'Faculdade Municipal', 0, '64482ce8e7dfa39489c3bf4c15be8bec', 'pendente'),
 ('999.000.111-22', 'Lucas Almeida', 'lucas.almeida@email.com', NULL, NULL, 'Penicilina', '11900009999', NULL, 'luca2021', 'Universidade Publica', 0, 'f78d391c8682fe739d04876f91be2c7e', 'pendente'),
-('Bia Santiago', 'Usuário 121.1', 'Santhiagobeatriz21@gmail.com', NULL, 'Tradicional', 'sim, a homens', '(31) 99090-380', NULL, '12345678910', 'IFMG-OB', 0, NULL, 'pendente');
+('Bia Santiago', 'Bia Santiago', 'Santhiagobeatriz21@gmail.com', NULL, 'Tradicional', 'sim, a homens', '(31) 99090-380', NULL, '12345678910', 'IFMG-OB', 0, NULL, 'pendente');
 
 --
 -- Índices para tabelas despejadas
