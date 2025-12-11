@@ -65,30 +65,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 if (!$usuario['adm']) { // Só verifica se não for admin
                     $cpf = $usuario['cpf'];
                     
-                    // Consulta para verificar se o usuário é diretor aprovado de algum comitê
-                    $sql_diretor = "SELECT d.*, c.comite_aprovado 
+                    // CORREÇÃO: Usar 'status' em vez de 'comite_aprovado'
+                    $sql_diretor = "SELECT d.*, c.status 
                                    FROM diretor d 
                                    INNER JOIN comite c ON d.id_comite = c.id_comite 
-                                   WHERE d.cpf = ? AND d.aprovado = 1 AND c.comite_aprovado = 1";
+                                   WHERE d.cpf = ? AND d.aprovado = 1 AND c.status = 'aprovado'";
                     $stmt_diretor = $conn->prepare($sql_diretor);
                     
                     if ($stmt_diretor) {
                         $stmt_diretor->bind_param("s", $cpf);
-                        $stmt_diretor->execute();
-                        $result_diretor = $stmt_diretor->get_result();
-                        
-                        if ($result_diretor->num_rows > 0) {
-                            $diretor_info = $result_diretor->fetch_assoc();
-                            $_SESSION['id_comite'] = $diretor_info['id_comite'];
-                            $_SESSION['id_diretor'] = $diretor_info['id_diretor'];
-                            $_SESSION['diretor_aprovado'] = true;
+                        if ($stmt_diretor->execute()) {
+                            $result_diretor = $stmt_diretor->get_result();
                             
-                            // Redireciona para a página de chamada
-                            header("Location: ../chamada.php");
-                            $stmt_diretor->close();
-                            $stmt->close();
-                            $conn->close();
-                            exit();
+                            if ($result_diretor->num_rows > 0) {
+                                $diretor_info = $result_diretor->fetch_assoc();
+                                $_SESSION['id_comite'] = $diretor_info['id_comite'];
+                                $_SESSION['id_diretor'] = $diretor_info['id_diretor'];
+                                $_SESSION['diretor_aprovado'] = true;
+                                
+                                // Redireciona para a página de chamada
+                                header("Location: ../chamada.php");
+                                $stmt_diretor->close();
+                                $stmt->close();
+                                $conn->close();
+                                exit();
+                            }
                         }
                         $stmt_diretor->close();
                     }
@@ -123,4 +124,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     header("Location: ../login.html?erro=metodo_nao_permitido");
     exit();
 }
-?>

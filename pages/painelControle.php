@@ -140,8 +140,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['criar_unif'])) {
             $estatisticas['staffs'] = $row['total'];
           }
           
-          // Número de comitês aprovados
-          $sql_mesas = "SELECT COUNT(*) as total FROM comite WHERE id_unif = ? AND comite_aprovado = true";
+          // Número de comitês aprovados - CORREÇÃO: usar 'status' em vez de 'comite_aprovado'
+          $sql_mesas = "SELECT COUNT(*) as total FROM comite WHERE id_unif = ? AND status = 'aprovado'";
           $stmt = $conn->prepare($sql_mesas);
           $stmt->bind_param("i", $id_unif);
           $stmt->execute();
@@ -307,14 +307,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['criar_unif'])) {
         <!-- Botões -->
         <div class="buttons">
           <div class="col left">
-            <?php if (!$unif_atual): ?>
+            <?php if (!$unif_atual || $pode_criar_unif): ?>
               <button type="submit" name="criar_unif" value="1" class="btn" form="formUnif">
                 Criar UNIF
               </button>
             <?php else: ?>
-              <button class="btn <?php echo $pode_criar_unif ? '' : 'disabled'; ?>" 
-                      <?php echo $pode_criar_unif ? '' : 'disabled'; ?>>
-                <?php echo $pode_criar_unif ? 'Criar Nova UNIF' : 'Criar Nova UNIF'; ?>
+              <button class="btn disabled" disabled>
+                Criar Nova UNIF
               </button>
             <?php endif; ?>
             <button class="btn" onclick="window.location.href='analiseComites.php'">Avaliar Comitês</button>
