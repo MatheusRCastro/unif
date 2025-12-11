@@ -44,7 +44,8 @@ if ($result_unif->num_rows == 0) {
         
         if ($result_verifica_staff->num_rows > 0) {
             $staff_data = $result_verifica_staff->fetch_assoc();
-            $status = $staff_data['inscricao_aprovada'] ? "aprovada" : "pendente";
+            // CORREÇÃO: Mudar 'inscricao_aprovada' para 'status_inscricao'
+            $status = ($staff_data['status_inscricao'] == 'aprovado') ? "aprovada" : "pendente";
             $erro = "Você já está inscrito como staff para este UNIF! Status: " . $status;
         }
         $stmt_verifica_staff->close();
@@ -94,9 +95,9 @@ if ($result_unif->num_rows == 0) {
             } elseif (strlen($justificativa) < 50) {
                 $erro = "A justificativa deve ter pelo menos 50 caracteres.";
             } else {
-                // Inserir inscrição de staff
-                $sql_inserir = "INSERT INTO staff (cpf, id_unif, justificativa, inscricao_aprovada) 
-                               VALUES (?, ?, ?, 0)";
+                // CORREÇÃO: Mudar 'inscricao_aprovada' para 'status_inscricao' com valor 'pendente'
+                $sql_inserir = "INSERT INTO staff (cpf, id_unif, justificativa, status_inscricao) 
+                               VALUES (?, ?, ?, 'pendente')";
                 $stmt_inserir = $conn->prepare($sql_inserir);
                 $stmt_inserir->bind_param("sis", $cpf_usuario, $id_unif, $justificativa);
                 

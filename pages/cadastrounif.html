@@ -7,10 +7,109 @@
   <title>Cadastro - UNIF</title>
   <link rel="stylesheet" href="styles/cadastrounif.css">
   <link rel="stylesheet" href="styles/global.css">
-  <script src="scripts/cadastrounif.js" defer></script>
+  <style>
+    /* Estilos para os botões de professor */
+    .radio-group {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0 20px 0;
+    }
+    
+    .radio-group button {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #3498db;
+      background-color: white;
+      color: #3498db;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 16px;
+    }
+    
+    .radio-group button:hover {
+      background-color: #f0f7ff;
+      transform: translateY(-2px);
+    }
+    
+    .radio-group button.active {
+      background-color: #3498db;
+      color: rgb(18, 165, 42);
+      border-color: #2980b9;
+      box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+    }
+    
+    .radio-group button.active:hover {
+      background-color: #2980b9;
+    }
+    
+    /* Estilo para campos de professor */
+    #camposProf {
+      display: none;
+      margin-top: 15px;
+      padding: 15px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      border: 1px solid #e1e5eb;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    #camposProf input {
+      margin-bottom: 10px;
+    }
+    
+    #camposProf input:last-child {
+      margin-bottom: 0;
+    }
+    
+    /* Estilo para validação */
+    .error-message {
+      color: #e74c3c;
+      font-size: 14px;
+      margin-top: 5px;
+      display: none;
+    }
+    
+    .error-input {
+      border-color: #e74c3c !important;
+      background-color: #ffeaea;
+    }
+    
+    .success-input {
+      border-color: #2ecc71 !important;
+      background-color: #eaffea;
+    }
+    
+    /* Mensagens de sucesso/erro */
+    .alert-message {
+      padding: 12px;
+      border-radius: 8px;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    
+    .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
-
-
 
 <body>
   <div class="container">
@@ -23,22 +122,33 @@
     <!-- Formulário -->
     <div class="form-box">
       <h2>CADASTRE SUA CONTA :</h2>
-      <form id="cadastroForm">
+      
+      <!-- Mensagens de feedback -->
+      <div id="alertMessage" class="alert-message"></div>
+      
+      <form id="cadastroForm" action="php/cadastro.php" method="POST">
         <div class="scrollable-form">
           <!-- Adicione name em todos os campos -->
-          <input type="email" name="email" placeholder="E-mail" required>
-          <input type="text" name="cpf" placeholder="CPF" required>
+          <input type="text" name="nome" placeholder="Nome completo" required id="nomeInput">
+          <input type="email" name="email" placeholder="E-mail" required id="emailInput">
+          
+          <!-- Campo CPF com validação -->
+          <div class="input-group">
+            <input type="text" name="cpf" placeholder="CPF" required id="cpfInput">
+            <div class="error-message" id="cpfError"></div>
+          </div>
 
           <div class="password-container">
-            <input type="password" name="senha" placeholder="Senha" required>
+            <input type="password" name="senha" placeholder="Senha" required id="senhaInput">
           </div>
           <div class="password-container">
-            <input type="password" name="confirmar_senha" placeholder="Confirmar senha" required>
+            <input type="password" name="confirmar_senha" placeholder="Confirmar senha" required id="confirmarSenhaInput">
+            <div class="error-message" id="senhaError"></div>
           </div>
 
-          <input type="text" name="telefone" placeholder="Número de telefone" required>
-          <input type="text" name="instituicao" placeholder="Informe sua instituição" required>
-          <input type="text" name="medicamento" placeholder="Faz uso de algum medicamento? (se não, deixar em branco)">
+          <input type="text" name="telefone" placeholder="Número de telefone" required id="telefoneInput">
+          <input type="text" name="instituicao" placeholder="Informe sua instituição" required id="instituicaoInput">
+          <input type="text" name="medicamento" placeholder="Faz uso de algum medicamento? (se não, deixar em branco)" id="medicamentoInput">
 
           <label for="Oa">Selecione uma opção alimentar:</label>
           <select id="Oa" name="opcao_alimentar">
@@ -47,30 +157,262 @@
             <option value="Oa3">Tradicional</option>
           </select>
 
-          <input type="text" name="alergia" placeholder="Tem alguma alergia? (se não, deixar em branco)">
-          <input type="text" name="restricao_alimentar" placeholder="Tem alguma restrição alimentar? (se não, deixar em branco)">
+          <input type="text" name="alergia" placeholder="Tem alguma alergia? (se não, deixar em branco)" id="alergiaInput">
+          <input type="text" name="restricao_alimentar" placeholder="Tem alguma restrição alimentar? (se não, deixar em branco)" id="restricaoInput">
 
           <label>Você é um professor acompanhante?</label>
           <div class="radio-group">
-            <button type="button" onclick="mostrarCampos(true)">Sim</button>
-            <button type="button" onclick="mostrarCampos(false)">Não</button>
+            <button type="button" id="btnSim" onclick="mostrarCampos(true)">Sim</button>
+            <button type="button" id="btnNao" onclick="mostrarCampos(false)" class="active">Não</button>
           </div>
 
           <!-- Campo hidden para enviar se é professor -->
           <input type="hidden" name="eh_professor" id="eh_professor" value="false">
 
           <div id="camposProf">
-            <input type="text" name="telefone_instituicao" placeholder="Informe o número de contato da sua instituição">
-            <input type="email" name="email_instituicao" placeholder="Informe o e-mail de contato da sua instituição">
+            <input type="text" name="telefone_instituicao" placeholder="Informe o número de contato da sua instituição" id="telefoneInstInput">
+            <input type="email" name="email_instituicao" placeholder="Informe o e-mail de contato da sua instituição" id="emailInstInput">
           </div>
         </div>
 
-        <button type="submit">Submeter</button>
+        <button type="submit" id="submitBtn">Submeter</button>
       </form>
     </div>
   </div>
+
+  <script>
+    // Elementos DOM
+    const form = document.getElementById('cadastroForm');
+    const alertMessage = document.getElementById('alertMessage');
+    const submitBtn = document.getElementById('submitBtn');
+    const cpfInput = document.getElementById('cpfInput');
+    const cpfError = document.getElementById('cpfError');
+    const senhaInput = document.getElementById('senhaInput');
+    const confirmarSenhaInput = document.getElementById('confirmarSenhaInput');
+    const senhaError = document.getElementById('senhaError');
+
+    // Função para mostrar/ocultar campos de professor
+    function mostrarCampos(ehProfessor) {
+      const camposProf = document.getElementById('camposProf');
+      const btnSim = document.getElementById('btnSim');
+      const btnNao = document.getElementById('btnNao');
+      const hiddenField = document.getElementById('eh_professor');
+      
+      if (ehProfessor) {
+        btnSim.classList.add('active');
+        btnNao.classList.remove('active');
+        camposProf.style.display = 'block';
+        hiddenField.value = 'true';
+        
+        // Tornar campos de contato obrigatórios para professores
+        document.getElementById('telefoneInstInput').required = true;
+        document.getElementById('emailInstInput').required = true;
+      } else {
+        btnSim.classList.remove('active');
+        btnNao.classList.add('active');
+        camposProf.style.display = 'none';
+        hiddenField.value = 'false';
+        
+        // Tornar campos de contato não obrigatórios
+        document.getElementById('telefoneInstInput').required = false;
+        document.getElementById('emailInstInput').required = false;
+        
+        // Limpar campos se for "Não"
+        document.querySelectorAll('#camposProf input').forEach(input => {
+          input.value = '';
+        });
+      }
+    }
+    
+    // Função para validar CPF
+    function validarCPF(cpf) {
+      cpf = cpf.replace(/\D/g, '');
+      if (cpf.length !== 11) return false;
+      if (/^(\d)\1{10}$/.test(cpf)) return false;
+      
+      // Calcula primeiro dígito
+      let soma = 0;
+      for (let i = 0; i < 9; i++) {
+        soma += parseInt(cpf.charAt(i)) * (10 - i);
+      }
+      let resto = soma % 11;
+      let digito1 = resto < 2 ? 0 : 11 - resto;
+      if (digito1 !== parseInt(cpf.charAt(9))) return false;
+      
+      // Calcula segundo dígito
+      soma = 0;
+      for (let i = 0; i < 10; i++) {
+        soma += parseInt(cpf.charAt(i)) * (11 - i);
+      }
+      resto = soma % 11;
+      let digito2 = resto < 2 ? 0 : 11 - resto;
+      return digito2 === parseInt(cpf.charAt(10));
+    }
+    
+    // Formatar CPF
+    function formatarCPF(cpf) {
+      cpf = cpf.replace(/\D/g, '');
+      cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
+      cpf = cpf.replace(/(\d{3})(\d)/, '$1.$2');
+      cpf = cpf.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+      return cpf;
+    }
+    
+    // Validar CPF em tempo real
+    function validarCPFEmTempoReal(cpfCompleto) {
+      const cpfNumerico = cpfCompleto.replace(/\D/g, '');
+      
+      if (cpfNumerico.length < 11) {
+        cpfInput.classList.remove('error-input', 'success-input');
+        cpfError.style.display = 'none';
+        return false;
+      }
+      
+      if (validarCPF(cpfCompleto)) {
+        cpfInput.classList.remove('error-input');
+        cpfInput.classList.add('success-input');
+        cpfError.style.display = 'none';
+        return true;
+      } else {
+        cpfInput.classList.remove('success-input');
+        cpfInput.classList.add('error-input');
+        cpfError.textContent = 'CPF inválido. Verifique os números.';
+        cpfError.style.display = 'block';
+        return false;
+      }
+    }
+    
+    // Validar senhas
+    function validarSenhas() {
+      const senha = senhaInput.value;
+      const confirmar = confirmarSenhaInput.value;
+      
+      if (senha !== confirmar) {
+        senhaError.textContent = 'As senhas não coincidem.';
+        senhaError.style.display = 'block';
+        senhaInput.classList.add('error-input');
+        confirmarSenhaInput.classList.add('error-input');
+        return false;
+      } else if (senha.length < 6) {
+        senhaError.textContent = 'A senha deve ter pelo menos 6 caracteres.';
+        senhaError.style.display = 'block';
+        senhaInput.classList.add('error-input');
+        confirmarSenhaInput.classList.add('error-input');
+        return false;
+      } else {
+        senhaError.style.display = 'none';
+        senhaInput.classList.remove('error-input');
+        confirmarSenhaInput.classList.remove('error-input');
+        return true;
+      }
+    }
+    
+    // Mostrar mensagem
+    function showMessage(message, isError = false) {
+      alertMessage.textContent = message;
+      alertMessage.className = `alert-message ${isError ? 'alert-error' : 'alert-success'}`;
+      alertMessage.style.display = 'block';
+      
+      if (!isError) {
+        // Em caso de sucesso, limpar formulário após 3 segundos
+        setTimeout(() => {
+          form.reset();
+          alertMessage.style.display = 'none';
+          document.querySelectorAll('.success-input').forEach(el => {
+            el.classList.remove('success-input');
+          });
+        }, 3000);
+      }
+    }
+    
+    // Adicionar máscaras e listeners
+    document.addEventListener('DOMContentLoaded', function() {
+      // Máscara CPF
+      if (cpfInput) {
+        cpfInput.addEventListener('input', function() {
+          this.value = formatarCPF(this.value);
+          if (this.value.length >= 14) {
+            validarCPFEmTempoReal(this.value);
+          } else {
+            this.classList.remove('error-input', 'success-input');
+            cpfError.style.display = 'none';
+          }
+        });
+        
+        cpfInput.addEventListener('blur', function() {
+          if (this.value.length >= 14) {
+            validarCPFEmTempoReal(this.value);
+          }
+        });
+      }
+      
+      // Máscara telefone
+      const telefoneInput = document.getElementById('telefoneInput');
+      if (telefoneInput) {
+        telefoneInput.addEventListener('input', function() {
+          let telefone = this.value.replace(/\D/g, '');
+          if (telefone.length <= 10) {
+            telefone = telefone.replace(/(\d{2})(\d)/, '($1) $2');
+            telefone = telefone.replace(/(\d{4})(\d)/, '$1-$2');
+          } else {
+            telefone = telefone.replace(/(\d{2})(\d)/, '($1) $2');
+            telefone = telefone.replace(/(\d{5})(\d)/, '$1-$2');
+          }
+          this.value = telefone.substring(0, 15);
+        });
+      }
+      
+      // Validação senhas
+      senhaInput.addEventListener('input', validarSenhas);
+      confirmarSenhaInput.addEventListener('input', validarSenhas);
+      
+      // Envio do formulário via AJAX
+      form.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        // Validações finais
+        if (!validarCPF(cpfInput.value)) {
+          showMessage('CPF inválido. Corrija o número.', true);
+          cpfInput.focus();
+          return;
+        }
+        
+        if (!validarSenhas()) {
+          showMessage('As senhas não coincidem.', true);
+          return;
+        }
+        
+        // Desabilitar botão durante o envio
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = 'Enviando...';
+        
+        // Enviar via AJAX
+        try {
+          const formData = new FormData(form);
+          const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData
+          });
+          
+          const result = await response.text();
+          const [status, message] = result.split(':');
+          
+          if (status === '1') {
+            showMessage(message, false);
+          } else {
+            showMessage(message, true);
+          }
+          
+        } catch (error) {
+          showMessage('Erro de conexão. Tente novamente.', true);
+          console.error('Erro:', error);
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Submeter';
+        }
+      });
+    });
+  </script>
+  
 </body>
-
-<!-- REMOVA ESTE SCRIPT INLINE COMPLETAMENTE! -->
-
 </html>

@@ -9,6 +9,7 @@ if (!$conn || $conn->connect_error) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $nome = $_POST['nome'] ?? '';
     $cpf = $_POST['cpf'] ?? '';
     $email = $_POST['email'] ?? '';
     $senha = $_POST['senha'] ?? '';
@@ -19,15 +20,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $alergia = $_POST['alergia'] ?? '';
     $restricao_alimentar = $_POST['restricao_alimentar'] ?? '';
     $eh_professor = $_POST['eh_professor'] ?? 'false';
+    $telefone_instituicao = $_POST['telefone_instituicao'] ?? ''; // NOVO CAMPO
+    $email_instituicao = $_POST['email_instituicao'] ?? ''; // NOVO CAMPO
 
-    // Validações
-    if (empty($cpf) || empty($email) || empty($senha) || empty($telefone) || empty($instituicao)) {
+    // Validações (TODAS MANTIDAS)
+    if (empty($nome) || empty($cpf) || empty($email) || empty($senha) || empty($telefone) || empty($instituicao)) {
         echo "0:Preencha todos os campos obrigatórios";
         exit();
     }
 
+    // Validação adicional para professores (MANTIDA)
+    if ($eh_professor === 'true' && (empty($telefone_instituicao) || empty($email_instituicao))) {
+        echo "0:Para professores, preencha os dados de contato da instituição";
+        exit();
+    }
+
     try {
-        // Verificar CPF
+        // Verificar CPF (MANTIDA)
         $sql = "SELECT cpf FROM usuario WHERE cpf = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $cpf);
@@ -41,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         $stmt->close();
 
-        // Verificar email
+        // Verificar email (MANTIDA)
         $sql = "SELECT email FROM usuario WHERE email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
@@ -55,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         $stmt->close();
 
-        // Processar opção alimentar
+        // Processar opção alimentar (MANTIDA)
         $restricao_final = '';
         if (!empty($restricao_alimentar)) {
             $restricao_final = $restricao_alimentar;
@@ -68,38 +77,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $restricao_final = $opcoes_alimentares[$opcao_alimentar] ?? '';
         }
 
-        $nome_temp = "Usuário " . substr($cpf, 0, 5);
-
-        // Processar campo professor
-        $professor_value = 0;
+        // Processar campo professor - MODIFICADO para ENUM
+        // ANTES: 0 ou 1 (integer)
+        // DEPOIS: 'aluno', 'pendente', 'aprovado', 'reprovado' (string ENUM)
+        $professor_value = 'aluno'; // Default é 'aluno'
         if ($eh_professor === 'true' || $eh_professor === true) {
-            $professor_value = 1;
+            $professor_value = 'pendente'; // Professores começam como 'pendente' (precisam de aprovação)
         }
 
-        // Inserir usuário
-        $sql = "INSERT INTO usuario (cpf, nome, email, restricao_alimentar, alergia, telefone, senha, instituicao, adm, professor) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)";
+        // Inserir usuário - MODIFICADO para incluir novos campos
+        $sql = "INSERT INTO usuario (cpf, nome, email, restricao_alimentar, alergia, telefone, 
+                senha, instituicao, adm, professor, telefone_instituicao, email_instituicao) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?)";
         
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssssssssi", 
+        // MODIFICADO: adicionados 2 novos parâmetros no bind_param
+        $stmt->bind_param("sssssssssss", 
             $cpf, 
-            $nome_temp, 
+            $nome,
             $email, 
             $restricao_final, 
             $alergia, 
             $telefone, 
             $senha, 
             $instituicao,
-            $professor_value
+            $professor_value, // AGORA é string
+            $telefone_instituicao, // NOVO
+            $email_instituicao // NOVO
         );
 
         if ($stmt->execute()) {
-            echo "1:Cadastro realizado com sucesso!";
+            // MANTIDO o tratamento especial para professores
+            if ($professor_value == 'pendente') {
+                // ADICIONADO: mensagem específica para professores
+                echo "1:Cadastro realizado com sucesso! Como professor, sua conta precisa de aprovação.";
+            } else {
+                echo "1:Cadastro realizado com sucesso!";
+            }
         } else {
-            // Melhor tratamento de erro
+            // MANTIDO tratamento de erros
             $erro = $stmt->error;
             
-            // Verifica se é erro de duplicidade (embora já tenhamos verificado antes)
             if (strpos($erro, 'Duplicate entry') !== false) {
                 if (strpos($erro, 'cpf') !== false) {
                     echo "0:CPF já cadastrado";
@@ -109,22 +127,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     echo "0:Dados duplicados. Tente novamente.";
                 }
             } else {
-                // Para outros erros, mensagem mais amigável
                 echo "0:Erro no cadastro. Tente novamente.";
             }
             
             // Para debug (remova em produção)
-            // echo "0:Erro: " . $erro;
+            // error_log("Erro cadastro: " . $erro);
         }
 
         $stmt->close();
 
     } catch (Exception $e) {
-        // Tratamento mais amigável para exceções
+        // MANTIDO tratamento de exceções
+        error_log("Exception cadastro: " . $e->getMessage());
         echo "0:Ocorreu um erro inesperado. Tente novamente.";
-        
-        // Para debug (remova em produção)
-        // echo "0:Erro: " . $e->getMessage();
     }
 } else {
     echo "0:Método não permitido";
