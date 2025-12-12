@@ -292,7 +292,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $usuario_autorizado && !$ja_tem_dele
             <a href="perfil.php"><i class="fas fa-user"></i> <span>Perfil</span></a>
           </li>
           <li class="active">
-            <a href="#"><i class="fas fa-users"></i> <span>Minhas Delegações</span></a>
+            <a href="professorAnalisaDelegados.php"><i class="fas fa-users"></i> <span>Minha Delegação</span></a>
           </li>
           <?php if ($usuario_eh_admin): ?>
             <li>
@@ -374,7 +374,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $usuario_autorizado && !$ja_tem_dele
               </div>
 
               <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button class="btn enviar" onclick="window.location.href='gerenciarDelegacao.php?id=<?php echo $delegacao_atual['id_delegacao']; ?>'">
+                <button class="btn enviar" onclick="window.location.href='professorAnalisaDelegados.php?id=<?php echo $delegacao_atual['id_delegacao']; ?>'">
                   <i class="fas fa-cog"></i> Gerenciar Delegação
                 </button>
                 <?php if ($delegacao_atual['verificacao_delegacao'] == 'aprovado'): ?>
