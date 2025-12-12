@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Tempo de geração: 11/12/2025 às 20:48
+-- Tempo de geração: 12/12/2025 às 14:56
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -59,8 +59,16 @@ CREATE TABLE `delegacao` (
   `id_delegacao` int(11) NOT NULL,
   `id_unif` int(11) NOT NULL,
   `cpf` varchar(14) DEFAULT NULL,
-  `verificacao_delegacao` tinyint(1) DEFAULT NULL
+  `verificacao_delegacao` enum('aprovado','pendente','reprovado') DEFAULT 'pendente',
+  `nome` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Despejando dados para a tabela `delegacao`
+--
+
+INSERT INTO `delegacao` (`id_delegacao`, `id_unif`, `cpf`, `verificacao_delegacao`, `nome`) VALUES
+(2, 1, '141.002.686-88', 'aprovado', 'CMBH');
 
 -- --------------------------------------------------------
 
@@ -77,17 +85,18 @@ CREATE TABLE `delegado` (
   `segunda_op_representacao` int(11) DEFAULT NULL,
   `terceira_op_representacao` int(11) DEFAULT NULL,
   `segunda_op_comite` int(11) DEFAULT NULL,
-  `terceira_op_comite` int(11) DEFAULT NULL
+  `terceira_op_comite` int(11) DEFAULT NULL,
+  `id_delegacao` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Despejando dados para a tabela `delegado`
 --
 
-INSERT INTO `delegado` (`cpf`, `id_comite`, `representacao`, `comite_desejado`, `primeira_op_representacao`, `segunda_op_representacao`, `terceira_op_representacao`, `segunda_op_comite`, `terceira_op_comite`) VALUES
-('112.067.546-48', 2, 11, 2, 11, NULL, NULL, 2, 2),
-('123.175.426-58', 2, 5, 2, 5, NULL, NULL, 3, 2),
-('145.185.246-08', 2, 1, 2, 1, NULL, NULL, 2, 2);
+INSERT INTO `delegado` (`cpf`, `id_comite`, `representacao`, `comite_desejado`, `primeira_op_representacao`, `segunda_op_representacao`, `terceira_op_representacao`, `segunda_op_comite`, `terceira_op_comite`, `id_delegacao`) VALUES
+('112.067.546-48', 2, 11, 2, 11, NULL, NULL, 2, 2, 2),
+('123.175.426-58', 2, 5, 2, 5, NULL, NULL, 3, 2, NULL),
+('145.185.246-08', 2, 1, 2, 1, NULL, NULL, 2, 2, NULL);
 
 -- --------------------------------------------------------
 
@@ -224,15 +233,16 @@ CREATE TABLE `unif` (
   `data_inicio_inscricao_comite` date DEFAULT NULL,
   `data_fim_inscricao_comite` date DEFAULT NULL,
   `data_inicio_inscricao_staff` date DEFAULT NULL,
-  `data_fim_inscricao_staff` date DEFAULT NULL
+  `data_fim_inscricao_staff` date DEFAULT NULL,
+  `nome` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Despejando dados para a tabela `unif`
 --
 
-INSERT INTO `unif` (`id_unif`, `data_inicio_unif`, `data_fim_unif`, `data_inicio_inscricao_delegado`, `data_fim_inscricao_delegado`, `data_inicio_inscricao_comite`, `data_fim_inscricao_comite`, `data_inicio_inscricao_staff`, `data_fim_inscricao_staff`) VALUES
-(1, '2026-06-26', '2026-06-28', '2025-12-01', '2026-01-01', '2025-12-01', '2026-01-01', '2025-12-01', '2026-01-01');
+INSERT INTO `unif` (`id_unif`, `data_inicio_unif`, `data_fim_unif`, `data_inicio_inscricao_delegado`, `data_fim_inscricao_delegado`, `data_inicio_inscricao_comite`, `data_fim_inscricao_comite`, `data_inicio_inscricao_staff`, `data_fim_inscricao_staff`, `nome`) VALUES
+(1, '2026-06-26', '2026-06-28', '2025-12-01', '2026-01-01', '2025-12-01', '2026-01-01', '2025-12-01', '2026-01-01', 'UNIF 2026');
 
 -- --------------------------------------------------------
 
@@ -261,35 +271,36 @@ CREATE TABLE `usuario` (
 --
 
 INSERT INTO `usuario` (`cpf`, `nome`, `email`, `email_instituicao`, `restricao_alimentar`, `alergia`, `telefone`, `telefone_instituicao`, `senha`, `instituicao`, `adm`, `senha_hash`, `professor`) VALUES
-('112.067.546-48', 'Leonardo Rodrigues Ferreira', 'leonardorofe12@gmail.com', NULL, 'Tradicional', '', '(31) 98547-920', NULL, 'Rofe1228', 'IFMG-OB', 0, NULL, 'pendente'),
-('119.149.336-99', 'Artur de Sousa Barroso', 'arturbarroso631@gmail.com', NULL, 'Tradicional', '', '(31) 97576-326', NULL, 'artur2007', 'IFMG-OB', 0, NULL, 'pendente'),
-('123.175.426-58', 'Alana Sarah Apolinário de Freitas', 'alanasafreitas@gmail.com', NULL, 'Tradicional', '', '(31) 98819-542', NULL, '@37639656', 'IFMG-OB', 0, NULL, 'pendente'),
-('123.456.789-00', 'Administrador Sistema', 'admin@unif.com', NULL, NULL, NULL, '11999999999', NULL, 'admin123', 'UNIF Organização', 1, '0192023a7bbd73250516f069df18b500', 'pendente'),
-('125.952.936-30', 'Cauã Victor Alves Moreira Batista', 'batistacaua973@gmail.com', NULL, 'Tradicional', '', '(31) 97128-068', NULL, 'bt2007', 'IFMG-OB', 0, NULL, 'pendente'),
-('126.465.506-18', 'Shogun', 'gustavocsegheto1@gmail.com', NULL, 'Tradicional', '', '(31) 98595-570', NULL, '123123', 'IFMG-OB', 0, NULL, 'pendente'),
-('130.091.226-08', 'Fernanda Xavier', 'fernanda.carmo.xavier@gmail.com', NULL, 'Tradicional', '', '(31) 97174-103', NULL, 'N@ndinha13', 'IFMG-OB', 0, NULL, 'pendente'),
-('135.781.456-96', 'Arthur Cesar dos Santos ', 'cesardossantosarthur@gmail.com', NULL, 'Tradicional', '', '(31) 98532-067', NULL, 'abcdefg', 'IFMG-OB', 0, NULL, 'pendente'),
-('135.939.406-04', 'Eliza Chefa', 'elizaacademico72@gmail.com', NULL, 'Tradicional', '', '(31) 99963-662', NULL, 'Informatica23', 'IFMG-OB', 0, NULL, 'pendente'),
-('136.204.086-02', 'Arthur Bola', 'arthur1337art@gmail.com', NULL, 'Tradicional', '', '(31) 98321-832', NULL, 'Artc1905', 'IFMG-OB', 0, NULL, 'pendente'),
-('136.204.356-77', 'Matheus Rezende de Castro', 'matheusrezendecastro@gmail.com', NULL, 'Tradicional', '', '(31) 98325-115', NULL, 'fofura190507', 'IFMG-OB', 1, NULL, 'pendente'),
-('137.697.046-57', 'Nicolle Faria Vieira', 'nicollefaria24@gmail.com', NULL, 'Tradicional', '', '(31) 99548-292', NULL, 'Nicolle2910', 'IFMG-OB', 0, NULL, 'pendente'),
+('112.067.546-48', 'Leonardo Rodrigues Ferreira', 'leonardorofe12@gmail.com', NULL, 'Tradicional', '', '(31) 98547-920', NULL, 'Rofe1228', 'IFMG-OB', 0, NULL, 'aluno'),
+('119.149.336-99', 'Artur de Sousa Barroso', 'arturbarroso631@gmail.com', NULL, 'Tradicional', '', '(31) 97576-326', NULL, 'artur2007', 'IFMG-OB', 0, NULL, 'aluno'),
+('123.175.426-58', 'Alana Sarah Apolinário de Freitas', 'alanasafreitas@gmail.com', NULL, 'Tradicional', '', '(31) 98819-542', NULL, '@37639656', 'IFMG-OB', 0, NULL, 'aluno'),
+('123.456.789-00', 'Administrador Sistema', 'admin@unif.com', NULL, NULL, NULL, '11999999999', NULL, 'admin123', 'UNIF Organização', 1, '0192023a7bbd73250516f069df18b500', 'aluno'),
+('125.952.936-30', 'Cauã Victor Alves Moreira Batista', 'batistacaua973@gmail.com', NULL, 'Tradicional', '', '(31) 97128-068', NULL, 'bt2007', 'IFMG-OB', 0, NULL, 'aluno'),
+('126.465.506-18', 'Shogun', 'gustavocsegheto1@gmail.com', NULL, 'Tradicional', '', '(31) 98595-570', NULL, '123123', 'IFMG-OB', 0, NULL, 'aluno'),
+('130.091.226-08', 'Fernanda Xavier', 'fernanda.carmo.xavier@gmail.com', NULL, 'Tradicional', '', '(31) 97174-103', NULL, 'N@ndinha13', 'IFMG-OB', 0, NULL, 'aluno'),
+('135.781.456-96', 'Arthur Cesar dos Santos ', 'cesardossantosarthur@gmail.com', NULL, 'Tradicional', '', '(31) 98532-067', NULL, 'abcdefg', 'IFMG-OB', 0, NULL, 'aluno'),
+('135.939.406-04', 'Eliza Chefa', 'elizaacademico72@gmail.com', NULL, 'Tradicional', '', '(31) 99963-662', NULL, 'Informatica23', 'IFMG-OB', 0, NULL, 'aluno'),
+('136.204.086-02', 'Arthur Bola', 'arthur1337art@gmail.com', NULL, 'Tradicional', '', '(31) 98321-832', NULL, 'Artc1905', 'IFMG-OB', 0, NULL, 'aluno'),
+('136.204.356-77', 'Matheus Rezende de Castro', 'matheusrezendecastro@gmail.com', NULL, 'Tradicional', '', '(31) 98325-115', NULL, 'fofura190507', 'IFMG-OB', 1, NULL, 'aluno'),
+('137.697.046-57', 'Nicolle Faria Vieira', 'nicollefaria24@gmail.com', NULL, 'Tradicional', '', '(31) 99548-292', NULL, 'Nicolle2910', 'IFMG-OB', 0, NULL, 'aluno'),
 ('139.607.106-74', 'Isadora Oliveira Ferrari', 'isadoraferrari2007@gmail.com', NULL, 'Tradicional', '', '(31) 98357-861', NULL, 'isadorao15', 'IFMG-OB', 0, NULL, 'pendente'),
-('140.200.376-55', 'Gabriella Bolognani ', 'gabi.bolognanii08@gmail.com', NULL, 'Veganismo', '', '(31) 97160-914', NULL, 'Gmdi141288', 'IFMG-OB', 0, NULL, 'pendente'),
-('141.765.956-47', 'Ariele', 'tavaresarielle980@gmail.com', NULL, 'Tradicional', '', '(31) 98916-997', NULL, 'tavares980', 'IFMG-OB', 0, NULL, 'pendente'),
-('145.185.246-08', 'Japa', 'matheusg.mendes.g5@gmail.com', NULL, 'Tradicional', '', '(31) 97192-079', NULL, 'japinha', 'IFMG-OB', 0, NULL, 'pendente'),
-('149.497.936-59', 'Ricardo', 'rr0430620@gmail.com', NULL, 'Tradicional', '', '(31) 98456-343', NULL, '20070526Ric!', 'IFMG-OB', 0, NULL, 'pendente'),
-('157.483.306-52', 'Lara Lopez', 'laralelopes09@gmail.com', NULL, 'Tradicional', 'viagra', '(31) 98240-559', NULL, 'cucombosta', 'IFMG-OB', 0, NULL, 'pendente'),
-('158.150.026-23', 'Stanley', 'hoelzlestanley@gmail.com', NULL, 'Tradicional', 'Ambroxol', '(31) 99195-501', NULL, 'marcenes', 'IFMG-OB', 0, NULL, 'pendente'),
-('162.887.816-90', 'Tom Tom', 'thommazom@gmail.com', NULL, 'intolerante a lactose', '', '(31) 99880-971', NULL, 'Gabriel*2204', 'IFMG-OB', 0, NULL, 'pendente'),
-('222.333.444-55', 'Maria Santos', 'maria.santos@email.com', NULL, 'Lactose', 'Camarao', '11977776666', NULL, 'mariA456', 'Faculdade Estadual', 0, '35fdde9854048a15a1a349b379164782', 'pendente'),
-('333.444.555-66', 'Pedro Oliveira', 'pedro.oliveira@email.com', NULL, NULL, 'Abelha', '11966665555', NULL, 'pedro789', 'Colégio Aplicação', 0, 'db1b9ae011ed5e6a65fb49c2d5509b2d', 'pendente'),
-('444.555.666-77', 'Ana Costa', 'ana.costa@email.com', NULL, 'Vegana', 'Poeria', '11955554444', NULL, 'ana1011', 'Instituto Federal', 0, '70f9981eb5e00d6f9c63e4090b537a85', 'pendente'),
-('555.666.777-88', 'Carlos Pereira', 'carlos.pereira@email.com', NULL, 'Glúten', NULL, '11944443333', NULL, 'carlos1213', 'Universidade Privada', 0, '037def801a4b4e56dcd44c880c62649b', 'pendente'),
-('666.777.888-99', 'Juliana Lima', 'juliana.lima@email.com', NULL, NULL, 'Latex', '11933332222', NULL, 'juli1415', 'Escola Técnica', 0, 'e31fc749bf1a57a6d3c735f09cc544a4', 'pendente'),
-('777.888.999-00', 'Rafael Souza', 'rafael.souza@email.com', NULL, 'Diabético', 'Ovo', '11922221111', NULL, 'rafa1617', 'Centro Universitário', 0, 'dfc5a3ac7ac6bca1b56b89985e940269', 'pendente'),
-('888.999.000-11', 'Fernanda Rocha', 'fernanda.rocha@email.com', NULL, 'Low Carb', 'Frutos do mar', '11911110000', NULL, 'fer1819', 'Faculdade Municipal', 0, '64482ce8e7dfa39489c3bf4c15be8bec', 'pendente'),
-('999.000.111-22', 'Lucas Almeida', 'lucas.almeida@email.com', NULL, NULL, 'Penicilina', '11900009999', NULL, 'luca2021', 'Universidade Publica', 0, 'f78d391c8682fe739d04876f91be2c7e', 'pendente'),
-('Bia Santiago', 'Bia Santiago', 'Santhiagobeatriz21@gmail.com', NULL, 'Tradicional', 'sim, a homens', '(31) 99090-380', NULL, '12345678910', 'IFMG-OB', 0, NULL, 'pendente');
+('140.200.376-55', 'Gabriella Bolognani ', 'gabi.bolognanii08@gmail.com', NULL, 'Veganismo', '', '(31) 97160-914', NULL, 'Gmdi141288', 'IFMG-OB', 0, NULL, 'aluno'),
+('141.002.686-88', 'Otávio Torres Alcântara Cox', 'otavio.cox15@gmail.com', 'matheusrezendecastro@gmail.com', 'Tradicional', '', '(31) 98400-546', '31984005468', 'Say my Nam3', 'IFMG-OB', 0, NULL, 'aprovado'),
+('141.765.956-47', 'Ariele', 'tavaresarielle980@gmail.com', NULL, 'Tradicional', '', '(31) 98916-997', NULL, 'tavares980', 'IFMG-OB', 0, NULL, 'aluno'),
+('145.185.246-08', 'Japa', 'matheusg.mendes.g5@gmail.com', NULL, 'Tradicional', '', '(31) 97192-079', NULL, 'japinha', 'IFMG-OB', 0, NULL, 'aluno'),
+('149.497.936-59', 'Ricardo', 'rr0430620@gmail.com', NULL, 'Tradicional', '', '(31) 98456-343', NULL, '20070526Ric!', 'IFMG-OB', 0, NULL, 'aluno'),
+('157.483.306-52', 'Lara Lopez', 'laralelopes09@gmail.com', NULL, 'Tradicional', 'viagra', '(31) 98240-559', NULL, 'cucombosta', 'IFMG-OB', 0, NULL, 'aluno'),
+('158.150.026-23', 'Stanley', 'hoelzlestanley@gmail.com', NULL, 'Tradicional', 'Ambroxol', '(31) 99195-501', NULL, 'marcenes', 'IFMG-OB', 0, NULL, 'aluno'),
+('162.887.816-90', 'Tom Tom', 'thommazom@gmail.com', NULL, 'intolerante a lactose', '', '(31) 99880-971', NULL, 'Gabriel*2204', 'IFMG-OB', 0, NULL, 'aluno'),
+('222.333.444-55', 'Maria Santos', 'maria.santos@email.com', NULL, 'Lactose', 'Camarao', '11977776666', NULL, 'mariA456', 'Faculdade Estadual', 0, '35fdde9854048a15a1a349b379164782', 'aluno'),
+('333.444.555-66', 'Pedro Oliveira', 'pedro.oliveira@email.com', NULL, NULL, 'Abelha', '11966665555', NULL, 'pedro789', 'Colégio Aplicação', 0, 'db1b9ae011ed5e6a65fb49c2d5509b2d', 'aluno'),
+('444.555.666-77', 'Ana Costa', 'ana.costa@email.com', NULL, 'Vegana', 'Poeria', '11955554444', NULL, 'ana1011', 'Instituto Federal', 0, '70f9981eb5e00d6f9c63e4090b537a85', 'aluno'),
+('555.666.777-88', 'Carlos Pereira', 'carlos.pereira@email.com', NULL, 'Glúten', NULL, '11944443333', NULL, 'carlos1213', 'Universidade Privada', 0, '037def801a4b4e56dcd44c880c62649b', 'aluno'),
+('666.777.888-99', 'Juliana Lima', 'juliana.lima@email.com', NULL, NULL, 'Latex', '11933332222', NULL, 'juli1415', 'Escola Técnica', 0, 'e31fc749bf1a57a6d3c735f09cc544a4', 'aluno'),
+('777.888.999-00', 'Rafael Souza', 'rafael.souza@email.com', NULL, 'Diabético', 'Ovo', '11922221111', NULL, 'rafa1617', 'Centro Universitário', 0, 'dfc5a3ac7ac6bca1b56b89985e940269', 'aluno'),
+('888.999.000-11', 'Fernanda Rocha', 'fernanda.rocha@email.com', NULL, 'Low Carb', 'Frutos do mar', '11911110000', NULL, 'fer1819', 'Faculdade Municipal', 0, '64482ce8e7dfa39489c3bf4c15be8bec', 'aluno'),
+('999.000.111-22', 'Lucas Almeida', 'lucas.almeida@email.com', NULL, NULL, 'Penicilina', '11900009999', NULL, 'luca2021', 'Universidade Publica', 0, 'f78d391c8682fe739d04876f91be2c7e', 'aluno'),
+('Bia Santiago', 'Bia Santiago', 'Santhiagobeatriz21@gmail.com', NULL, 'Tradicional', 'sim, a homens', '(31) 99090-380', NULL, '12345678910', 'IFMG-OB', 0, NULL, 'aluno');
 
 --
 -- Índices para tabelas despejadas
@@ -310,6 +321,7 @@ ALTER TABLE `comite`
 --
 ALTER TABLE `delegacao`
   ADD PRIMARY KEY (`id_delegacao`,`id_unif`),
+  ADD UNIQUE KEY `unique_usuario_unif` (`cpf`,`id_unif`),
   ADD KEY `cpf` (`cpf`),
   ADD KEY `id_unif` (`id_unif`);
 
@@ -318,7 +330,8 @@ ALTER TABLE `delegacao`
 --
 ALTER TABLE `delegado`
   ADD PRIMARY KEY (`cpf`),
-  ADD KEY `id_comite` (`id_comite`);
+  ADD KEY `id_comite` (`id_comite`),
+  ADD KEY `fk_delegado_delegacao` (`id_delegacao`);
 
 --
 -- Índices de tabela `diretor`
@@ -385,7 +398,7 @@ ALTER TABLE `comite`
 -- AUTO_INCREMENT de tabela `delegacao`
 --
 ALTER TABLE `delegacao`
-  MODIFY `id_delegacao` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_delegacao` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `diretor`
@@ -436,7 +449,8 @@ ALTER TABLE `delegacao`
 --
 ALTER TABLE `delegado`
   ADD CONSTRAINT `delegado_ibfk_1` FOREIGN KEY (`id_comite`) REFERENCES `comite` (`id_comite`),
-  ADD CONSTRAINT `delegado_ibfk_2` FOREIGN KEY (`cpf`) REFERENCES `usuario` (`cpf`);
+  ADD CONSTRAINT `delegado_ibfk_2` FOREIGN KEY (`cpf`) REFERENCES `usuario` (`cpf`),
+  ADD CONSTRAINT `fk_delegado_delegacao` FOREIGN KEY (`id_delegacao`) REFERENCES `delegacao` (`id_delegacao`) ON DELETE SET NULL;
 
 --
 -- Restrições para tabelas `diretor`
