@@ -1,122 +1,305 @@
+/* Reset (Copiado do início) */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* Layout principal e Background (Copiado do início) */
 body {
-    margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: linear-gradient(135deg, #006837, #00b050);
-    min-height: 100vh;
+  background-color: #1a5c1a; /* Cor de fundo genérica, ajuste conforme necessário */
+  min-height: 100vh;
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ----------------------------------- */
+/* Estilos da Sidebar (Copiado do início)*/
+/* ----------------------------------- */
+
+.sidebar {
+  width: 70px;
+  background: linear-gradient(180deg, #1c1c1c, #2e353b);
+  color: white;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar:hover {
+  width: 250px;
+}
+
+.sidebar-header {
+  text-align: center;
+  padding: 15px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .sidebar-header h2,
+.sidebar .sidebar-menu li span {
+  display: none;
+}
+
+.sidebar:hover .sidebar-header h2,
+.sidebar:hover .sidebar-menu li span {
+  display: inline;
+}
+
+/* Itens da sidebar */
+.sidebar-menu {
+  list-style: none;
+}
+
+.sidebar-menu li {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: background 0.3s, transform 0.2s;
+  text-align: center;
+}
+
+.sidebar-menu li:hover {
+  background-color: #3d4a58;
+  transform: translateX(5px);
+}
+
+.sidebar-menu a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+.sidebar-menu i {
+  font-size: 1.5rem;
+  transition: color 0.3s;
+}
+
+.sidebar:hover .sidebar-menu i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+
+/* ----------------------------------- */
+/* Estilos do Conteúdo Principal (Copiado do início) */
+/* ----------------------------------- */
+
+.main-content {
+  flex: 1;
+  padding: 30px;
+  background-color: rgba(0, 0, 0, 0.3); /* Transparente com leve escurecimento */
+  color: white;
+  backdrop-filter: blur(3px); /* Efeito vidro fosco */
+  display: flex;
+  justify-content: center; /* Centraliza o conteúdo horizontalmente */
+  align-items: center; /* Centraliza o conteúdo verticalmente */
+}
+
+/* Conteúdo interno (Copiado do início) */
+.wraper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+  padding: 20px;
+  width: 100%;
+  max-width: 900px; /* Aumentado a largura máxima do wrapper */
+}
+
+
+/* Cabeçalho (Copiado do início) */
+.cabecalho {
+  background: white;
+  color: #1a5c1a;
+  font-weight: bold;
+  font-size: 1.3rem;
+  text-align: center;
+  padding: 15px 25px;
+  border-radius: 12px;
+  box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  width: 100%; 
+  max-width: 400px; 
+}
+
+.cabecalho:hover {
+  transform: translateY(-3px);
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.5);
+}
+
+
+/* ----------------------------------- */
+/* Estilos de Mensagem (Do Perfil Original) */
+/* ----------------------------------- */
+
+.mensagem {
+  padding: 12px 20px;
+  margin: 15px auto;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  animation: fadeIn 0.5s;
+  width: 90%;
+  max-width: 500px;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.mensagem.sucesso {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.mensagem.erro {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+
+/* ----------------------------------- */
+/* Estilos do Formulário de Perfil (Aumento da Box) */
+/* ----------------------------------- */
+
+.profile-box {
+  background-color: #fff;
+  width: 95%;
+  /* ALTERAÇÃO AQUI: AUMENTANDO A LARGURA MÁXIMA */
+  max-width: 800px; 
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  padding: 30px;
+}
+
+.info-section {
+  display: flex;
+  gap: 30px; 
+  flex-wrap: wrap;
+  justify-content: center; 
+}
+
+.form-section {
+  flex: 1;
+  min-width: 250px;
+}
+
+.form-section form {
+  width: 100%;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.input-group label {
+  font-weight: bold;
+  color: #006837;
+  margin-bottom: 5px;
+}
+
+/* Estilos de input misturando o original do perfil com o bloco <style> */
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #4a6fa5;
+  box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2);
+}
+
+.button-group {
+  margin-top: 30px; 
+  display: flex;
+  justify-content: flex-end; 
+  gap: 15px;
+}
+
+.update-btn,
+.cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.update-btn {
+  background-color: #00b050;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #999;
+  color: white;
+}
+
+.update-btn:hover {
+  background-color: #00913f;
+}
+
+.cancel-btn:hover {
+  background-color: #777;
+}
+
+
+/* ----------------------------------- */
+/* Responsividade (Copiada do início e ajustada) */
+/* ----------------------------------- */
+
+@media (max-width: 768px) {
+  .sidebar {
+      width: 60px;
   }
   
-  .logo-box {
-    position: absolute;
-    top: 30px;
-    left: 50px;
+  .sidebar:hover {
+      width: 180px;
   }
-  
-  .logo {
-    width: 160px;
+
+  .cabecalho {
+      font-size: 1.1rem;
+      padding: 10px 20px;
+      max-width: 90%;
+  }
+
+  .main-content {
+      padding: 15px;
   }
   
   .profile-box {
-    background-color: #fff;
-    width: 70%;
-    max-width: 900px;
-    margin: 120px auto;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-    padding: 40px;
-  }
-  
-  .profile-box h2 {
-    color: #006837;
-    margin-bottom: 25px;
-    border-bottom: 2px solid #00b050;
-    padding-bottom: 10px;
-  }
-  
-  .info-section {
-    display: flex;
-    gap: 40px;
-    flex-wrap: wrap;
-  }
-  
-  .avatar-section {
-    text-align: center;
-  }
-  
-  .avatar {
-    width: 140px;
-    height: 140px;
-    border-radius: 10px;
-    object-fit: cover;
-    border: 2px solid #00b050;
-    margin-bottom: 10px;
-  }
-  
-  .change-btn {
-    background-color: #00b050;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 15px;
-    cursor: pointer;
-  }
-  
-  .change-btn:hover {
-    background-color: #00913f;
-  }
-  
-  .form-section {
-    flex: 1;
-    min-width: 300px;
-  }
-  
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 15px;
-  }
-  
-  .input-group label {
-    font-weight: bold;
-    color: #006837;
-    margin-bottom: 5px;
-  }
-  
-  .input-group input {
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 15px;
+      padding: 20px;
+      max-width: 95%; /* Mantém a responsividade em telas menores */
   }
   
   .button-group {
-    margin-top: 20px;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
   }
-  
-  .update-btn,
-  .cancel-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  
-  .update-btn {
-    background-color: #00b050;
-    color: white;
-    margin-right: 10px;
-  }
-  
-  .cancel-btn {
-    background-color: #999;
-    color: white;
-  }
-  
-  .update-btn:hover {
-    background-color: #00913f;
-  }
-  
-  .cancel-btn:hover {
-    background-color: #777;
-  }
-  
+}
