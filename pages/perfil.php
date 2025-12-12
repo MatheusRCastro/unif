@@ -2,7 +2,7 @@
 session_start();
 require_once 'php/conexao.php'; // Inclui o arquivo de conexão
 
-// Processar atualização do perfil
+// Processar atualização do perfil (MANTIDO INTACTO)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['atualizar_perfil'])) {
     if (!$conn || $conn->connect_error) {
         $_SESSION['mensagem'] = "Erro de conexão com o banco de dados";
@@ -36,11 +36,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['atualizar_perfil'])) 
                     
                     // Atualizar os dados do usuário
                     $sql_atualizar = "UPDATE usuario SET 
-                                    nome = ?, 
-                                    email = ?, 
-                                    telefone = ?, 
-                                    instituicao = ? 
-                                    WHERE cpf = ?";
+                                        nome = ?, 
+                                        email = ?, 
+                                        telefone = ?, 
+                                        instituicao = ? 
+                                        WHERE cpf = ?";
                     
                     $stmt = $conn->prepare($sql_atualizar);
                     $stmt->bind_param("sssss", $nome, $email, $telefone, $instituicao, $cpf);
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['atualizar_perfil'])) 
     exit();
 }
 
-// Buscar dados atualizados do usuário do banco
+// Buscar dados atualizados do usuário do banco (MANTIDO INTACTO)
 if (isset($_SESSION["cpf"]) && $conn && !$conn->connect_error) {
     $cpf = $_SESSION["cpf"];
     $sql = "SELECT nome, email, telefone, instituicao FROM usuario WHERE cpf = ?";
@@ -97,175 +97,155 @@ if (isset($_SESSION["cpf"]) && $conn && !$conn->connect_error) {
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8">
-  <title>Perfil - UNIF</title>
-  <link rel="stylesheet" href="styles/perfil.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <script src="scripts/sidebar.js" defer></script>
-  <style>
-    .mensagem {
-        padding: 12px 20px;
-        margin: 15px 0;
-        border-radius: 5px;
-        text-align: center;
-        font-weight: bold;
-        animation: fadeIn 0.5s;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Perfil - UNIF</title>
     
-    .mensagem.sucesso {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-    
-    .mensagem.erro {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .form-section form {
-        width: 100%;
-    }
-    
-    .input-group input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 14px;
-    }
-    
-    .input-group input:focus {
-        outline: none;
-        border-color: #4a6fa5;
-        box-shadow: 0 0 0 2px rgba(74, 111, 165, 0.2);
-    }
-  </style>
-</head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="stylesheet" href="styles/global.css" /> <link rel="stylesheet" href="styles/perfil.css"> <script src="scripts/sidebar.js" defer></script>
+    </head>
 
 <body>
 
-  <?php
-  // Verifica se foi iniciada a sessão do usuário
-  if (isset($_SESSION["cpf"])) {
-    
-    // Mostrar mensagem se existir
-    if (isset($_SESSION['mensagem'])) {
-        $tipo = $_SESSION['tipo_mensagem'] ?? 'erro';
-        $mensagem = $_SESSION['mensagem'];
-        echo '<div class="mensagem ' . $tipo . '">' . $mensagem . '</div>';
-        // Limpar mensagem após mostrar
-        unset($_SESSION['mensagem']);
-        unset($_SESSION['tipo_mensagem']);
-    }
-  ?>
+    <?php
+    // Verifica se foi iniciada a sessão do usuário
+    if (isset($_SESSION["cpf"])) {
+        
+        // Mostrar mensagem se existir (MANTIDO INTACTO)
+        if (isset($_SESSION['mensagem'])) {
+            $tipo = $_SESSION['tipo_mensagem'] ?? 'erro';
+            $mensagem = $_SESSION['mensagem'];
+            echo '<div class="mensagem ' . $tipo . '">' . $mensagem . '</div>';
+            // Limpar mensagem após mostrar
+            unset($_SESSION['mensagem']);
+            unset($_SESSION['tipo_mensagem']);
+        }
+    ?>
 
-    <div class="background">
-      <div class="logo-box">
-        <img src="images/unif.png" alt="Logo UNIF" class="logo">
-      </div>
+    <div class="container"> <nav class="sidebar collapsed">
+            <div class="sidebar-header">
+                <h2>Menu</h2>
+            </div>
 
-      <div class="profile-box">
-        <h2>Editar Perfil</h2>
-        <div class="info-section">
-          <div class="form-section">
-            <form method="POST" action="">
-              <div class="input-group">
-                <label>Nome:</label>
-                <input type="text" name="nome" value="<?php echo htmlspecialchars($_SESSION["nome"] ?? ''); ?>" required>
-              </div>
+            <ul class="sidebar-menu">
+                <li data-tooltip="Início">
+                    <a href="inicio.php"><i class="fas fa-home"></i> <span>Início</span></a>
+                </li>
+                <li data-tooltip="Perfil">
+                    <a href="perfil.php"><i class="fas fa-user"></i> <span>Perfil</span></a>
+                </li>
+                <li data-tooltip="Mensagens">
+                    <a href="mensagens.php"><i class="fas fa-envelope"></i> <span>Mensagens</span></a>
+                </li>
+                <li data-tooltip="Configurações">
+                    <a href="#"><i class="fas fa-cog"></i> <span>Configurações</span></a>
+                </li>
+                <li data-tooltip="Ajuda">
+                    <a href="ajuda.php"><i class="fas fa-question-circle"></i> <span>Ajuda</span></a>
+                </li>
+            </ul>
+        </nav>
 
-              <div class="input-group">
-                <label>E-mail:</label>
-                <input type="email" name="email" value="<?php echo htmlspecialchars($_SESSION["email"] ?? ''); ?>" required>
-              </div>
+        <main class="main-content">
+            <div class="wraper">
+                
 
-              <div class="input-group">
-                <label>Telefone:</label>
-                <input type="text" name="telefone" value="<?php echo htmlspecialchars($_SESSION["telefone"] ?? ''); ?>" required>
-              </div>
+                <div class="profile-box">
+                    <div class="info-section">
+                        <div class="form-section">
+                            <form method="POST" action="">
+                                <div class="input-group">
+                                    <label>Nome:</label>
+                                    <input type="text" name="nome" value="<?php echo htmlspecialchars($_SESSION["nome"] ?? ''); ?>" required>
+                                </div>
 
-              <div class="input-group">
-                <label>Instituição:</label>
-                <input type="text" name="instituicao" value="<?php echo htmlspecialchars($_SESSION["instituicao"] ?? ''); ?>" required>
-              </div>
+                                <div class="input-group">
+                                    <label>E-mail:</label>
+                                    <input type="email" name="email" value="<?php echo htmlspecialchars($_SESSION["email"] ?? ''); ?>" required>
+                                </div>
 
-              <div class="button-group">
-                <button type="submit" name="atualizar_perfil" value="1" class="update-btn">Salvar</button>
-                <button type="button" class="cancel-btn" onclick="window.location.href='<?php echo $_SERVER['PHP_SELF']; ?>'">Cancelar</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+                                <div class="input-group">
+                                    <label>Telefone:</label>
+                                    <input type="text" name="telefone" value="<?php echo htmlspecialchars($_SESSION["telefone"] ?? ''); ?>" required>
+                                </div>
+
+                                <div class="input-group">
+                                    <label>Instituição:</label>
+                                    <input type="text" name="instituicao" value="<?php echo htmlspecialchars($_SESSION["instituicao"] ?? ''); ?>" required>
+                                </div>
+
+                                <div class="button-group">
+                                    <button type="submit" name="atualizar_perfil" value="1" class="update-btn">Salvar</button>
+                                    <button type="button" class="cancel-btn" onclick="window.location.href='<?php echo $_SERVER['PHP_SELF']; ?>'">Cancelar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
-      // Adicionar validação de formulário
-      document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form');
-        const telefoneInput = document.querySelector('input[name="telefone"]');
-        
-        // Formatação de telefone
-        telefoneInput.addEventListener('input', function(e) {
-          let value = e.target.value.replace(/\D/g, '');
+        // MANTIDO INTACTO
+        document.addEventListener('DOMContentLoaded', function() {
+          const form = document.querySelector('form');
+          const telefoneInput = document.querySelector('input[name="telefone"]');
           
-          if (value.length === 11) {
-            value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
-          } else if (value.length === 10) {
-            value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
-          }
+          // Formatação de telefone
+          telefoneInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length === 11) {
+              value = value.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            } else if (value.length === 10) {
+              value = value.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3');
+            }
+            
+            e.target.value = value;
+          });
           
-          e.target.value = value;
+          // Validação antes de enviar
+          form.addEventListener('submit', function(e) {
+            const telefone = telefoneInput.value.replace(/\D/g, '');
+            
+            if (telefone.length !== 10 && telefone.length !== 11) {
+              e.preventDefault();
+              alert('Por favor, insira um telefone válido com 10 ou 11 dígitos');
+              telefoneInput.focus();
+              return false;
+            }
+            
+            // Validação de email
+            const emailInput = document.querySelector('input[name="email"]');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!emailRegex.test(emailInput.value)) {
+              e.preventDefault();
+              alert('Por favor, insira um e-mail válido');
+              emailInput.focus();
+              return false;
+            }
+            
+            // Confirmação
+            return confirm('Tem certeza que deseja atualizar seus dados?');
+          });
         });
-        
-        // Validação antes de enviar
-        form.addEventListener('submit', function(e) {
-          const telefone = telefoneInput.value.replace(/\D/g, '');
-          
-          if (telefone.length !== 10 && telefone.length !== 11) {
-            e.preventDefault();
-            alert('Por favor, insira um telefone válido com 10 ou 11 dígitos');
-            telefoneInput.focus();
-            return false;
-          }
-          
-          // Validação de email
-          const emailInput = document.querySelector('input[name="email"]');
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          
-          if (!emailRegex.test(emailInput.value)) {
-            e.preventDefault();
-            alert('Por favor, insira um e-mail válido');
-            emailInput.focus();
-            return false;
-          }
-          
-          // Confirmação
-          return confirm('Tem certeza que deseja atualizar seus dados?');
-        });
-      });
     </script>
 
-  <?php
-  } else {
-    echo "Usuário não autenticado!";
-  ?>
-    <a href="login.html" class="erro-php">Se identifique aqui</a>
-  <?php
-  }
-  
-  // Fechar conexão se existir
-  if ($conn && !$conn->connect_error) {
-      $conn->close();
-  }
-  ?>
+    <?php
+    } else {
+        echo "Usuário não autenticado!";
+    ?>
+        <a href="login.html" class="erro-php">Se identifique aqui</a>
+    <?php
+    }
+    
+    // Fechar conexão se existir (MANTIDO INTACTO)
+    if ($conn && !$conn->connect_error) {
+        $conn->close();
+    }
+    ?>
 </body>
 
 </html>
