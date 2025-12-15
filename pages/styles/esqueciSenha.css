@@ -1,0 +1,186 @@
+/* Container principal */
+.main-content {
+    flex: 1;
+    min-height: calc(100vh - 80px);
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(3px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Caixa de recuperação */
+.box-recuperacao {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.45);
+}
+
+/* Título */
+.box-recuperacao h2 {
+    text-align: center;
+    color: #1a5c1a;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+/* Mensagens */
+.mensagem {
+    text-align: center;
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.mensagem.erro {
+    background-color: #ffeaea;
+    color: #d32f2f;
+    border: 1px solid #ffcdd2;
+}
+
+.mensagem.sucesso {
+    background-color: #e8f5e9;
+    color: #1a5c1a;
+    border: 1px solid #c8e6c9;
+}
+
+/* Campos do formulário */
+.campo {
+    margin-bottom: 20px;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.campo input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.3s;
+}
+
+.campo input:focus {
+    outline: none;
+    border-color: #1a5c1a;
+    box-shadow: 0 0 0 2px rgba(26, 92, 26, 0.2);
+}
+
+/* Botão */
+.box-recuperacao button {
+    width: 100%;
+    background: #1a5c1a;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.box-recuperacao button:hover {
+    background: #1fa51f;
+}
+
+.box-recuperacao button:active {
+    transform: translateY(1px);
+}
+
+/* Links */
+.links {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.box-recuperacao a {
+    color: #1a5c1a;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-block;
+    transition: color 0.3s;
+}
+
+.box-recuperacao a:hover {
+    color: #1fa51f;
+    text-decoration: underline;
+}
+
+/* Sucesso box */
+.sucesso-box {
+    text-align: center;
+    padding: 10px 0;
+}
+
+.icone-sucesso {
+    font-size: 3rem;
+    color: #4CAF50;
+    margin-bottom: 15px;
+}
+
+.sucesso-box p {
+    color: #333;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.sucesso-box p:first-of-type {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #1a5c1a;
+}
+
+.btn-login {
+    display: inline-block;
+    background: #1a5c1a;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background: #1fa51f;
+    text-decoration: none;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+    .box-recuperacao {
+        padding: 30px 20px;
+        margin: 10px;
+    }
+    
+    .main-content {
+        padding: 10px;
+    }
+    
+    .box-recuperacao h2 {
+        font-size: 1.6rem;
+    }
+}
+
+/* Estilo para o CPF */
+input#cpf {
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
