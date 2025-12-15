@@ -12,7 +12,7 @@ if (!isset($_SESSION["cpf"]) || (!$_SESSION["adm"] && !$_SESSION["secretario"]))
 $comites = [];
 $delegados_sem_representacao = [];
 $estatisticas = [];
-$current_unif_id = 1; // Pode ser obtido dinamicamente
+$current_unif_id = 1;
 
 if ($conn && $conn->connect_error === null) {
     // Buscar o ID da UNIF atual
@@ -76,9 +76,8 @@ if ($conn && $conn->connect_error === null) {
     }
     $stmt_comites->close();
     
-    // Buscar delegados sem representação atribuída
-    // NOTA: Pelo esquema do banco, não há tabela 'delegacao'. Vou buscar da tabela 'delegado'
-    $sql_delegados_sem_rep = "
+    // Buscar delegados NÃO atribuídos ainda
+    $sql_delegados_nao_atribuidos = "
         SELECT 
             d.cpf, 
             u.nome, 
@@ -87,17 +86,42 @@ if ($conn && $conn->connect_error === null) {
             u.instituicao,
             u.restricao_alimentar,
             u.alergia,
-            c.nome_comite
+            
+            -- Comitê desejado
+            d.comite_desejado as comite_op1_id,
+            c2.nome_comite as comite_op1_nome,
+            
+            -- Segunda opção de comitê
+            d.segunda_op_comite as comite_op2_id,
+            c3.nome_comite as comite_op2_nome,
+            
+            -- Terceira opção de comitê
+            d.terceira_op_comite as comite_op3_id,
+            c4.nome_comite as comite_op3_nome,
+            
+            -- Representações (opções)
+            d.primeira_op_representacao as rep_op1_id,
+            r1.nome_representacao as rep_op1_nome,
+            
+            d.segunda_op_representacao as rep_op2_id,
+            r2.nome_representacao as rep_op2_nome,
+            
+            d.terceira_op_representacao as rep_op3_id,
+            r3.nome_representacao as rep_op3_nome
+            
         FROM delegado d
         JOIN usuario u ON d.cpf = u.cpf
-        LEFT JOIN representacao r ON d.cpf = r.cpf_delegado
-        LEFT JOIN comite c ON d.id_comite = c.id_comite
-        WHERE r.cpf_delegado IS NULL
+        LEFT JOIN comite c2 ON d.comite_desejado = c2.id_comite
+        LEFT JOIN comite c3 ON d.segunda_op_comite = c3.id_comite
+        LEFT JOIN comite c4 ON d.terceira_op_comite = c4.id_comite
+        LEFT JOIN representacao r1 ON d.primeira_op_representacao = r1.id_representacao
+        LEFT JOIN representacao r2 ON d.segunda_op_representacao = r2.id_representacao
+        LEFT JOIN representacao r3 ON d.terceira_op_representacao = r3.id_representacao
+        WHERE d.cpf NOT IN (SELECT cpf_delegado FROM representacao WHERE cpf_delegado IS NOT NULL)
         AND d.id_comite IS NOT NULL
-        AND c.id_unif = ?";
+        ORDER BY u.nome";
     
-    $stmt_delegados = $conn->prepare($sql_delegados_sem_rep);
-    $stmt_delegados->bind_param("i", $current_unif_id);
+    $stmt_delegados = $conn->prepare($sql_delegados_nao_atribuidos);
     $stmt_delegados->execute();
     $result_delegados = $stmt_delegados->get_result();
     
@@ -153,21 +177,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             $stmt->bind_param("si", $cpf, $id_representacao);
             
             if ($stmt->execute()) {
-                // Atualizar a tabela delegado com o id_comite da representação
-                $sql_get_comite = "SELECT id_comite FROM representacao WHERE id_representacao = ?";
-                $stmt2 = $conn->prepare($sql_get_comite);
-                $stmt2->bind_param("i", $id_representacao);
-                $stmt2->execute();
-                $result2 = $stmt2->get_result();
-                if ($comite_row = $result2->fetch_assoc()) {
-                    $sql_update_delegado = "UPDATE delegado SET id_comite = ? WHERE cpf = ?";
-                    $stmt3 = $conn->prepare($sql_update_delegado);
-                    $stmt3->bind_param("is", $comite_row['id_comite'], $cpf);
-                    $stmt3->execute();
-                    $stmt3->close();
-                }
-                $stmt2->close();
-                
                 // Buscar dados atualizados do delegado
                 $sql_delegado = "SELECT u.nome, u.instituicao FROM usuario u WHERE u.cpf = ?";
                 $stmt4 = $conn->prepare($sql_delegado);
@@ -180,7 +189,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                     'success' => true,
                     'delegado' => [
                         'nome' => $delegado['nome'],
-                        'instituicao' => $delegado['instituicao']
+                        'instituicao' => $delegado['instituicao'],
+                        'cpf' => $cpf
                     ]
                 ];
                 $stmt4->close();
@@ -195,7 +205,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("i", $id_representacao);
             
-            $response['success'] = $stmt->execute();
+            if ($stmt->execute()) {
+                $response['success'] = true;
+            }
             $stmt->close();
         }
     }
@@ -218,7 +230,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     <link rel="stylesheet" href="styles/global.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Estilos permanecem os mesmos */
         * {
             box-sizing: border-box;
         }
@@ -278,14 +289,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             margin-top: 20px;
         }
         
-        .comites-section {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .delegados-section {
+        .comites-section, .delegados-section {
             background: white;
             padding: 20px;
             border-radius: 10px;
@@ -310,36 +314,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         }
         
         .comite-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             color: #2c3e50;
         }
         
         .comite-stats {
-            font-size: 14px;
+            font-size: 13px;
             color: #7f8c8d;
         }
         
         .representacoes-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
         }
         
         .representacao-card {
             background: white;
             border: 2px dashed #ddd;
             border-radius: 6px;
-            padding: 12px;
-            min-height: 100px;
+            padding: 10px;
+            min-height: 80px;
             transition: all 0.3s ease;
-            cursor: move;
+            cursor: grab;
         }
         
         .representacao-card.filled {
             border-style: solid;
             border-color: #3498db;
             background: #ebf5fb;
+            cursor: grab;
         }
         
         .representacao-card.drag-over {
@@ -351,32 +356,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         .rep-nome {
             font-weight: 600;
             color: #2c3e50;
-            margin-bottom: 8px;
+            font-size: 14px;
+            margin-bottom: 5px;
         }
         
         .delegado-info {
-            font-size: 13px;
+            font-size: 12px;
             color: #34495e;
-            padding: 8px;
+            padding: 6px;
             background: #f1f8ff;
             border-radius: 4px;
-            margin-top: 8px;
-        }
-        
-        .remove-btn {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 8px;
-            display: none;
-        }
-        
-        .representacao-card.filled:hover .remove-btn {
-            display: inline-block;
+            margin-top: 6px;
+            cursor: grab;
+            user-select: none;
         }
         
         .delegado-card {
@@ -385,8 +377,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             border-radius: 6px;
             padding: 12px;
             margin-bottom: 10px;
-            cursor: move;
+            cursor: grab;
             transition: all 0.3s ease;
+            user-select: none;
         }
         
         .delegado-card:hover {
@@ -401,25 +394,107 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         .delegado-nome {
             font-weight: 600;
             color: #2c3e50;
+            font-size: 15px;
+            margin-bottom: 5px;
         }
         
         .delegado-details {
-            font-size: 13px;
+            font-size: 12px;
             color: #7f8c8d;
-            margin-top: 5px;
+            margin-bottom: 8px;
         }
         
+        /* Estilos para as opções compactas */
+        .opcoes-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 10px;
+        }
+        
+        .opcao-tag {
+            background: #e8f4fd;
+            border: 1px solid #b3d9ff;
+            border-radius: 10px;
+            padding: 2px 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            white-space: nowrap;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .opcao-tag.comite {
+            background: #e8f7ec;
+            border-color: #a3e9c4;
+        }
+        
+        .opcao-tag.representacao {
+            background: #fff4e6;
+            border-color: #ffd8b3;
+        }
+        
+        .opcao-number {
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            margin-right: 3px;
+            flex-shrink: 0;
+        }
+        
+        .opcao-number.comite {
+            background: #2ecc71;
+        }
+        
+        .opcao-number.representacao {
+            background: #e67e22;
+        }
+        
+        /* Área para remover delegados via drag-and-drop */
+        .trash-zone {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .trash-zone.drag-over {
+            transform: scale(1.1);
+            background: #c0392b;
+            box-shadow: 0 6px 16px rgba(192, 57, 43, 0.4);
+        }
+        
+        .trash-zone:hover {
+            background: #c0392b;
+        }
+        
+        /* Mensagens */
         .empty-message {
             text-align: center;
             padding: 30px;
             color: #95a5a6;
             font-style: italic;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #3498db;
         }
         
         .success-message {
@@ -440,24 +515,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             display: none;
         }
         
-        .progress-bar {
-            height: 6px;
-            background: #ecf0f1;
-            border-radius: 3px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: #2ecc71;
-            border-radius: 3px;
-            transition: width 0.3s ease;
+        .drag-hint {
+            font-size: 10px;
+            color: #3498db;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
         
         @media (max-width: 1024px) {
             .content {
                 grid-template-columns: 1fr;
+            }
+            
+            .representacoes-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             }
         }
     </style>
@@ -486,17 +559,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                     </div>
                     <small>Preenchidas/Total</small>
                 </div>
-                <div class="stat-card">
-                    <h3>Taxa de Preenchimento</h3>
-                    <div class="number">
-                        <?php 
-                        $total = $estatisticas['total_representacoes'] ?? 1;
-                        $preenchidas = $estatisticas['representacoes_preenchidas'] ?? 0;
-                        echo $total > 0 ? round(($preenchidas / $total) * 100) : 0;
-                        ?>%
-                    </div>
-                    <small>Progresso geral</small>
-                </div>
             </div>
         </div>
         
@@ -522,10 +584,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                                     <small style="color: #7f8c8d;">(<?php echo htmlspecialchars($comite['tipo_comite']); ?>)</small>
                                 </div>
                                 <div class="comite-stats">
-                                    <?php echo $comite['representacoes_preenchidas']; ?>/<?php echo $comite['total_representacoes']; ?> representações
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: <?php echo $comite['total_representacoes'] > 0 ? ($comite['representacoes_preenchidas'] / $comite['total_representacoes'] * 100) : 0; ?>%"></div>
-                                    </div>
+                                    <?php echo $comite['representacoes_preenchidas']; ?>/<?php echo $comite['total_representacoes']; ?> rep.
                                 </div>
                             </div>
                             
@@ -537,27 +596,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                                          ondrop="dropDelegado(event)">
                                         
                                         <div class="rep-nome">
-                                            <i class="fas fa-flag"></i>
+                                            <i class="fas fa-flag" style="font-size: 12px;"></i>
                                             <?php echo htmlspecialchars($representacao['nome_representacao']); ?>
                                         </div>
                                         
                                         <?php if ($representacao['cpf_delegado']): ?>
-                                            <div class="delegado-info">
-                                                <div class="delegado-nome">
-                                                    <i class="fas fa-user"></i>
-                                                    <?php echo htmlspecialchars($representacao['nome_delegado']); ?>
+                                            <div class="delegado-info" 
+                                                 draggable="true" 
+                                                 ondragstart="dragDelegadoFromRep(event)" 
+                                                 data-cpf="<?php echo htmlspecialchars($representacao['cpf_delegado']); ?>">
+                                                <div style="font-weight: 600; font-size: 11px;">
+                                                    <i class="fas fa-user" style="font-size: 10px;"></i>
+                                                    <?php 
+                                                    $nome = htmlspecialchars($representacao['nome_delegado']);
+                                                    echo strlen($nome) > 15 ? substr($nome, 0, 15) . '...' : $nome;
+                                                    ?>
                                                 </div>
-                                                <div class="delegado-details">
-                                                    <?php echo htmlspecialchars($representacao['instituicao']); ?>
+                                                <div style="font-size: 10px; color: #7f8c8d;">
+                                                    <?php 
+                                                    $inst = htmlspecialchars($representacao['instituicao']);
+                                                    echo strlen($inst) > 20 ? substr($inst, 0, 20) . '...' : $inst;
+                                                    ?>
                                                 </div>
-                                                <button class="remove-btn" onclick="removerDelegado(<?php echo $representacao['id_representacao']; ?>)">
-                                                    <i class="fas fa-times"></i> Remover
-                                                </button>
+                                                <div class="drag-hint">
+                                                    <i class="fas fa-arrows-alt"></i> Arraste para a lixeira para remover
+                                                </div>
                                             </div>
                                         <?php else: ?>
-                                            <div style="color: #95a5a6; font-size: 12px; margin-top: 20px; text-align: center;">
+                                            <div style="color: #95a5a6; font-size: 11px; text-align: center; padding-top: 15px;">
                                                 <i class="fas fa-arrow-down"></i><br>
-                                                Arraste um delegado aqui
+                                                Solte um delegado aqui
                                             </div>
                                         <?php endif; ?>
                                     </div>
@@ -568,11 +636,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                 <?php endif; ?>
             </div>
             
-            <!-- Seção de Delegados Sem Representação -->
+            <!-- Seção de Delegados (apenas não atribuídos) -->
             <div class="delegados-section">
-                <h2><i class="fas fa-user-friends"></i> Delegados Sem Representação</h2>
-                <p style="color: #7f8c8d; font-size: 14px; margin-bottom: 20px;">
-                    Arraste estes delegados para as representações
+                <h2><i class="fas fa-user-friends"></i> Delegados Disponíveis</h2>
+                <p style="color: #7f8c8d; font-size: 13px; margin-bottom: 20px;">
+                    Arraste para as representações vazias
                 </p>
                 
                 <?php if (empty($delegados_sem_representacao)): ?>
@@ -590,52 +658,120 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                                 
                                 <div class="delegado-nome">
                                     <i class="fas fa-user-graduate"></i>
-                                    <?php echo htmlspecialchars($delegado['nome']); ?>
+                                    <?php 
+                                    $nome = htmlspecialchars($delegado['nome']);
+                                    echo strlen($nome) > 25 ? substr($nome, 0, 25) . '...' : $nome;
+                                    ?>
                                 </div>
                                 
                                 <div class="delegado-details">
-                                    <strong>Instituição:</strong> <?php echo htmlspecialchars($delegado['instituicao']); ?><br>
-                                    <?php if (isset($delegado['nome_comite'])): ?>
-                                    <strong>Comitê Desejado:</strong> <?php echo htmlspecialchars($delegado['nome_comite']); ?>
+                                    <strong><?php echo htmlspecialchars($delegado['instituicao']); ?></strong>
+                                </div>
+                                
+                                <!-- Opções compactas -->
+                                <div class="opcoes-grid">
+                                    <?php if (!empty($delegado['comite_op1_nome'])): ?>
+                                        <div class="opcao-tag comite" title="1ª Opção de Comitê: <?php echo htmlspecialchars($delegado['comite_op1_nome']); ?>">
+                                            <span class="opcao-number comite">1</span>
+                                            <span><?php echo htmlspecialchars(substr($delegado['comite_op1_nome'], 0, 12)); ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if (!empty($delegado['comite_op2_nome'])): ?>
+                                        <div class="opcao-tag comite" title="2ª Opção de Comitê: <?php echo htmlspecialchars($delegado['comite_op2_nome']); ?>">
+                                            <span class="opcao-number comite">2</span>
+                                            <span><?php echo htmlspecialchars(substr($delegado['comite_op2_nome'], 0, 10)); ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if (!empty($delegado['comite_op3_nome'])): ?>
+                                        <div class="opcao-tag comite" title="3ª Opção de Comitê: <?php echo htmlspecialchars($delegado['comite_op3_nome']); ?>">
+                                            <span class="opcao-number comite">3</span>
+                                            <span><?php echo htmlspecialchars(substr($delegado['comite_op3_nome'], 0, 10)); ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if (!empty($delegado['rep_op1_nome'])): ?>
+                                        <div class="opcao-tag representacao" title="1ª Opção de Representação: <?php echo htmlspecialchars($delegado['rep_op1_nome']); ?>">
+                                            <span class="opcao-number representacao">1</span>
+                                            <span><?php echo htmlspecialchars(substr($delegado['rep_op1_nome'], 0, 10)); ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if (!empty($delegado['rep_op2_nome'])): ?>
+                                        <div class="opcao-tag representacao" title="2ª Opção de Representação: <?php echo htmlspecialchars($delegado['rep_op2_nome']); ?>">
+                                            <span class="opcao-number representacao">2</span>
+                                            <span><?php echo htmlspecialchars(substr($delegado['rep_op2_nome'], 0, 8)); ?></span>
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <?php if (!empty($delegado['rep_op3_nome'])): ?>
+                                        <div class="opcao-tag representacao" title="3ª Opção de Representação: <?php echo htmlspecialchars($delegado['rep_op3_nome']); ?>">
+                                            <span class="opcao-number representacao">3</span>
+                                            <span><?php echo htmlspecialchars(substr($delegado['rep_op3_nome'], 0, 8)); ?></span>
+                                        </div>
                                     <?php endif; ?>
                                 </div>
                                 
-                                <?php if (!empty($delegado['justificativa'])): ?>
-                                    <div class="justificativa">
-                                        <strong>Justificativa:</strong> 
-                                        <?php echo strlen($delegado['justificativa']) > 100 ? 
-                                            htmlspecialchars(substr($delegado['justificativa'], 0, 100)) . '...' : 
-                                            htmlspecialchars($delegado['justificativa']); ?>
-                                    </div>
-                                <?php endif; ?>
+                                <div class="drag-hint">
+                                    <i class="fas fa-arrows-alt"></i> Arraste para uma representação
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
+        
+        <!-- Zona de lixeira para remover via drag-and-drop -->
+        <div class="trash-zone" 
+             ondragover="allowDrop(event)" 
+             ondrop="dropInTrash(event)"
+             ondragenter="this.classList.add('drag-over')"
+             ondragleave="this.classList.remove('drag-over')"
+             title="Arraste um delegado aqui para remover da representação">
+            <i class="fas fa-trash"></i>
+        </div>
     </div>
     
     <script>
-        // JavaScript permanece o mesmo
         let delegadoArrastado = null;
+        let delegadoFromRep = null;
         
         function dragDelegado(event) {
             delegadoArrastado = event.target;
             event.target.classList.add('dragging');
             event.dataTransfer.setData('text/plain', event.target.dataset.cpf);
+            event.dataTransfer.setData('type', 'delegado');
+        }
+        
+        function dragDelegadoFromRep(event) {
+            delegadoFromRep = event.target;
+            event.dataTransfer.setData('text/plain', event.target.dataset.cpf);
+            event.dataTransfer.setData('type', 'delegado_atribuido');
+            event.stopPropagation();
         }
         
         function allowDrop(event) {
             event.preventDefault();
-            event.currentTarget.classList.add('drag-over');
+            if (event.currentTarget.classList.contains('representacao-card')) {
+                event.currentTarget.classList.add('drag-over');
+            }
         }
         
         function dropDelegado(event) {
             event.preventDefault();
             event.currentTarget.classList.remove('drag-over');
             
-            const cpf = delegadoArrastado ? delegadoArrastado.dataset.cpf : event.dataTransfer.getData('text/plain');
+            const type = event.dataTransfer.getData('type');
+            let cpf;
+            
+            if (type === 'delegado_atribuido') {
+                cpf = delegadoFromRep ? delegadoFromRep.dataset.cpf : event.dataTransfer.getData('text/plain');
+            } else {
+                cpf = delegadoArrastado ? delegadoArrastado.dataset.cpf : event.dataTransfer.getData('text/plain');
+            }
+            
             const repId = event.currentTarget.dataset.repId;
             
             if (cpf && repId) {
@@ -645,6 +781,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             if (delegadoArrastado) {
                 delegadoArrastado.classList.remove('dragging');
                 delegadoArrastado = null;
+            }
+            if (delegadoFromRep) {
+                delegadoFromRep = null;
+            }
+        }
+        
+        function dropInTrash(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('drag-over');
+            
+            const type = event.dataTransfer.getData('type');
+            const cpf = event.dataTransfer.getData('text/plain');
+            
+            if (type === 'delegado_atribuido' && cpf) {
+                // Encontrar a representação onde o delegado está
+                const repCard = document.querySelector(`.delegado-info[data-cpf="${cpf}"]`)?.closest('.representacao-card');
+                if (repCard) {
+                    const repId = repCard.dataset.repId;
+                    removerDelegado(repId);
+                }
             }
         }
         
@@ -661,31 +817,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Atualizar visual da representação
+                    const nomeAbrev = data.delegado.nome.length > 15 ? 
+                        data.delegado.nome.substring(0, 15) + '...' : data.delegado.nome;
+                    const instAbrev = data.delegado.instituicao.length > 20 ? 
+                        data.delegado.instituicao.substring(0, 20) + '...' : data.delegado.instituicao;
+                    
                     repElement.classList.add('filled');
                     repElement.innerHTML = `
                         <div class="rep-nome">
-                            <i class="fas fa-flag"></i>
-                            ${repElement.querySelector('.rep-nome').textContent}
+                            <i class="fas fa-flag" style="font-size: 12px;"></i>
+                            ${repElement.querySelector('.rep-nome').textContent.trim()}
                         </div>
-                        <div class="delegado-info">
-                            <div class="delegado-nome">
-                                <i class="fas fa-user"></i>
-                                ${data.delegado.nome}
+                        <div class="delegado-info" 
+                             draggable="true" 
+                             ondragstart="dragDelegadoFromRep(event)" 
+                             data-cpf="${cpf}">
+                            <div style="font-weight: 600; font-size: 11px;">
+                                <i class="fas fa-user" style="font-size: 10px;"></i>
+                                ${nomeAbrev}
                             </div>
-                            <div class="delegado-details">
-                                ${data.delegado.instituicao}
+                            <div style="font-size: 10px; color: #7f8c8d;">
+                                ${instAbrev}
                             </div>
-                            <button class="remove-btn" onclick="removerDelegado(${repId})">
-                                <i class="fas fa-times"></i> Remover
-                            </button>
+                            <div class="drag-hint">
+                                <i class="fas fa-arrows-alt"></i> Arraste para a lixeira para remover
+                            </div>
                         </div>
                     `;
                     
+                    // Remover da lista de delegados (se estiver lá)
                     const delegadoCard = document.querySelector(`.delegado-card[data-cpf="${cpf}"]`);
                     if (delegadoCard) {
                         delegadoCard.remove();
                     }
                     
+                    // Atualizar estatísticas
                     atualizarEstatisticas();
                     showSuccess('Delegado atribuído com sucesso!');
                 } else {
@@ -699,10 +866,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         }
         
         function removerDelegado(repId) {
-            if (!confirm('Remover delegado desta representação?')) {
-                return;
-            }
-            
             const formData = new FormData();
             formData.append('action', 'remover_delegado');
             formData.append('id_representacao', repId);
@@ -714,7 +877,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload();
+                    location.reload(); // Recarregar para mostrar o delegado novamente na lista
                 } else {
                     showError('Erro ao remover delegado.');
                 }
@@ -723,6 +886,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
                 console.error('Erro:', error);
                 showError('Erro de comunicação com o servidor.');
             });
+        }
+        
+        function atualizarEstatisticas() {
+            // Simplesmente recarrega a página para atualizar estatísticas
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         }
         
         function showSuccess(message) {
@@ -739,24 +909,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
             setTimeout(() => errorDiv.style.display = 'none', 3000);
         }
         
-        function atualizarEstatisticas() {
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        }
-        
         document.addEventListener('DOMContentLoaded', function() {
-            const repCards = document.querySelectorAll('.representacao-card');
-            repCards.forEach(card => {
-                card.addEventListener('dragleave', function() {
-                    this.classList.remove('drag-over');
+            // Limpar classes de drag-over
+            document.addEventListener('dragend', function() {
+                document.querySelectorAll('.representacao-card.drag-over').forEach(card => {
+                    card.classList.remove('drag-over');
                 });
+                document.querySelector('.trash-zone.drag-over')?.classList.remove('drag-over');
+                
+                if (delegadoArrastado) {
+                    delegadoArrastado.classList.remove('dragging');
+                    delegadoArrastado = null;
+                }
             });
             
-            const delegadoCards = document.querySelectorAll('.delegado-card');
-            delegadoCards.forEach(card => {
-                card.addEventListener('dragend', function() {
-                    this.classList.remove('dragging');
+            // Adicionar tooltips para as opções
+            document.querySelectorAll('.opcao-tag').forEach(tag => {
+                tag.addEventListener('mouseenter', function(e) {
+                    const title = this.getAttribute('title');
+                    if (title) {
+                        this.setAttribute('data-tooltip', title);
+                    }
                 });
             });
         });
