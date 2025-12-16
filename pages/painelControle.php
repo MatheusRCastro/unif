@@ -706,7 +706,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['criar_unif'])) {
                             Analisar Delegados
                         </a>
                         
-                        <a href="avaliarPagamentos.php" class="action-btn pagamento">
+                        <a href="analisePagamentos.php" class="action-btn pagamento">
                             <i class="fas fa-money-bill-wave"></i>
                             Avaliar Pagamentos
                         </a>

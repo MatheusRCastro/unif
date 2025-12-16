@@ -2,6 +2,12 @@
 session_start();
 require_once 'php/conexao.php';
 
+// Configurações de upload
+$upload_dir = 'uploads/pagamentos/';
+if (!file_exists($upload_dir)) {
+    mkdir($upload_dir, 0777, true);
+}
+
 // Função para buscar representações de um comitê
 function buscarRepresentacoes($conn, $id_comite)
 {
@@ -38,7 +44,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if (!$carregar_rep) {
         // Coletar dados do formulário
-        // CORREÇÃO: Usar -1 para "nenhuma delegação"
         $id_delegacao = isset($_POST['id_delegacao']) && $_POST['id_delegacao'] !== '' ? intval($_POST['id_delegacao']) : -1;
         
         $comite_desejado = isset($_POST['comite_desejado']) ? intval($_POST['comite_desejado']) : 0;
@@ -96,7 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 } else {
                     $stmt_verifica_rep->close();
 
-                    // CORREÇÃO: Verificar se a delegação existe (apenas se for diferente de -1)
+                    // Verificar se a delegação existe (apenas se for diferente de -1)
                     if ($id_delegacao != -1) {
                         $sql_verifica_delegacao = "SELECT id_delegacao FROM delegacao WHERE id_delegacao = ? AND verificacao_delegacao = 'aprovado'";
                         $stmt_verifica_delegacao = $conn->prepare($sql_verifica_delegacao);
@@ -114,83 +119,99 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         }
                     }
 
-                    if (empty($erro)) {
-                        // CORREÇÃO: Definir valor de aprovado_delegacao com base na delegação
-                        $aprovado_delegacao = ($id_delegacao == -1) ? null : 'pendente';
+                    // Verificar se arquivo PDF foi enviado
+                    if (!isset($_FILES['comprovante_pagamento']) || $_FILES['comprovante_pagamento']['error'] !== UPLOAD_ERR_OK) {
+                        $erro = "É obrigatório enviar o comprovante de pagamento em formato PDF.";
+                    } else {
+                        // Validar arquivo PDF
+                        $arquivo = $_FILES['comprovante_pagamento'];
+                        $extensao = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
                         
-                        // Usar uma única query para ambos os casos
-                        if ($id_delegacao == -1) {
-                            // Quando NÃO há delegação (-1)
-                            $sql_inserir = "INSERT INTO delegado (cpf, id_delegacao, aprovado_delegacao, id_comite, representacao, comite_desejado, 
-                                                                    primeira_op_representacao, segunda_op_representacao, 
-                                                                    terceira_op_representacao, segunda_op_comite, terceira_op_comite) 
-                                             VALUES (?, -1, NULL, ?, ?, ?, ?, ?, ?, ?, ?)";
-                        } else {
-                            // Quando HÁ delegação (id válido)
-                            $sql_inserir = "INSERT INTO delegado (cpf, id_delegacao, aprovado_delegacao, id_comite, representacao, comite_desejado, 
-                                                                    primeira_op_representacao, segunda_op_representacao, 
-                                                                    terceira_op_representacao, segunda_op_comite, terceira_op_comite) 
-                                             VALUES (?, ?, 'pendente', ?, ?, ?, ?, ?, ?, ?, ?)";
+                        if ($extensao !== 'pdf') {
+                            $erro = "O arquivo deve ser um PDF (.pdf).";
+                        } elseif ($arquivo['size'] > 5242880) { // 5MB
+                            $erro = "O arquivo PDF não pode ultrapassar 5MB.";
+                        } elseif (!in_array($arquivo['type'], ['application/pdf', 'application/x-pdf'])) {
+                            $erro = "O arquivo enviado não é um PDF válido.";
                         }
+                    }
+
+                    if (empty($erro)) {
+                        // Processar upload do PDF
+                        $nome_arquivo = 'pagamento_' . $_SESSION['cpf'] . '_' . time() . '.pdf';
+                        $caminho_arquivo = $upload_dir . $nome_arquivo;
                         
-                        $stmt_inserir = $conn->prepare($sql_inserir);
-                        
-                        if ($stmt_inserir === false) {
-                            $erro = "Erro ao preparar consulta: " . $conn->error;
-                        } else {
+                        if (move_uploaded_file($arquivo['tmp_name'], $caminho_arquivo)) {
+                            // Ler o PDF como binário para armazenar no banco
+                            $pdf_content = file_get_contents($caminho_arquivo);
+                            
+                            // CORREÇÃO: Se não há delegação, usar NULL em vez de -1
                             if ($id_delegacao == -1) {
-                                // Bind para quando não há delegação
-                                $stmt_inserir->bind_param(
-                                    "siiiiiiii",
-                                    $_SESSION['cpf'],
-                                    $comite_desejado,
-                                    $representacao_desejada,
-                                    $comite_desejado,
-                                    $representacao_desejada,
-                                    $segunda_opcao_representacao,
-                                    $terceira_opcao_representacao,
-                                    $segunda_opcao_comite,
-                                    $terceira_opcao_comite
-                                );
+                                $id_delegacao_value = NULL; // Usar NULL para foreign key
+                                $status_delegacao = 'individual';
                             } else {
-                                // Bind para quando há delegação
-                                $stmt_inserir->bind_param(
-                                    "siiiisiiii",
-                                    $_SESSION['cpf'],
-                                    $id_delegacao,
-                                    $comite_desejado,
-                                    $representacao_desejada,
-                                    $comite_desejado,
-                                    $representacao_desejada,
-                                    $segunda_opcao_representacao,
-                                    $terceira_opcao_representacao,
-                                    $segunda_opcao_comite,
-                                    $terceira_opcao_comite
-                                );
+                                $id_delegacao_value = $id_delegacao;
+                                $status_delegacao = 'pendente';
                             }
                             
-                            if ($stmt_inserir->execute()) {
-                                // Atualizar a representação
-                                $sql_atualizar_rep = "UPDATE representacao SET cpf_delegado = ? WHERE id_representacao = ?";
-                                $stmt_atualizar_rep = $conn->prepare($sql_atualizar_rep);
-                                
-                                if ($stmt_atualizar_rep === false) {
-                                    $erro = "Erro ao preparar atualização: " . $conn->error;
-                                } else {
-                                    $stmt_atualizar_rep->bind_param("si", $_SESSION['cpf'], $representacao_desejada);
-                                    
-                                    if ($stmt_atualizar_rep->execute()) {
-                                        $mensagem = "Inscrição realizada com sucesso!";
-                                        $dados_preenchidos = [];
-                                    } else {
-                                        $erro = "Erro ao atualizar representação: " . $stmt_atualizar_rep->error;
-                                    }
-                                    $stmt_atualizar_rep->close();
-                                }
+                            // CORREÇÃO: Query única que funciona para ambos os casos
+                            // Usar NULL quando não há delegação
+                            $sql_inserir = "INSERT INTO delegado 
+                                (cpf, id_delegacao, aprovado_delegacao, comite_desejado, 
+                                 primeira_op_representacao, segunda_op_representacao, 
+                                 terceira_op_representacao, segunda_op_comite, terceira_op_comite,
+                                 pdf_pagamento, status_pagamento) 
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendente')";
+                             
+                            $stmt_inserir = $conn->prepare($sql_inserir);
+                            
+                            if ($stmt_inserir === false) {
+                                $erro = "Erro ao preparar consulta: " . $conn->error;
+                                unlink($caminho_arquivo);
                             } else {
-                                $erro = "Erro ao realizar inscrição: " . $stmt_inserir->error;
+                                // Bind os parâmetros - usando a mesma query para ambos os casos
+                                $stmt_inserir->bind_param(
+                                    "sisiisiiib", // s,i,s,i,i,i,i,i,i,b
+                                    $_SESSION['cpf'],           // 1 - s
+                                    $id_delegacao_value,        // 2 - i (pode ser NULL)
+                                    $status_delegacao,          // 3 - s
+                                    $comite_desejado,           // 4 - i
+                                    $representacao_desejada,    // 5 - i
+                                    $segunda_opcao_representacao, // 6 - i
+                                    $terceira_opcao_representacao, // 7 - i
+                                    $segunda_opcao_comite,      // 8 - i
+                                    $terceira_opcao_comite,     // 9 - i
+                                    $pdf_content               // 10 - b
+                                );
+                                
+                                if ($stmt_inserir->execute()) {
+                                    // Atualizar a representação
+                                    $sql_atualizar_rep = "UPDATE representacao SET cpf_delegado = ? WHERE id_representacao = ?";
+                                    $stmt_atualizar_rep = $conn->prepare($sql_atualizar_rep);
+                                    
+                                    if ($stmt_atualizar_rep === false) {
+                                        $erro = "Erro ao preparar atualização: " . $conn->error;
+                                        unlink($caminho_arquivo);
+                                    } else {
+                                        $stmt_atualizar_rep->bind_param("si", $_SESSION['cpf'], $representacao_desejada);
+                                        
+                                        if ($stmt_atualizar_rep->execute()) {
+                                            $mensagem = "Inscrição realizada com sucesso! Seu comprovante de pagamento foi enviado para análise.";
+                                            $dados_preenchidos = [];
+                                        } else {
+                                            $erro = "Erro ao atualizar representação: " . $stmt_atualizar_rep->error;
+                                            unlink($caminho_arquivo);
+                                        }
+                                        $stmt_atualizar_rep->close();
+                                    }
+                                } else {
+                                    $erro = "Erro ao realizar inscrição: " . $stmt_inserir->error;
+                                    unlink($caminho_arquivo);
+                                }
+                                $stmt_inserir->close();
                             }
-                            $stmt_inserir->close();
+                        } else {
+                            $erro = "Erro ao fazer upload do comprovante de pagamento. Tente novamente.";
                         }
                     }
                 }
@@ -278,6 +299,7 @@ if (isset($_SESSION["cpf"])) {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        /* Todos os estilos anteriores permanecem */
         :root {
             --primary:rgb(16, 148, 56);
             --primary-dark:rgb(15, 122, 20);
@@ -290,6 +312,7 @@ if (isset($_SESSION["cpf"])) {
             --border-radius: 12px;
             --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
             --transition: all 0.3s ease;
+            --danger: #e63946;
         }
 
         * {
@@ -409,7 +432,7 @@ if (isset($_SESSION["cpf"])) {
 
         .required::after {
             content: " *";
-            color: #e63946;
+            color: var(--danger);
         }
 
         .form-control {
@@ -433,6 +456,10 @@ if (isset($_SESSION["cpf"])) {
             cursor: not-allowed;
         }
 
+        .form-control.error {
+            border-color: var(--danger);
+        }
+
         select.form-control {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
@@ -446,6 +473,208 @@ if (isset($_SESSION["cpf"])) {
             resize: vertical;
         }
 
+        /* NOVO: Estilo para upload de arquivo */
+        .file-upload-container {
+            position: relative;
+            margin-top: 25px;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 40px 20px;
+            background: var(--light);
+            border: 3px dashed var(--light-gray);
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.05);
+        }
+
+        .file-upload-label.drag-over {
+            border-color: var(--primary);
+            background: rgba(67, 97, 238, 0.1);
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            color: var(--gray);
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+
+        .file-upload-label:hover .file-upload-icon {
+            color: var(--primary);
+        }
+
+        .file-upload-text h4 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .file-upload-text p {
+            color: var(--gray);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .file-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-upload-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .file-input {
+            position: absolute;
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .file-preview {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            border: 2px solid var(--light-gray);
+        }
+
+        .file-preview.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .file-preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .file-preview-title {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-preview-title i {
+            color: var(--success);
+        }
+
+        .file-remove {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 5px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .file-remove:hover {
+            background: rgba(230, 57, 70, 0.1);
+        }
+
+        .file-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .file-icon {
+            font-size: 24px;
+            color: var(--danger);
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .file-size {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+
+        .file-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .file-status.ready {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .file-requirements {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .file-requirements h5 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-requirements ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .file-requirements li {
+            margin-bottom: 8px;
+            color: var(--gray);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .file-requirements li i {
+            color: var(--success);
+            font-size: 0.8rem;
+        }
+
         .info-text {
             display: flex;
             align-items: center;
@@ -457,6 +686,11 @@ if (isset($_SESSION["cpf"])) {
 
         .info-text i {
             color: var(--primary);
+        }
+
+        .warning-text {
+            color: var(--danger);
+            font-weight: 500;
         }
 
         .representations-grid {
@@ -505,13 +739,20 @@ if (isset($_SESSION["cpf"])) {
             box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
         }
 
-        .submit-btn:hover {
+        .submit-btn:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
         }
 
-        .submit-btn:active {
+        .submit-btn:active:not(:disabled) {
             transform: translateY(-1px);
+        }
+
+        .submit-btn:disabled {
+            background: var(--light-gray);
+            color: var(--gray);
+            cursor: not-allowed;
+            box-shadow: none;
         }
 
         .logo-container {
@@ -688,6 +929,16 @@ if (isset($_SESSION["cpf"])) {
                 flex-direction: column;
                 align-items: stretch;
             }
+            
+            .file-upload-label {
+                padding: 30px 15px;
+            }
+            
+            .file-details {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -711,6 +962,10 @@ if (isset($_SESSION["cpf"])) {
                     <i class="fas fa-check-circle"></i>
                     <h3>Inscrição Enviada!</h3>
                     <p><?php echo htmlspecialchars($mensagem); ?></p>
+                    <div class="info-text">
+                        <i class="fas fa-info-circle"></i>
+                        Seu comprovante de pagamento será analisado pela equipe administrativa.
+                    </div>
                     <?php if (isset($id_delegacao) && $id_delegacao != -1): ?>
                         <div class="info-text">
                             <i class="fas fa-check"></i>
@@ -742,7 +997,8 @@ if (isset($_SESSION["cpf"])) {
                     </button>
                 </div>
 
-                <form class="form-card" id="formInscricao" method="POST" action="">
+                <!-- ALTERAÇÃO AQUI: Adicionado enctype="multipart/form-data" -->
+                <form class="form-card" id="formInscricao" method="POST" action="" enctype="multipart/form-data">
                     <div class="form-grid">
                         <!-- Coluna Esquerda - Delegação -->
                         <div class="form-section">
@@ -924,13 +1180,74 @@ if (isset($_SESSION["cpf"])) {
                                     Sua justificativa será avaliada pela equipe organizadora
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- NOVA SEÇÃO: Upload do Comprovante de Pagamento -->
+                    <div class="form-section" style="margin-top: 40px; border-top: 2px solid var(--light-gray); padding-top: 30px;">
+                        <h3><i class="fas fa-file-invoice-dollar"></i> Comprovante de Pagamento</h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">Comprovante de Pagamento (PDF)</label>
                             
-                            <input type="hidden" name="carregar_representacoes" value="1">
+                            <div class="file-upload-container">
+                                <label for="comprovante_pagamento" class="file-upload-label" id="fileUploadLabel">
+                                    <div class="file-upload-icon">
+                                        <i class="fas fa-file-pdf"></i>
+                                    </div>
+                                    <div class="file-upload-text">
+                                        <h4>Envie seu comprovante de pagamento</h4>
+                                        <p>Clique para selecionar ou arraste um arquivo PDF</p>
+                                        <span class="file-upload-btn">
+                                            <i class="fas fa-cloud-upload-alt"></i> Selecionar Arquivo
+                                        </span>
+                                    </div>
+                                </label>
+                                
+                                <input type="file" name="comprovante_pagamento" id="comprovante_pagamento" class="file-input" accept=".pdf" required>
+                                
+                                <div class="file-preview" id="filePreview">
+                                    <div class="file-preview-header">
+                                        <div class="file-preview-title">
+                                            <i class="fas fa-check-circle"></i>
+                                            Arquivo Selecionado
+                                        </div>
+                                        <button type="button" class="file-remove" id="fileRemove">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="file-details">
+                                        <div class="file-icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </div>
+                                        <div class="file-info">
+                                            <div class="file-name" id="fileName"></div>
+                                            <div class="file-size" id="fileSize"></div>
+                                        </div>
+                                        <div class="file-status ready" id="fileStatus">Pronto para envio</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="file-requirements">
+                                <h5><i class="fas fa-info-circle"></i> Requisitos do arquivo:</h5>
+                                <ul>
+                                    <li><i class="fas fa-check"></i> Formato: PDF (.pdf) apenas</li>
+                                    <li><i class="fas fa-check"></i> Tamanho máximo: 5MB</li>
+                                    <li><i class="fas fa-check"></i> O arquivo deve conter seu nome e CPF</li>
+                                    <li><i class="fas fa-check"></i> Comprovante deve ser legível</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="info-text warning-text">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                A inscrição só será processada após a análise do comprovante de pagamento.
+                            </div>
                         </div>
                     </div>
                     
                     <div class="submit-section">
-                        <button type="button" class="submit-btn" onclick="enviarFormulario()">
+                        <button type="button" class="submit-btn" id="submitBtn" onclick="enviarFormulario()">
                             <i class="fas fa-paper-plane"></i> SUBMETER INSCRIÇÃO
                         </button>
                         <div class="info-text" style="margin-top: 15px;">
@@ -938,6 +1255,8 @@ if (isset($_SESSION["cpf"])) {
                             Seus dados estão seguros e serão usados apenas para fins de inscrição
                         </div>
                     </div>
+                    
+                    <input type="hidden" name="carregar_representacoes" value="1">
                 </form>
                 
                 <div class="logo-container">
@@ -958,75 +1277,131 @@ if (isset($_SESSION["cpf"])) {
     </div>
 
     <script>
-        function enviarFormulario() {
-            console.log('Validando formulário...');
+        // Variáveis para controle do upload
+        let arquivoSelecionado = null;
+        const tamanhoMaximoMB = 5;
+        
+        function formatarTamanho(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function atualizarBotaoEnvio() {
+            const submitBtn = document.getElementById('submitBtn');
+            const arquivoValido = arquivoSelecionado && arquivoSelecionado.type === 'application/pdf' && arquivoSelecionado.size <= tamanhoMaximoMB * 1024 * 1024;
             
-            // Remove campo hidden antes de enviar
-            const hiddenField = document.querySelector('input[name="carregar_representacoes"]');
-            if (hiddenField) {
-                hiddenField.remove();
-            }
-            
-            // Validações
+            // Também verificar os campos obrigatórios
             const comiteDesejado = document.getElementById('comite_desejado').value;
             const representacao = document.getElementById('representacao_desejada') ? document.getElementById('representacao_desejada').value : '';
-            const segundaRepresentacao = document.getElementById('segunda_opcao_representacao') ? document.getElementById('segunda_opcao_representacao').value : '';
-            const terceiraRepresentacao = document.getElementById('terceira_opcao_representacao') ? document.getElementById('terceira_opcao_representacao').value : '';
             const justificativa = document.querySelector('textarea[name="justificativa"]').value.trim();
             
-            let erros = [];
+            const camposValidos = comiteDesejado && representacao && justificativa.length >= 20;
             
-            if (!comiteDesejado) {
-                erros.push("Selecione um comitê desejado!");
-                document.getElementById('comite_desejado').style.borderColor = '#e63946';
-            }
-            
-            if (!representacao || representacao === "") {
-                erros.push("Selecione uma representação como primeira opção!");
-                if (document.getElementById('representacao_desejada')) {
-                    document.getElementById('representacao_desejada').style.borderColor = '#e63946';
-                }
-            }
-            
-            // Validar opções diferentes
-            if (representacao && segundaRepresentacao && representacao === segundaRepresentacao) {
-                erros.push("A primeira e segunda opções de representação não podem ser iguais!");
-            }
-            
-            if (representacao && terceiraRepresentacao && representacao === terceiraRepresentacao) {
-                erros.push("A primeira e terceira opções de representação não podem ser iguais!");
-            }
-            
-            if (segundaRepresentacao && terceiraRepresentacao && segundaRepresentacao === terceiraRepresentacao) {
-                erros.push("A segunda e terceira opções de representação não podem ser iguais!");
-            }
-            
-            if (!justificativa || justificativa.length < 20) {
-                erros.push("A justificativa deve ter pelo menos 20 caracteres!");
-                document.querySelector('textarea[name="justificativa"]').style.borderColor = '#e63946';
-            }
-            
-            if (erros.length > 0) {
-                alert("Por favor, corrija os seguintes erros:\n\n" + erros.join('\n'));
-                return false;
-            }
-            
-            const delegaçãoSelect = document.getElementById('id_delegacao');
-            const delegaçãoValor = delegaçãoSelect ? delegaçãoSelect.value : '-1';
-            const delegaçãoTexto = delegaçãoSelect ? delegaçãoSelect.options[delegaçãoSelect.selectedIndex].text : 'Nenhuma delegação';
-            
-            let confirmMessage = 'Deseja enviar sua inscrição?\n\n';
-            confirmMessage += 'Comitê: ' + document.getElementById('comite_desejado').options[document.getElementById('comite_desejado').selectedIndex].text + '\n';
-            confirmMessage += 'Delegação: ' + delegaçãoTexto + '\n';
-            confirmMessage += '\nApós o envio, não será possível alterar os dados.';
-            
-            if (confirm(confirmMessage)) {
-                console.log('Enviando formulário...');
-                document.getElementById('formInscricao').submit();
-            }
+            submitBtn.disabled = !(arquivoValido && camposValidos);
         }
         
         document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('comprovante_pagamento');
+            const fileUploadLabel = document.getElementById('fileUploadLabel');
+            const filePreview = document.getElementById('filePreview');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const fileRemove = document.getElementById('fileRemove');
+            
+            // Evento para selecionar arquivo
+            fileInput.addEventListener('change', function(e) {
+                if (this.files.length > 0) {
+                    arquivoSelecionado = this.files[0];
+                    
+                    // Validar arquivo
+                    if (arquivoSelecionado.type !== 'application/pdf') {
+                        alert('Por favor, selecione apenas arquivos PDF.');
+                        this.value = '';
+                        arquivoSelecionado = null;
+                        filePreview.classList.remove('show');
+                        atualizarBotaoEnvio();
+                        return;
+                    }
+                    
+                    if (arquivoSelecionado.size > tamanhoMaximoMB * 1024 * 1024) {
+                        alert(`O arquivo é muito grande. Tamanho máximo: ${tamanhoMaximoMB}MB`);
+                        this.value = '';
+                        arquivoSelecionado = null;
+                        filePreview.classList.remove('show');
+                        atualizarBotaoEnvio();
+                        return;
+                    }
+                    
+                    // Atualizar preview
+                    fileName.textContent = arquivoSelecionado.name;
+                    fileSize.textContent = formatarTamanho(arquivoSelecionado.size);
+                    filePreview.classList.add('show');
+                    
+                    atualizarBotaoEnvio();
+                }
+            });
+            
+            // Evento para remover arquivo
+            fileRemove.addEventListener('click', function() {
+                fileInput.value = '';
+                arquivoSelecionado = null;
+                filePreview.classList.remove('show');
+                atualizarBotaoEnvio();
+            });
+            
+            // Drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                fileUploadLabel.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                fileUploadLabel.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                fileUploadLabel.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                fileUploadLabel.classList.add('drag-over');
+            }
+            
+            function unhighlight() {
+                fileUploadLabel.classList.remove('drag-over');
+            }
+            
+            fileUploadLabel.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    fileInput.dispatchEvent(new Event('change'));
+                }
+            });
+            
+            // Verificar campos obrigatórios em tempo real
+            const camposObservar = [
+                document.getElementById('comite_desejado'),
+                document.getElementById('representacao_desejada'),
+                document.querySelector('textarea[name="justificativa"]')
+            ];
+            
+            camposObservar.forEach(campo => {
+                if (campo) {
+                    campo.addEventListener('input', atualizarBotaoEnvio);
+                    campo.addEventListener('change', atualizarBotaoEnvio);
+                }
+            });
+            
             // Evento para carregar representações ao mudar comitê
             const comiteSelect = document.getElementById('comite_desejado');
             if (comiteSelect) {
@@ -1072,6 +1447,8 @@ if (isset($_SESSION["cpf"])) {
                 } else if (terceiraRep) {
                     terceiraRep.style.borderColor = '';
                 }
+                
+                atualizarBotaoEnvio();
             }
             
             if (primeiraRep) primeiraRep.addEventListener('change', validarRepresentacoes);
@@ -1083,6 +1460,7 @@ if (isset($_SESSION["cpf"])) {
             inputs.forEach(input => {
                 input.addEventListener('input', function() {
                     this.style.borderColor = '';
+                    atualizarBotaoEnvio();
                 });
             });
             
@@ -1102,7 +1480,97 @@ if (isset($_SESSION["cpf"])) {
                     }
                 });
             }
+            
+            // Inicializar estado do botão
+            atualizarBotaoEnvio();
         });
+        
+        function enviarFormulario() {
+            console.log('Validando formulário...');
+            
+            // Remove campo hidden antes de enviar
+            const hiddenField = document.querySelector('input[name="carregar_representacoes"]');
+            if (hiddenField) {
+                hiddenField.remove();
+            }
+            
+            // Validações
+            const comiteDesejado = document.getElementById('comite_desejado').value;
+            const representacao = document.getElementById('representacao_desejada') ? document.getElementById('representacao_desejada').value : '';
+            const segundaRepresentacao = document.getElementById('segunda_opcao_representacao') ? document.getElementById('segunda_opcao_representacao').value : '';
+            const terceiraRepresentacao = document.getElementById('terceira_opcao_representacao') ? document.getElementById('terceira_opcao_representacao').value : '';
+            const justificativa = document.querySelector('textarea[name="justificativa"]').value.trim();
+            const arquivoInput = document.getElementById('comprovante_pagamento');
+            
+            let erros = [];
+            
+            if (!comiteDesejado) {
+                erros.push("Selecione um comitê desejado!");
+                document.getElementById('comite_desejado').classList.add('error');
+            }
+            
+            if (!representacao || representacao === "") {
+                erros.push("Selecione uma representação como primeira opção!");
+                if (document.getElementById('representacao_desejada')) {
+                    document.getElementById('representacao_desejada').classList.add('error');
+                }
+            }
+            
+            // Validar opções diferentes
+            if (representacao && segundaRepresentacao && representacao === segundaRepresentacao) {
+                erros.push("A primeira e segunda opções de representação não podem ser iguais!");
+            }
+            
+            if (representacao && terceiraRepresentacao && representacao === terceiraRepresentacao) {
+                erros.push("A primeira e terceira opções de representação não podem ser iguais!");
+            }
+            
+            if (segundaRepresentacao && terceiraRepresentacao && segundaRepresentacao === terceiraRepresentacao) {
+                erros.push("A segunda e terceira opções de representação não podem ser iguais!");
+            }
+            
+            if (!justificativa || justificativa.length < 20) {
+                erros.push("A justificativa deve ter pelo menos 20 caracteres!");
+                document.querySelector('textarea[name="justificativa"]').classList.add('error');
+            }
+            
+            // Validar arquivo PDF
+            if (!arquivoInput.files.length) {
+                erros.push("É obrigatório enviar o comprovante de pagamento em formato PDF!");
+                document.getElementById('fileUploadLabel').style.borderColor = '#e63946';
+            } else {
+                const arquivo = arquivoInput.files[0];
+                if (arquivo.type !== 'application/pdf') {
+                    erros.push("O arquivo deve ser um PDF (.pdf).");
+                    document.getElementById('fileUploadLabel').style.borderColor = '#e63946';
+                }
+                if (arquivo.size > 5 * 1024 * 1024) {
+                    erros.push("O arquivo PDF não pode ultrapassar 5MB.");
+                    document.getElementById('fileUploadLabel').style.borderColor = '#e63946';
+                }
+            }
+            
+            if (erros.length > 0) {
+                alert("Por favor, corrija os seguintes erros:\n\n" + erros.join('\n'));
+                return false;
+            }
+            
+            const delegaçãoSelect = document.getElementById('id_delegacao');
+            const delegaçãoValor = delegaçãoSelect ? delegaçãoSelect.value : '-1';
+            const delegaçãoTexto = delegaçãoSelect ? delegaçãoSelect.options[delegaçãoSelect.selectedIndex].text : 'Nenhuma delegação';
+            
+            let confirmMessage = 'Deseja enviar sua inscrição?\n\n';
+            confirmMessage += 'Comitê: ' + document.getElementById('comite_desejado').options[document.getElementById('comite_desejado').selectedIndex].text + '\n';
+            confirmMessage += 'Delegação: ' + delegaçãoTexto + '\n';
+            confirmMessage += 'Arquivo: ' + arquivoInput.files[0].name + '\n';
+            confirmMessage += '\nApós o envio, não será possível alterar os dados.\n';
+            confirmMessage += 'Seu comprovante de pagamento será analisado pela equipe.';
+            
+            if (confirm(confirmMessage)) {
+                console.log('Enviando formulário...');
+                document.getElementById('formInscricao').submit();
+            }
+        }
     </script>
 </body>
 </html>
