@@ -43,9 +43,22 @@ if (isset($_GET['ver_pdf']) && isset($_GET['cpf'])) {
         $pdf_blob = $row['pdf_pagamento'];
         
         if ($pdf_blob) {
-            // Retornar como PDF
-            header('Content-Type: application/pdf');
-            header('Content-Disposition: inline; filename="pagamento_' . $cpf . '.pdf"');
+            // Verificar se é para download
+            if (isset($_GET['download'])) {
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: attachment; filename="pagamento_' . $cpf . '.pdf"');
+                header('Content-Length: ' . strlen($pdf_blob));
+                header('Cache-Control: public, must-revalidate, max-age=0');
+            } else {
+                // Para visualização inline
+                header('Content-Type: application/pdf');
+                header('Content-Disposition: inline; filename="pagamento_' . $cpf . '.pdf"');
+                header('Content-Length: ' . strlen($pdf_blob));
+                header('Cache-Control: public, must-revalidate, max-age=0');
+                header('Pragma: public');
+                header('Expires: 0');
+            }
+            
             echo $pdf_blob;
             exit();
         }
@@ -53,7 +66,7 @@ if (isset($_GET['ver_pdf']) && isset($_GET['cpf'])) {
     
     // Se não encontrar PDF
     header('HTTP/1.0 404 Not Found');
-    echo "PDF não encontrado";
+    echo "PDF não encontrado para CPF: " . htmlspecialchars($cpf);
     exit();
 }
 
@@ -123,8 +136,11 @@ if ($conn) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Análise de Pagamentos - UNIF</title>
-    <!-- PDF.js Library -->
-    <script src="pdfjs/pdf.js"></script>
+    
+    <!-- PDF.js via CDN (OPÇÃO A) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
+    
     <style>
         * {
             margin: 0;
@@ -147,7 +163,7 @@ if ($conn) {
         }
         
         header {
-            background: linear-gradient(135deg, #1a237e, #3949ab);
+            background: linear-gradient(135deg,rgb(24, 153, 63),rgb(19, 194, 48));
             color: white;
             padding: 20px 0;
             border-radius: 0 0 10px 10px;
@@ -250,7 +266,7 @@ if ($conn) {
         }
         
         .modal-header {
-            background: linear-gradient(135deg,rgb(24, 179, 57),rgb(17, 184, 58));
+            background: linear-gradient(135deg, rgb(24, 179, 57), rgb(17, 184, 58));
             color: white;
             padding: 15px 20px;
             display: flex;
@@ -290,22 +306,29 @@ if ($conn) {
             position: relative;
         }
         
-        #pdf-viewer {
+        #pdf-viewer-container {
             width: 100%;
             min-height: 500px;
             border: 1px solid #ddd;
             border-radius: 5px;
             overflow: auto;
+            background-color: #f8f9fa;
+        }
+        
+        #pdf-viewer {
+            min-height: 500px;
         }
         
         .pdf-controls {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 10px;
             margin-top: 15px;
             padding: 10px;
             background-color: #f8f9fa;
             border-radius: 5px;
+            flex-wrap: wrap;
         }
         
         .pdf-btn {
@@ -316,6 +339,7 @@ if ($conn) {
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
+            transition: background-color 0.3s;
         }
         
         .pdf-btn:hover {
@@ -332,9 +356,11 @@ if ($conn) {
             align-items: center;
             gap: 10px;
             margin: 0 10px;
+            font-size: 14px;
+            color: #495057;
         }
         
-        /* Resto do CSS anterior permanece igual */
+        /* Estilos da tabela e filtros */
         .filtros {
             background-color: white;
             padding: 20px;
@@ -638,6 +664,15 @@ if ($conn) {
                 width: 95%;
                 max-height: 95vh;
             }
+            
+            .pdf-controls {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .pdf-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -767,7 +802,7 @@ if ($conn) {
                             <td>
                                 <div class="acoes">
                                     <?php if ($tem_pdf): ?>
-                                    <button class="btn btn-ver-pdf" onclick="verPDF('<?php echo $delegado['cpf']; ?>', '<?php echo htmlspecialchars($delegado['nome']); ?>')">Ver PDF</button>
+                                    <button class="btn btn-ver-pdf" onclick="verPDF('<?php echo $delegado['cpf']; ?>', '<?php echo htmlspecialchars(addslashes($delegado['nome'])); ?>')">Ver PDF</button>
                                     <?php endif; ?>
                                     
                                     <?php if ($delegado['status_pagamento'] != 'aprovado'): ?>
@@ -799,11 +834,13 @@ if ($conn) {
                 <button class="modal-close" onclick="fecharModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <div id="pdf-viewer"></div>
+                <div id="pdf-viewer-container">
+                    <div id="pdf-viewer"></div>
+                </div>
                 <div class="pdf-controls">
                     <button class="pdf-btn" id="prevPage" onclick="prevPage()">← Anterior</button>
                     <div class="pdf-page-info">
-                        <span>Página: <span id="pageNum"></span> / <span id="pageCount"></span></span>
+                        <span>Página: <span id="pageNum">1</span> / <span id="pageCount">1</span></span>
                     </div>
                     <button class="pdf-btn" id="nextPage" onclick="nextPage()">Próxima →</button>
                     <button class="pdf-btn" onclick="zoomIn()">+</button>
@@ -817,12 +854,19 @@ if ($conn) {
     <div id="mensagem" class="mensagem"></div>
 
     <script>
+        // Configurar worker do PDF.js
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+        
         // Variáveis globais para o PDF
         let pdfDoc = null;
         let pageNum = 1;
         let pageRendering = false;
         let pageNumPending = null;
-        let scale = 1.5;
+        let scale = 1.2;
+        let currentPdfUrl = '';
         
         // ✅ Abrir modal e carregar PDF
         function verPDF(cpf, nome) {
@@ -831,22 +875,34 @@ if ($conn) {
             document.getElementById('pdfModal').style.display = 'flex';
             
             // Limpar visualizador anterior
-            document.getElementById('pdf-viewer').innerHTML = '';
+            const viewer = document.getElementById('pdf-viewer');
+            viewer.innerHTML = '<div style="text-align: center; padding: 50px; color: #6c757d;">Carregando PDF...</div>';
+            
+            // Resetar variáveis
+            pdfDoc = null;
+            pageNum = 1;
+            scale = 1.2;
+            
+            // URL do PDF
+            currentPdfUrl = `analisePagamentos.php?ver_pdf=1&cpf=${encodeURIComponent(cpf)}&t=${Date.now()}`;
             
             // Carregar PDF usando PDF.js
-            const pdfUrl = `analise_pagamentos.php?ver_pdf=1&cpf=${encodeURIComponent(cpf)}&t=${Date.now()}`;
-            
-            pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+            pdfjsLib.getDocument({
+                url: currentPdfUrl,
+                withCredentials: false
+            }).promise.then(function(pdf) {
                 pdfDoc = pdf;
                 document.getElementById('pageCount').textContent = pdf.numPages;
+                document.getElementById('pageNum').textContent = pageNum;
                 renderPage(pageNum);
                 document.getElementById('loading').style.display = 'none';
             }).catch(function(error) {
                 console.error('Erro ao carregar PDF:', error);
-                document.getElementById('pdf-viewer').innerHTML = 
+                viewer.innerHTML = 
                     '<div style="text-align: center; padding: 50px; color: #dc3545;">' +
                     '<h3>Erro ao carregar PDF</h3>' +
                     '<p>Não foi possível carregar o documento.</p>' +
+                    '<p><small>Detalhes: ' + error.message + '</small></p>' +
                     '</div>';
                 document.getElementById('loading').style.display = 'none';
             });
@@ -913,21 +969,22 @@ if ($conn) {
         
         // ✅ Zoom
         function zoomIn() {
-            scale += 0.25;
+            scale += 0.2;
             renderPage(pageNum);
         }
         
         function zoomOut() {
             if (scale > 0.5) {
-                scale -= 0.25;
+                scale -= 0.2;
                 renderPage(pageNum);
             }
         }
         
         // ✅ Download do PDF
         function downloadPDF() {
-            const cpf = document.querySelector('#pdfModalTitle').textContent.split(' - ')[1];
-            window.open(`analise_pagamentos.php?ver_pdf=1&cpf=${cpf}&download=1`, '_blank');
+            if (currentPdfUrl) {
+                window.open(currentPdfUrl + '&download=1', '_blank');
+            }
         }
         
         // ✅ Fechar modal
@@ -935,6 +992,7 @@ if ($conn) {
             document.getElementById('pdfModal').style.display = 'none';
             pdfDoc = null;
             pageNum = 1;
+            currentPdfUrl = '';
         }
         
         // ✅ Fechar modal com ESC
@@ -951,7 +1009,7 @@ if ($conn) {
             }
         });
         
-        // ✅ Contadores e filtros (mantidos do código anterior)
+        // ✅ Contadores e filtros
         function atualizarContadores() {
             const linhasVisiveis = document.querySelectorAll('#tabela-corpo tr[data-cpf]:not([style*="display: none"])');
             
@@ -1047,27 +1105,29 @@ if ($conn) {
                             badge.textContent = novoStatus;
                             
                             const acoesDiv = linha.querySelector('.acoes');
-                            acoesDiv.innerHTML = '';
-                            
-                            // Adicionar botão de ver PDF se existir
                             const temPDF = linha.getAttribute('data-tem-pdf') === 'sim';
+                            const nome = linha.querySelector('strong').textContent;
+                            
+                            // Reconstruir botões de ação
+                            let novoHTML = '';
+                            
                             if (temPDF) {
-                                const nome = linha.querySelector('strong').textContent;
-                                acoesDiv.innerHTML += `<button class="btn btn-ver-pdf" onclick="verPDF('${cpf}', '${nome.replace(/'/g, "\\'")}')">Ver PDF</button>`;
+                                novoHTML += `<button class="btn btn-ver-pdf" onclick="verPDF('${cpf}', '${nome.replace(/'/g, "\\'")}')">Ver PDF</button>`;
                             }
                             
-                            // Botões de status
                             if (novoStatus !== 'aprovado') {
-                                acoesDiv.innerHTML += `<button class="btn btn-aprovar" onclick="alterarStatus('${cpf}', 'aprovado')">Aprovar</button>`;
+                                novoHTML += `<button class="btn btn-aprovar" onclick="alterarStatus('${cpf}', 'aprovado')">Aprovar</button>`;
                             }
                             
                             if (novoStatus !== 'reprovado') {
-                                acoesDiv.innerHTML += `<button class="btn btn-reprovar" onclick="alterarStatus('${cpf}', 'reprovado')">Reprovar</button>`;
+                                novoHTML += `<button class="btn btn-reprovar" onclick="alterarStatus('${cpf}', 'reprovado')">Reprovar</button>`;
                             }
                             
                             if (novoStatus !== 'pendente') {
-                                acoesDiv.innerHTML += `<button class="btn btn-desfazer" onclick="alterarStatus('${cpf}', 'pendente')">Pendente</button>`;
+                                novoHTML += `<button class="btn btn-desfazer" onclick="alterarStatus('${cpf}', 'pendente')">Pendente</button>`;
                             }
+                            
+                            acoesDiv.innerHTML = novoHTML;
                         }
                         
                         mostrarMensagem(`✅ Status alterado para "${novoStatus}" com sucesso!`, 'sucesso');
@@ -1109,6 +1169,13 @@ if ($conn) {
         document.addEventListener('DOMContentLoaded', function() {
             atualizarContadores();
             aplicarFiltros();
+            
+            // Configuração adicional do PDF.js
+            if (typeof pdfjsLib !== 'undefined') {
+                console.log('PDF.js carregado com sucesso');
+            } else {
+                console.error('PDF.js não carregado');
+            }
         });
     </script>
 </body>
