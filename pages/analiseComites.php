@@ -13,34 +13,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         if ($acao === 'aprovar') {
             $novo_status = 'aprovado';
-            $mensagem = "Comitê aprovado com sucesso!";
-        } elseif ($acao === 'reprovar') {
-            $novo_status = 'reprovado';
-            $mensagem = "Comitê reprovado com sucesso!";
-        }
-        
-        if ($novo_status) {
-            // Atualiza a coluna 'status' com o valor string ('aprovado' ou 'reprovado')
-            $sql = "UPDATE comite SET status = ? WHERE id_comite = ?";
+            $mensagem = "Comitê aprovado com sucesso! Diretores também foram aprovados.";
             
-            $stmt = $conn->prepare($sql);
-            // Uso de "si" para string (status) e integer (id_comite)
-            $stmt->bind_param("si", $novo_status, $id_comite);
+            // Atualiza o status do comitê
+            $sql_comite = "UPDATE comite SET status = ? WHERE id_comite = ?";
+            $stmt_comite = $conn->prepare($sql_comite);
+            $stmt_comite->bind_param("si", $novo_status, $id_comite);
             
-            if ($stmt->execute()) {
+            if ($stmt_comite->execute()) {
+                // Aprova os diretores deste comitê
+                $sql_aprovar_diretores = "UPDATE diretor SET aprovado = 1 WHERE id_comite = ?";
+                $stmt_diretores = $conn->prepare($sql_aprovar_diretores);
+                $stmt_diretores->bind_param("i", $id_comite);
+                $stmt_diretores->execute();
+                $stmt_diretores->close();
+                
                 $_SESSION['mensagem'] = $mensagem;
                 $_SESSION['tipo_mensagem'] = 'sucesso';
             } else {
-                $_SESSION['mensagem'] = "Erro ao processar comitê: " . $conn->error;
+                $_SESSION['mensagem'] = "Erro ao aprovar comitê: " . $conn->error;
                 $_SESSION['tipo_mensagem'] = 'erro';
             }
             
-            $stmt->close();
+            $stmt_comite->close();
             
-            // Redirecionar para evitar reenvio do formulário
-            header("Location: " . $_SERVER['PHP_SELF']);
-            exit();
+        } elseif ($acao === 'reprovar') {
+            $novo_status = 'reprovado';
+            $mensagem = "Comitê reprovado com sucesso!";
+            
+            // Atualiza apenas o status do comitê (não altera status dos diretores)
+            $sql_comite = "UPDATE comite SET status = ? WHERE id_comite = ?";
+            $stmt_comite = $conn->prepare($sql_comite);
+            $stmt_comite->bind_param("si", $novo_status, $id_comite);
+            
+            if ($stmt_comite->execute()) {
+                $_SESSION['mensagem'] = $mensagem;
+                $_SESSION['tipo_mensagem'] = 'sucesso';
+            } else {
+                $_SESSION['mensagem'] = "Erro ao reprovar comitê: " . $conn->error;
+                $_SESSION['tipo_mensagem'] = 'erro';
+            }
+            
+            $stmt_comite->close();
         }
+        
+        // Redirecionar para evitar reenvio do formulário
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
     }
 }
 ?>

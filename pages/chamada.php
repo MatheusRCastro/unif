@@ -321,7 +321,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['marcar_presenca'])) {
 
                     // Buscar comitês da UNIF atual
                     $sql_comites = "SELECT id_comite, nome_comite FROM comite 
-                         WHERE id_unif = ? AND comite_aprovado = true 
+                         WHERE id_unif = ? AND status = 'aprovado' 
                          ORDER BY nome_comite";
                     $stmt_comites = $conn->prepare($sql_comites);
                     $stmt_comites->bind_param("i", $id_unif);
