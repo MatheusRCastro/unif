@@ -1,186 +1,418 @@
-/* Container principal */
-.main-content {
-    flex: 1;
-    min-height: calc(100vh - 80px);
-    background-color: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(3px);
+/* RESET E ESTILOS GERAIS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f3d23 0%, #0b2e1a 100%);
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0;
     padding: 20px;
-}
-
-/* Caixa de recuperação */
-.box-recuperacao {
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 18px;
-    width: 100%;
-    max-width: 400px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.45);
-}
-
-/* Título */
-.box-recuperacao h2 {
-    text-align: center;
-    color: #1a5c1a;
-    margin-bottom: 25px;
-    font-size: 1.8rem;
-}
-
-/* Mensagens */
-.mensagem {
-    text-align: center;
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-weight: bold;
-    font-size: 0.95rem;
-}
-
-.mensagem.erro {
-    background-color: #ffeaea;
-    color: #d32f2f;
-    border: 1px solid #ffcdd2;
-}
-
-.mensagem.sucesso {
-    background-color: #e8f5e9;
-    color: #1a5c1a;
-    border: 1px solid #c8e6c9;
-}
-
-/* Campos do formulário */
-.campo {
-    margin-bottom: 20px;
-}
-
-.campo label {
-    display: block;
-    margin-bottom: 6px;
     color: #333;
-    font-weight: 500;
-    font-size: 0.95rem;
+    line-height: 1.6;
 }
 
-.campo input {
+.container {
     width: 100%;
-    padding: 12px 15px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    font-size: 1rem;
-    box-sizing: border-box;
-    transition: all 0.3s;
+    max-width: 500px;
+    animation: fadeIn 0.5s ease-out;
 }
 
-.campo input:focus {
+/* CARD PRINCIPAL */
+.card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* CABEÇALHO DO CARD */
+.card-header {
+    background: linear-gradient(to right, #1a5c1a, #0f3d23);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.card-header h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+}
+
+.card-header h1 i {
+    font-size: 32px;
+    color: #90ee90;
+}
+
+.card-header p {
+    font-size: 16px;
+    opacity: 0.9;
+    margin-top: 5px;
+}
+
+/* CORPO DO CARD */
+.card-body {
+    padding: 40px;
+}
+
+/* MENSAGENS DE ALERTA */
+.alert {
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: slideIn 0.3s ease;
+    border-left: 5px solid;
+}
+
+.alert-success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-left-color: #4caf50;
+}
+
+.alert-error {
+    background-color: #ffebee;
+    color: #c62828;
+    border-left-color: #f44336;
+}
+
+.alert i {
+    font-size: 22px;
+}
+
+.alert span {
+    flex: 1;
+    font-weight: 500;
+}
+
+/* FORMULÁRIO */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #0f3d23;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.form-group label i {
+    color: #1a5c1a;
+}
+
+/* INPUTS */
+input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: all 0.3s;
+    background-color: #f9f9f9;
+}
+
+input:focus {
     outline: none;
     border-color: #1a5c1a;
-    box-shadow: 0 0 0 2px rgba(26, 92, 26, 0.2);
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(26, 92, 26, 0.1);
 }
 
-/* Botão */
-.box-recuperacao button {
-    width: 100%;
-    background: #1a5c1a;
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 10px;
+.input-error {
+    border-color: #f44336 !important;
+    background-color: #fff5f5 !important;
 }
 
-.box-recuperacao button:hover {
-    background: #1fa51f;
+.input-error:focus {
+    box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.1) !important;
 }
 
-.box-recuperacao button:active {
-    transform: translateY(1px);
+.input-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #666;
 }
 
-/* Links */
-.links {
-    margin-top: 20px;
-    text-align: center;
-}
-
-.box-recuperacao a {
+.input-info i {
     color: #1a5c1a;
-    text-decoration: none;
-    font-weight: 500;
-    display: inline-block;
+}
+
+/* WRAPPER DA SENHA */
+.password-wrapper {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
     transition: color 0.3s;
 }
 
-.box-recuperacao a:hover {
-    color: #1fa51f;
-    text-decoration: underline;
+.toggle-password:hover {
+    color: #1a5c1a;
 }
 
-/* Sucesso box */
-.sucesso-box {
+/* FORÇA DA SENHA */
+.password-strength {
+    margin-top: 10px;
+}
+
+.strength-bar {
+    height: 6px;
+    background-color: #e0e0e0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.strength-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+.password-strength small {
+    font-size: 13px;
+    color: #666;
+}
+
+/* BOTÃO PRINCIPAL */
+.btn-submit {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(to right, #1a5c1a, #0f3d23);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
+}
+
+.btn-submit:hover {
+    background: linear-gradient(to right, #0f3d23, #0b2e1a);
+    transform: translateY(-2px);
+    box-shadow: 0 7px 15px rgba(26, 92, 26, 0.3);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+/* TELA DE SUCESSO */
+.success-container {
     text-align: center;
-    padding: 10px 0;
+    padding: 20px 0;
+    animation: fadeIn 0.5s ease;
 }
 
-.icone-sucesso {
-    font-size: 3rem;
+.success-icon {
+    font-size: 80px;
     color: #4CAF50;
+    margin-bottom: 20px;
+    animation: bounce 1s ease infinite;
+}
+
+.success-container h3 {
+    color: #1a5c1a;
     margin-bottom: 15px;
+    font-size: 26px;
 }
 
-.sucesso-box p {
-    color: #333;
+.success-container p {
+    color: #666;
     margin-bottom: 10px;
-    line-height: 1.5;
+    font-size: 16px;
 }
 
-.sucesso-box p:first-of-type {
+.redirect-info {
+    background-color: #e8f5e9;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 20px 0;
+    color: #2e7d32;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.redirect-info i {
+    color: #4CAF50;
+}
+
+.redirect-info span {
     font-weight: bold;
-    font-size: 1.1rem;
     color: #1a5c1a;
 }
 
 .btn-login {
     display: inline-block;
-    background: #1a5c1a;
+    padding: 16px 40px;
+    background: linear-gradient(to right, #1a5c1a, #0f3d23);
     color: white;
-    padding: 12px 30px;
-    border-radius: 20px;
     text-decoration: none;
-    font-weight: bold;
-    margin-top: 20px;
-    transition: background-color 0.3s;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
 
 .btn-login:hover {
-    background: #1fa51f;
+    background: linear-gradient(to right, #0f3d23, #0b2e1a);
+    transform: translateY(-2px);
+    box-shadow: 0 7px 15px rgba(26, 92, 26, 0.3);
+}
+
+/* RODAPÉ DO CARD */
+.card-footer {
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.back-link {
+    color: #1a5c1a;
     text-decoration: none;
+    font-weight: 500;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.3s;
 }
 
-/* Responsividade */
+.back-link:hover {
+    color: #0b2e1a;
+    text-decoration: underline;
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 30px 25px;
+    }
+    
+    .card-header {
+        padding: 25px;
+    }
+    
+    .card-header h1 {
+        font-size: 24px;
+    }
+    
+    input {
+        padding: 14px 18px;
+    }
+    
+    .btn-submit, .btn-login {
+        padding: 16px;
+    }
+}
+
 @media (max-width: 480px) {
-    .box-recuperacao {
-        padding: 30px 20px;
-        margin: 10px;
+    body {
+        padding: 15px;
     }
     
-    .main-content {
-        padding: 10px;
+    .card-body {
+        padding: 25px 20px;
     }
     
-    .box-recuperacao h2 {
-        font-size: 1.6rem;
+    .card-header {
+        padding: 20px;
     }
-}
-
-/* Estilo para o CPF */
-input#cpf {
-    font-size: 1rem;
-    letter-spacing: 1px;
+    
+    .card-header h1 {
+        font-size: 22px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .success-icon {
+        font-size: 60px;
+    }
+    
+    .success-container h3 {
+        font-size: 22px;
+    }
 }
