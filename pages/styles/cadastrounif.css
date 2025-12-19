@@ -1,31 +1,40 @@
-/* Reset básico */
+/* ===============================
+   PADRÃO GERAL UNIF
+================================ */
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
+/* NÃO usar flex no body (evita layout partido) */
 body {
-  font-family: "Segoe UI", Arial, sans-serif;
+  min-height: 100vh;
+}
+
+/* Overlay padrão UNIF (igual login e início) */
+.container {
+  min-height: 100vh;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(3px);
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 20px;
-}
-
-/* Container principal */
-.container {
-  display: flex;
   gap: 60px;
-  align-items: center; /* Centraliza verticalmente logo e formulário */
-  animation: fadeIn 0.8s ease-in-out;
+  padding: 40px;
+  animation: fadeIn 0.6s ease-in-out;
 }
 
-/* Logo */
+/* ===============================
+   LOGO
+================================ */
+
 .logo-box img {
-  width: 450px; /* aumenta o tamanho da logo */
-  filter: drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.5));
+  width: 420px;
+  max-width: 100%;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5));
   transition: transform 0.3s ease;
 }
 
@@ -33,14 +42,16 @@ body {
   transform: scale(1.05);
 }
 
+/* ===============================
+   CARD DE CADASTRO
+================================ */
 
-/* Formulário */
 .form-box {
   background: #fff;
-  padding: 35px;
-  border-radius: 25px;
-  width: 400px;
-  box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.4);
+  width: 420px;
+  padding: 35px 30px;
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   transition: transform 0.3s ease;
 }
 
@@ -48,102 +59,200 @@ body {
   transform: translateY(-5px);
 }
 
-h2 {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 20px;
+.form-box h2 {
   text-align: center;
   color: #1a5c1a;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
   text-transform: uppercase;
 }
 
-/* Scroll do formulário */
+/* ===============================
+   FORMULÁRIO SCROLLÁVEL
+================================ */
+
 .scrollable-form {
-  max-height: 500px;
+  max-height: 480px;
   overflow-y: auto;
-  padding-right: 5px;
+  padding-right: 6px;
 }
 
-/* Inputs */
-form input, form select {
+/* Scroll elegante */
+.scrollable-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-form::-webkit-scrollbar-thumb {
+  background: #1fa51f;
+  border-radius: 10px;
+}
+
+/* ===============================
+   INPUTS / SELECT
+================================ */
+
+form input,
+form select {
   width: 100%;
   padding: 12px;
   margin-bottom: 12px;
-  border: 1px solid #aaa;
   border-radius: 8px;
+  border: 1px solid #bbb;
   font-size: 14px;
-  outline: none;
   transition: border 0.3s, box-shadow 0.3s;
 }
 
-form input:focus, form select:focus {
+form input:focus,
+form select:focus {
+  outline: none;
   border-color: #1fa51f;
-  box-shadow: 0 0 6px rgba(31, 165, 31, 0.5);
+  box-shadow: 0 0 6px rgba(31, 165, 31, 0.6);
 }
 
-/* Password container */
-.password-container {
-  position: relative;
+/* ===============================
+   ERROS / SUCESSO (JS)
+================================ */
+
+.error-message {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: -6px;
+  margin-bottom: 8px;
+  display: none;
 }
 
-/* Radio buttons estilo */
+.error-input {
+  border-color: #e74c3c !important;
+  background-color: #ffeaea;
+}
+
+.success-input {
+  border-color: #2ecc71 !important;
+  background-color: #eaffea;
+}
+
+/* ===============================
+   BOTÕES SIM / NÃO (PROFESSOR)
+================================ */
+
 .radio-group {
   display: flex;
   gap: 10px;
-  margin-bottom: 15px;
+  margin: 10px 0 20px;
 }
 
 .radio-group button {
   flex: 1;
-  padding: 10px;
-  background: linear-gradient(90deg, white, #f0f0f0);
-  border: 1px solid #aaa;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid #1fa51f;
+  background: white;
+  color: #1fa51f;
   font-weight: bold;
   cursor: pointer;
-  border-radius: 8px;
-  transition: background 0.3s, transform 0.2s;
+  transition: all 0.3s ease;
 }
 
 .radio-group button:hover {
-  background: linear-gradient(90deg, #1fa51f, #000);
-  color: white;
-  transform: scale(1.05);
+  background: rgba(31, 165, 31, 0.1);
+  transform: translateY(-2px);
 }
 
-/* Campos adicionais professor */
+.radio-group button.active {
+  background: linear-gradient(90deg, #000, #1fa51f);
+  color: white;
+  border-color: #1fa51f;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* ===============================
+   CAMPOS PROFESSOR
+================================ */
+
 #camposProf {
-  margin-top: 10px;
+  display: none;
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ===============================
+   ALERTAS (AJAX)
+================================ */
+
+.alert-message {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-weight: bold;
   display: none;
 }
 
-/* Botão submit */
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* ===============================
+   BOTÃO SUBMIT
+================================ */
+
 button[type="submit"] {
   width: 100%;
-  margin-top: 15px;
   padding: 12px;
+  margin-top: 15px;
+  border-radius: 30px;
+  border: none;
   background: linear-gradient(90deg, #000, #1fa51f);
   color: white;
-  border: none;
-  border-radius: 25px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  transition: transform 0.2s, background 0.3s;
 }
 
 button[type="submit"]:hover {
   background: linear-gradient(90deg, #1fa51f, #000);
-  transform: scale(1.03);
+  transform: scale(1.04);
 }
 
-/* Animação fade */
+/* ===============================
+   ANIMAÇÃO
+================================ */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(15px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* ===============================
+   RESPONSIVO
+================================ */
+
+@media (max-width: 900px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .logo-box img {
+    width: 260px;
   }
 }
