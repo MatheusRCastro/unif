@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3307
--- Tempo de geração: 17/12/2025 às 13:41
+-- Tempo de geração: 19/12/2025 às 18:53
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.2.12
 
@@ -87,7 +87,7 @@ CREATE TABLE `delegado` (
   `segunda_op_comite` int(11) DEFAULT NULL,
   `terceira_op_comite` int(11) DEFAULT NULL,
   `id_delegacao` int(11) DEFAULT NULL,
-  `pdf_pagamento` longblob DEFAULT NULL COMMENT 'Arquivo PDF do comprovante de matrícula/delegação',
+  `pdf_pagamento` varchar(200) DEFAULT NULL COMMENT 'Caminho PDF do comprovante de matrícula/delegação',
   `status_pagamento` enum('pendente','aprovado','reprovado') DEFAULT 'pendente' COMMENT 'Status da verificação do PDF',
   `aprovado_delegacao` enum('individual','pendente','aprovado','reprovado') DEFAULT 'individual' COMMENT 'Status da delegação: individual, pendente, aprovado, reprovado'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -97,10 +97,11 @@ CREATE TABLE `delegado` (
 --
 
 INSERT INTO `delegado` (`cpf`, `id_comite`, `representacao`, `comite_desejado`, `primeira_op_representacao`, `segunda_op_representacao`, `terceira_op_representacao`, `segunda_op_comite`, `terceira_op_comite`, `id_delegacao`, `pdf_pagamento`, `status_pagamento`, `aprovado_delegacao`) VALUES
-('112.067.546-48', 2, 11, 2, 11, NULL, NULL, 2, 2, 2, 0x255044462d312e370d0a25b5b5b5b50d0a312030206f626a0d0a3c3c2f547970652f436174616c6f672f50616765732032203020522f4c616e672870742d4252293e3e0d0a656e646f626a0d0a322030206f626a0d0a3c3c2f547970652f50616765732f436f756e7420312f4b6964735b33203020525d3e3e0d0a656e646f626a0d0a332030206f626a0d0a3c3c2f547970652f506167652f506172656e742032203020522f5265736f75726365733c3c2f466f6e743c3c2f46312034203020522f46322035203020523e3e3e3e2f436f6e74656e74732036203020522f4d65646961426f785b30203020353935203834325d3e3e0d0a656e646f626a0d0a342030206f626a0d0a3c3c2f547970652f466f6e742f537562747970652f54727565547970652f42617365466f6e742f48656c7665746963612d426f6c642f456e636f64696e672f57696e416e7369456e636f64696e673e3e0d0a656e646f626a0d0a352030206f626a0d0a3c3c2f547970652f466f6e742f537562747970652f54727565547970652f42617365466f6e742f48656c7665746963612f456e636f64696e672f57696e416e7369456e636f64696e673e3e0d0a656e646f626a0d0a362030206f626a0d0a3c3c2f46696c7465722f466c6174654465636f64652f4c656e677468203136393e3e0d0a73747265616d0d0a789c9d8e4b0ec2300c05f79cc23b409484c4474b02ad0407e809b84d1845a2928aa41b86dbe3c0522cb0f9efc9b36c4fbd35ad511d78204c1c0e0d7c6f9855df2d82b0741e3a8c3520a489d178c0e20194618edc1a5602eeb02d52a18c49425ae96ca660f0e3608dfc5f4c882a9cdf33ebad2bcc7f9e06e2284ea632f9fbc432754a183cb9a2965cc52d6e711ba9de453c3557e5d4f8ae9dfa0461ea2451cd0937c3f203e26a5d495b0d0a656e6473747265616d0d0a656e646f626a0d0a372030206f626a0d0a3c3c2f547970652f466f6e742f537562747970652f54797065302f42617365466f6e742f48656c7665746963612d426f6c642f456e636f64696e672f4964656e746974792d482f44657363656e64616e74466f6e74732037203020522f546f556e69636f64652038203020523e3e0d0a656e646f626a0d0a382030206f626a0d0a3c3c2f4c656e677468203339392f46696c7465722f466c6174654465636f64653e3e0d0a73747265616d0d0a789c5d934d6e83301086f73ec51459c6c63f61010934452a6a2f50a93d40a24886639a08c738a952ef5e1b5ab5ab99f9e6d3cc37a3d9dc566359d356d39b65f4d6a38677b3f64e3a8bd6b88ec3b4f5dea31135e61a0d02c07a3470df77ae7eb44f3f1da3c7b16d7aab9d465f3d7cbc3f3fac1d8e7dc72d9c1e682ed4576f37ecaf26513ad9e129b4adbf398f8f368b76447738493c7ed33de0b2b53c7f1d5c8e9b80d6c941ebd8e8c5d2f0d9ddf1c7b1e593d60bf6aff4717bfbca59d95ee6e176f645599d14e092d38614a22005d964d4104512a8cc5a6d40c44a089165a4044d89a010284bf333850c11979cfe46fd81bcfeead09fa8fe1345c5fec4d8c7953a3ddbe71938d7749e2f39719d689ac9b946fbbff2a7cbf4f568bfa7f1933a677afe9e6221f7093b8e86c0ab5c9c28c474eb7f0182dbbfc40d0a656e6473747265616d0d0a656e646f626a0d0a787265660d0a3020390d0a3030303030303030303020363535333520660d0a30303030303030303136203030303030206e0d0a30303030303030303839203030303030206e0d0a30303030303030313435203030303030206e0d0a30303030303030323034203030303030206e0d0a30303030303030333137203030303030206e0d0a30303030303030343034203030303030206e0d0a30303030303030363133203030303030206e0d0a30303030303030383034203030303030206e0d0a747261696c65720d0a3c3c2f53697a6520392f526f6f742031203020522f496e666f2038203020522f49445b3c35443637394546333137344439343731373742443333434531384634453630453e3c35443637394546333137344439343731373742443333434531384634453630453e5d3e3e0d0a7374617274787265660d0a3935350d0a2525454f460d0a, 'pendente', 'individual'),
-('123.175.426-58', 2, 5, 2, 5, NULL, NULL, 3, 2, NULL, NULL, 'pendente', 'individual'),
-('136.204.086-02', NULL, NULL, 2, 6, 1, 3, 2, 3, NULL, '', 'pendente', 'individual'),
-('145.185.246-08', 2, 1, 2, 1, NULL, NULL, 2, 2, NULL, NULL, 'pendente', 'individual');
+('112.067.546-48', 2, 5, 2, 11, NULL, NULL, 2, 2, 2, '', 'pendente', 'individual'),
+('123.175.426-58', 3, 23, 2, 5, NULL, NULL, 3, 2, NULL, NULL, 'aprovado', 'individual'),
+('136.204.086-02', NULL, NULL, 2, 6, 1, 3, 2, 3, NULL, '', 'aprovado', 'individual'),
+('140.200.376-55', NULL, NULL, 3, 16, 14, 17, 2, 2, 2, '', 'pendente', 'pendente'),
+('145.185.246-08', 2, 1, 2, 1, NULL, NULL, 2, 2, NULL, NULL, 'reprovado', 'individual');
 
 -- --------------------------------------------------------
 
@@ -121,12 +122,12 @@ CREATE TABLE `diretor` (
 --
 
 INSERT INTO `diretor` (`id_diretor`, `cpf`, `id_comite`, `aprovado`, `data_inscricao`) VALUES
-(1, '126.465.506-18', 2, 0, '2025-12-11 12:04:24'),
-(2, '141.765.956-47', 2, 0, '2025-12-11 12:04:24'),
-(3, '136.204.356-77', 2, 0, '2025-12-11 12:04:24'),
-(4, '135.939.406-04', 3, 0, '2025-12-11 17:41:42'),
-(5, '149.497.936-59', 3, 0, '2025-12-11 17:41:42'),
-(6, '136.204.086-02', 3, 0, '2025-12-11 17:41:42');
+(1, '126.465.506-18', 2, 1, '2025-12-11 12:04:24'),
+(2, '141.765.956-47', 2, 1, '2025-12-11 12:04:24'),
+(3, '136.204.356-77', 2, 1, '2025-12-11 12:04:24'),
+(4, '135.939.406-04', 3, 1, '2025-12-11 17:41:42'),
+(5, '149.497.936-59', 3, 1, '2025-12-11 17:41:42'),
+(6, '136.204.086-02', 3, 1, '2025-12-11 17:41:42');
 
 -- --------------------------------------------------------
 
@@ -146,6 +147,14 @@ CREATE TABLE `presenca_delegado` (
   `domingo_manha_1` tinyint(1) DEFAULT 0,
   `domingo_manha_2` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Despejando dados para a tabela `presenca_delegado`
+--
+
+INSERT INTO `presenca_delegado` (`id_presenca`, `cpf_delegado`, `id_unif`, `id_comite`, `sabado_manha_1`, `sabado_manha_2`, `sabado_tarde_1`, `sabado_tarde_2`, `domingo_manha_1`, `domingo_manha_2`) VALUES
+(1, '123.175.426-58', 1, 2, 0, 0, 0, 0, 0, 0),
+(2, '145.185.246-08', 1, 2, 1, 1, 0, 0, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -170,7 +179,7 @@ INSERT INTO `representacao` (`id_representacao`, `nome_representacao`, `id_comit
 (3, 'Marrocos', 2, 1, NULL),
 (4, 'China', 2, 1, NULL),
 (5, 'França', 2, 1, NULL),
-(6, 'Alemanha', 2, 1, '136.204.086-02'),
+(6, 'Alemanha', 2, 1, NULL),
 (7, 'EUA', 2, 1, NULL),
 (8, 'Irã', 2, 1, NULL),
 (9, 'Israel', 2, 1, NULL),
@@ -414,7 +423,7 @@ ALTER TABLE `diretor`
 -- AUTO_INCREMENT de tabela `presenca_delegado`
 --
 ALTER TABLE `presenca_delegado`
-  MODIFY `id_presenca` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_presenca` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de tabela `representacao`
