@@ -733,7 +733,7 @@ if ($conn && $comite_id) {
             </div>
             <div class="diretor-badge">
                 <i class="fas fa-user-tie"></i>
-                <span>Diretor da Sessão</span>
+                <span>Diretor do comitê</span>
             </div>
         </div>
     </div>

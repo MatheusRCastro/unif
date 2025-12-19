@@ -27,11 +27,11 @@ if (isset($_GET['logout'])) {
     exit();
 }
 
-// ✅ Processar visualização de PDF
+// ✅ Processar visualização de PDF - AGORA LENDO DO CAMINHO ARMAZENADO
 if (isset($_GET['ver_pdf']) && isset($_GET['cpf'])) {
     $cpf = $_GET['cpf'];
     
-    // Buscar PDF no banco
+    // Buscar o CAMINHO do PDF no banco (agora varchar, não blob)
     $sql = "SELECT pdf_pagamento FROM delegado WHERE cpf = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $cpf);
@@ -40,33 +40,38 @@ if (isset($_GET['ver_pdf']) && isset($_GET['cpf'])) {
     
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        $pdf_blob = $row['pdf_pagamento'];
+        $pdf_caminho = $row['pdf_pagamento'];
         
-        if ($pdf_blob) {
+        if ($pdf_caminho && file_exists($pdf_caminho)) {
             // Verificar se é para download
             if (isset($_GET['download'])) {
                 header('Content-Type: application/pdf');
                 header('Content-Disposition: attachment; filename="pagamento_' . $cpf . '.pdf"');
-                header('Content-Length: ' . strlen($pdf_blob));
+                header('Content-Length: ' . filesize($pdf_caminho));
                 header('Cache-Control: public, must-revalidate, max-age=0');
+                readfile($pdf_caminho);
             } else {
                 // Para visualização inline
                 header('Content-Type: application/pdf');
                 header('Content-Disposition: inline; filename="pagamento_' . $cpf . '.pdf"');
-                header('Content-Length: ' . strlen($pdf_blob));
+                header('Content-Length: ' . filesize($pdf_caminho));
                 header('Cache-Control: public, must-revalidate, max-age=0');
                 header('Pragma: public');
                 header('Expires: 0');
+                readfile($pdf_caminho);
             }
-            
-            echo $pdf_blob;
+            exit();
+        } else {
+            // PDF não encontrado no sistema de arquivos
+            header('HTTP/1.0 404 Not Found');
+            echo "PDF não encontrado no caminho: " . htmlspecialchars($pdf_caminho);
             exit();
         }
     }
     
-    // Se não encontrar PDF
+    // Se não encontrar registro no banco
     header('HTTP/1.0 404 Not Found');
-    echo "PDF não encontrado para CPF: " . htmlspecialchars($cpf);
+    echo "Registro não encontrado para CPF: " . htmlspecialchars($cpf);
     exit();
 }
 
@@ -142,6 +147,7 @@ if ($conn) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf_viewer.min.css">
     
     <style>
+        /* TODOS OS ESTILOS CSS PERMANECEM EXATAMENTE OS MESMOS */
         * {
             margin: 0;
             padding: 0;
@@ -766,7 +772,7 @@ if ($conn) {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($delegados as $delegado): 
-                            $tem_pdf = !empty($delegado['pdf_pagamento']);
+                            $tem_pdf = !empty($delegado['pdf_pagamento']) && file_exists($delegado['pdf_pagamento']);
                         ?>
                         <tr data-cpf="<?php echo htmlspecialchars($delegado['cpf']); ?>"
                             data-status="<?php echo htmlspecialchars($delegado['status_pagamento']); ?>"
@@ -796,7 +802,7 @@ if ($conn) {
                                 <?php if ($tem_pdf): ?>
                                     <small style="color: #28a745;">✓ PDF disponível</small>
                                 <?php else: ?>
-                                    <small class="sem-pdf">✗ PDF não enviado</small>
+                                    <small class="sem-pdf">✗ PDF não encontrado</small>
                                 <?php endif; ?>
                             </td>
                             <td>
@@ -883,7 +889,7 @@ if ($conn) {
             pageNum = 1;
             scale = 1.2;
             
-            // URL do PDF
+            // URL do PDF - AGORA O PHP VAI LER DO CAMINHO ARMAZENADO
             currentPdfUrl = `analisePagamentos.php?ver_pdf=1&cpf=${encodeURIComponent(cpf)}&t=${Date.now()}`;
             
             // Carregar PDF usando PDF.js
@@ -980,7 +986,7 @@ if ($conn) {
             }
         }
         
-        // ✅ Download do PDF
+        // ✅ Download do PDF - O PHP AGORA VAI ENVIAR O PDF DO CAMINHO ARMAZENADO
         function downloadPDF() {
             if (currentPdfUrl) {
                 window.open(currentPdfUrl + '&download=1', '_blank');

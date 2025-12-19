@@ -75,143 +75,177 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } elseif (strlen($justificativa) < 20) {
             $erro = "A justificativa deve ter pelo menos 20 caracteres.";
         } else {
-            // Verificar se já está inscrito
-            $sql_verifica = "SELECT * FROM delegado WHERE cpf = ?";
-            $stmt_verifica = $conn->prepare($sql_verifica);
-            $stmt_verifica->bind_param("s", $_SESSION['cpf']);
-            $stmt_verifica->execute();
-            $result_verifica = $stmt_verifica->get_result();
+            // NOVA VERIFICAÇÃO: Verificar se já é diretor ou staff (pendente ou aprovado)
+            $sql_verifica_diretor_staff = "
+                SELECT 'diretor' as tipo, 
+                       CASE WHEN aprovado = 1 THEN 'aprovado' ELSE 'pendente' END as status
+                FROM diretor 
+                WHERE cpf = ?
+                UNION ALL
+                SELECT 'staff' as tipo, 
+                       status_inscricao as status
+                FROM staff 
+                WHERE cpf = ? AND status_inscricao IN ('pendente', 'aprovado')";
+                
+            $stmt_verifica_ds = $conn->prepare($sql_verifica_diretor_staff);
+            $stmt_verifica_ds->bind_param("ss", $_SESSION['cpf'], $_SESSION['cpf']);
+            $stmt_verifica_ds->execute();
+            $result_verifica_ds = $stmt_verifica_ds->get_result();
 
-            if ($result_verifica->num_rows > 0) {
-                $erro = "Você já está inscrito como delegado!";
-                $stmt_verifica->close();
+            if ($result_verifica_ds->num_rows > 0) {
+                $tipos = [];
+                $statuses = [];
+                while ($row = $result_verifica_ds->fetch_assoc()) {
+                    $tipos[] = $row['tipo'];
+                    $statuses[] = $row['status'];
+                }
+                
+                // Criar mensagem personalizada
+                $tipos_str = implode(" ou ", array_unique($tipos));
+                $status_str = implode("/", array_unique($statuses));
+                $erro = "Você já está inscrito como $tipos_str ($status_str) e não pode se inscrever como delegado.";
+                $stmt_verifica_ds->close();
             } else {
-                $stmt_verifica->close();
+                $stmt_verifica_ds->close();
 
-                // Verificar se a representação está disponível
-                $sql_verifica_rep = "SELECT * FROM representacao WHERE id_representacao = ? AND cpf_delegado IS NULL";
-                $stmt_verifica_rep = $conn->prepare($sql_verifica_rep);
-                $stmt_verifica_rep->bind_param("i", $representacao_desejada);
-                $stmt_verifica_rep->execute();
-                $result_verifica_rep = $stmt_verifica_rep->get_result();
+                // Verificar se já está inscrito como delegado
+                $sql_verifica = "SELECT * FROM delegado WHERE cpf = ?";
+                $stmt_verifica = $conn->prepare($sql_verifica);
+                $stmt_verifica->bind_param("s", $_SESSION['cpf']);
+                $stmt_verifica->execute();
+                $result_verifica = $stmt_verifica->get_result();
 
-                if ($result_verifica_rep->num_rows == 0) {
-                    $erro = "Esta representação não está mais disponível. Por favor, selecione outra.";
-                    $stmt_verifica_rep->close();
+                if ($result_verifica->num_rows > 0) {
+                    $erro = "Você já está inscrito como delegado!";
+                    $stmt_verifica->close();
                 } else {
-                    $stmt_verifica_rep->close();
+                    $stmt_verifica->close();
 
-                    // Verificar se a delegação existe (apenas se for diferente de -1)
-                    if ($id_delegacao != -1) {
-                        $sql_verifica_delegacao = "SELECT id_delegacao FROM delegacao WHERE id_delegacao = ? AND verificacao_delegacao = 'aprovado'";
-                        $stmt_verifica_delegacao = $conn->prepare($sql_verifica_delegacao);
-                        $stmt_verifica_delegacao->bind_param("i", $id_delegacao);
-                        $stmt_verifica_delegacao->execute();
-                        $result_verifica_delegacao = $stmt_verifica_delegacao->get_result();
-                        
-                        if ($result_verifica_delegacao->num_rows == 0) {
-                            $erro = "A delegação selecionada não existe ou não está aprovada.";
-                            $stmt_verifica_delegacao->close();
-                            $id_delegacao = -1; // Reverter para -1 (sem delegação)
-                            $dados_preenchidos['id_delegacao'] = -1;
-                        } else {
-                            $stmt_verifica_delegacao->close();
-                        }
-                    }
+                    // Verificar se a representação está disponível
+                    $sql_verifica_rep = "SELECT * FROM representacao WHERE id_representacao = ? AND cpf_delegado IS NULL";
+                    $stmt_verifica_rep = $conn->prepare($sql_verifica_rep);
+                    $stmt_verifica_rep->bind_param("i", $representacao_desejada);
+                    $stmt_verifica_rep->execute();
+                    $result_verifica_rep = $stmt_verifica_rep->get_result();
 
-                    // Verificar se arquivo PDF foi enviado
-                    if (!isset($_FILES['comprovante_pagamento']) || $_FILES['comprovante_pagamento']['error'] !== UPLOAD_ERR_OK) {
-                        $erro = "É obrigatório enviar o comprovante de pagamento em formato PDF.";
+                    if ($result_verifica_rep->num_rows == 0) {
+                        $erro = "Esta representação não está mais disponível. Por favor, selecione outra.";
+                        $stmt_verifica_rep->close();
                     } else {
-                        // Validar arquivo PDF
-                        $arquivo = $_FILES['comprovante_pagamento'];
-                        $extensao = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
-                        
-                        if ($extensao !== 'pdf') {
-                            $erro = "O arquivo deve ser um PDF (.pdf).";
-                        } elseif ($arquivo['size'] > 5242880) { // 5MB
-                            $erro = "O arquivo PDF não pode ultrapassar 5MB.";
-                        } elseif (!in_array($arquivo['type'], ['application/pdf', 'application/x-pdf'])) {
-                            $erro = "O arquivo enviado não é um PDF válido.";
-                        }
-                    }
+                        $stmt_verifica_rep->close();
 
-                    if (empty($erro)) {
-                        // Processar upload do PDF
-                        $nome_arquivo = 'pagamento_' . $_SESSION['cpf'] . '_' . time() . '.pdf';
-                        $caminho_arquivo = $upload_dir . $nome_arquivo;
-                        
-                        if (move_uploaded_file($arquivo['tmp_name'], $caminho_arquivo)) {
-                            // Ler o PDF como binário para armazenar no banco
-                            $pdf_content = file_get_contents($caminho_arquivo);
+                        // Verificar se a delegação existe (apenas se for diferente de -1)
+                        if ($id_delegacao != -1) {
+                            $sql_verifica_delegacao = "SELECT id_delegacao FROM delegacao WHERE id_delegacao = ? AND verificacao_delegacao = 'aprovado'";
+                            $stmt_verifica_delegacao = $conn->prepare($sql_verifica_delegacao);
+                            $stmt_verifica_delegacao->bind_param("i", $id_delegacao);
+                            $stmt_verifica_delegacao->execute();
+                            $result_verifica_delegacao = $stmt_verifica_delegacao->get_result();
                             
-                            // CORREÇÃO: Se não há delegação, usar NULL em vez de -1
-                            if ($id_delegacao == -1) {
-                                $id_delegacao_value = NULL; // Usar NULL para foreign key
-                                $status_delegacao = 'individual';
+                            if ($result_verifica_delegacao->num_rows == 0) {
+                                $erro = "A delegação selecionada não existe ou não está aprovada.";
+                                $stmt_verifica_delegacao->close();
+                                $id_delegacao = -1; // Reverter para -1 (sem delegação)
+                                $dados_preenchidos['id_delegacao'] = -1;
                             } else {
-                                $id_delegacao_value = $id_delegacao;
-                                $status_delegacao = 'pendente';
+                                $stmt_verifica_delegacao->close();
                             }
-                            
-                            // CORREÇÃO: Query única que funciona para ambos os casos
-                            // Usar NULL quando não há delegação
-                            $sql_inserir = "INSERT INTO delegado 
-                                (cpf, id_delegacao, aprovado_delegacao, comite_desejado, 
-                                 primeira_op_representacao, segunda_op_representacao, 
-                                 terceira_op_representacao, segunda_op_comite, terceira_op_comite,
-                                 pdf_pagamento, status_pagamento) 
-                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendente')";
-                             
-                            $stmt_inserir = $conn->prepare($sql_inserir);
-                            
-                            if ($stmt_inserir === false) {
-                                $erro = "Erro ao preparar consulta: " . $conn->error;
-                                unlink($caminho_arquivo);
-                            } else {
-                                // Bind os parâmetros - usando a mesma query para ambos os casos
-                                $stmt_inserir->bind_param(
-                                    "sisiisiiib", // s,i,s,i,i,i,i,i,i,b
-                                    $_SESSION['cpf'],           // 1 - s
-                                    $id_delegacao_value,        // 2 - i (pode ser NULL)
-                                    $status_delegacao,          // 3 - s
-                                    $comite_desejado,           // 4 - i
-                                    $representacao_desejada,    // 5 - i
-                                    $segunda_opcao_representacao, // 6 - i
-                                    $terceira_opcao_representacao, // 7 - i
-                                    $segunda_opcao_comite,      // 8 - i
-                                    $terceira_opcao_comite,     // 9 - i
-                                    $pdf_content               // 10 - b
-                                );
-                                
-                                if ($stmt_inserir->execute()) {
-                                    // Atualizar a representação
-                                    $sql_atualizar_rep = "UPDATE representacao SET cpf_delegado = ? WHERE id_representacao = ?";
-                                    $stmt_atualizar_rep = $conn->prepare($sql_atualizar_rep);
-                                    
-                                    if ($stmt_atualizar_rep === false) {
-                                        $erro = "Erro ao preparar atualização: " . $conn->error;
-                                        unlink($caminho_arquivo);
-                                    } else {
-                                        $stmt_atualizar_rep->bind_param("si", $_SESSION['cpf'], $representacao_desejada);
-                                        
-                                        if ($stmt_atualizar_rep->execute()) {
-                                            $mensagem = "Inscrição realizada com sucesso! Seu comprovante de pagamento foi enviado para análise.";
-                                            $dados_preenchidos = [];
-                                        } else {
-                                            $erro = "Erro ao atualizar representação: " . $stmt_atualizar_rep->error;
-                                            unlink($caminho_arquivo);
-                                        }
-                                        $stmt_atualizar_rep->close();
-                                    }
-                                } else {
-                                    $erro = "Erro ao realizar inscrição: " . $stmt_inserir->error;
-                                    unlink($caminho_arquivo);
-                                }
-                                $stmt_inserir->close();
-                            }
+                        }
+
+                        // Verificar se arquivo PDF foi enviado
+                        if (!isset($_FILES['comprovante_pagamento']) || $_FILES['comprovante_pagamento']['error'] !== UPLOAD_ERR_OK) {
+                            $erro = "É obrigatório enviar o comprovante de pagamento em formato PDF.";
                         } else {
-                            $erro = "Erro ao fazer upload do comprovante de pagamento. Tente novamente.";
+                            // Validar arquivo PDF
+                            $arquivo = $_FILES['comprovante_pagamento'];
+                            $extensao = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
+                            
+                            if ($extensao !== 'pdf') {
+                                $erro = "O arquivo deve ser um PDF (.pdf).";
+                            } elseif ($arquivo['size'] > 5242880) { // 5MB
+                                $erro = "O arquivo PDF não pode ultrapassar 5MB.";
+                            } elseif (!in_array($arquivo['type'], ['application/pdf', 'application/x-pdf'])) {
+                                $erro = "O arquivo enviado não é um PDF válido.";
+                            }
+                        }
+
+                        if (empty($erro)) {
+                            // Processar upload do PDF
+                            $nome_arquivo = 'pagamento_' . $_SESSION['cpf'] . '_' . time() . '.pdf';
+                            $caminho_arquivo = $upload_dir . $nome_arquivo;
+                            
+                            if (move_uploaded_file($arquivo['tmp_name'], $caminho_arquivo)) {
+                                // AGORA: Armazenar apenas o caminho relativo no banco
+                                $caminho_relativo = 'uploads/pagamentos/' . $nome_arquivo;
+                                
+                                // CORREÇÃO: Se não há delegação, usar NULL em vez de -1
+                                if ($id_delegacao == -1) {
+                                    $id_delegacao_value = NULL; // Usar NULL para foreign key
+                                    $status_delegacao = 'individual';
+                                } else {
+                                    $id_delegacao_value = $id_delegacao;
+                                    $status_delegacao = 'pendente';
+                                }
+                                
+                                // CORREÇÃO: Query única que funciona para ambos os casos
+                                // Usar NULL quando não há delegação
+                                $sql_inserir = "INSERT INTO delegado 
+                                    (cpf, id_delegacao, aprovado_delegacao, comite_desejado, 
+                                     primeira_op_representacao, segunda_op_representacao, 
+                                     terceira_op_representacao, segunda_op_comite, terceira_op_comite,
+                                     pdf_pagamento, status_pagamento) 
+                                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pendente')";
+                                 
+                                $stmt_inserir = $conn->prepare($sql_inserir);
+                                
+                                if ($stmt_inserir === false) {
+                                    $erro = "Erro ao preparar consulta: " . $conn->error;
+                                    unlink($caminho_arquivo);
+                                } else {
+                                    // Bind os parâmetros
+                                    $stmt_inserir->bind_param(
+                                        "sisiisiiis", // Alterado 'b' para 's' (string para caminho)
+                                        $_SESSION['cpf'],           // 1 - s
+                                        $id_delegacao_value,        // 2 - i (pode ser NULL)
+                                        $status_delegacao,          // 3 - s
+                                        $comite_desejado,           // 4 - i
+                                        $representacao_desejada,    // 5 - i
+                                        $segunda_opcao_representacao, // 6 - i
+                                        $terceira_opcao_representacao, // 7 - i
+                                        $segunda_opcao_comite,      // 8 - i
+                                        $terceira_opcao_comite,     // 9 - i
+                                        $caminho_relativo           // 10 - s (caminho do arquivo)
+                                    );
+                                    
+                                    if ($stmt_inserir->execute()) {
+                                        // Atualizar a representação
+                                        $sql_atualizar_rep = "UPDATE representacao SET cpf_delegado = ? WHERE id_representacao = ?";
+                                        $stmt_atualizar_rep = $conn->prepare($sql_atualizar_rep);
+                                        
+                                        if ($stmt_atualizar_rep === false) {
+                                            $erro = "Erro ao preparar atualização: " . $conn->error;
+                                            unlink($caminho_arquivo);
+                                        } else {
+                                            $stmt_atualizar_rep->bind_param("si", $_SESSION['cpf'], $representacao_desejada);
+                                            
+                                            if ($stmt_atualizar_rep->execute()) {
+                                                $mensagem = "Inscrição realizada com sucesso! Seu comprovante de pagamento foi enviado para análise.";
+                                                $dados_preenchidos = [];
+                                            } else {
+                                                $erro = "Erro ao atualizar representação: " . $stmt_atualizar_rep->error;
+                                                unlink($caminho_arquivo);
+                                            }
+                                            $stmt_atualizar_rep->close();
+                                        }
+                                    } else {
+                                        $erro = "Erro ao realizar inscrição: " . $stmt_inserir->error;
+                                        unlink($caminho_arquivo);
+                                    }
+                                    $stmt_inserir->close();
+                                }
+                            } else {
+                                $erro = "Erro ao fazer upload do comprovante de pagamento. Tente novamente.";
+                            }
                         }
                     }
                 }
@@ -299,20 +333,26 @@ if (isset($_SESSION["cpf"])) {
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Todos os estilos anteriores permanecem */
         :root {
-            --primary:rgb(16, 148, 56);
-            --primary-dark:rgb(15, 122, 20);
-            --secondary:rgb(0, 153, 33);
-            --success:rgb(27, 173, 63);
+            --primary:rgb(28, 112, 28);
+            --primary-dark:rgb(25, 196, 68);
+            --secondary:rgb(14, 138, 35);
+            --accent: #4cc9f0;
+            --success: #38b000;
+            --warning: #ff9e00;
+            --danger: #e63946;
             --light: #f8f9fa;
-            --dark: #212529;
+            --dark: #1a1a2e;
             --gray: #6c757d;
             --light-gray: #e9ecef;
-            --border-radius: 12px;
-            --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-            --transition: all 0.3s ease;
-            --danger: #e63946;
+            --card-bg: #ffffff;
+            --gradient-primary: linear-gradient(135deg, #27ae60, #219653);
+            --gradient-success: linear-gradient(135deg, #38b000 0%, #70e000 100%);
+            --border-radius: 16px;
+            --border-radius-sm: 8px;
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 15px 50px rgba(0, 0, 0, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -323,50 +363,76 @@ if (isset($_SESSION["cpf"])) {
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(-45deg, #000, #0f5132, #2ecc71, #000);
+            background: linear-gradient(-45deg, #f8f9fa 0%, #e9ecef 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: var(--dark);
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
+            padding: 30px;
         }
 
+        /* Header Styles */
         .header {
             text-align: center;
-            margin-bottom: 40px;
-            padding-top: 20px;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--gradient-primary);
+            border-radius: 2px;
         }
 
         .header h1 {
-            color: var(--dark);
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
         }
 
         .header p {
             color: var(--gray);
-            font-size: 1.1rem;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .tabs {
             display: flex;
+            gap: 15px;
             justify-content: center;
-            gap: 20px;
-            margin-bottom: 40px;
         }
 
         .tab-btn {
-            padding: 14px 32px;
-            background: white;
+            padding: 16px 40px;
+            background: transparent;
             border: 2px solid var(--light-gray);
-            border-radius: var(--border-radius);
+            border-radius: var(--border-radius-sm);
             font-size: 1rem;
             font-weight: 600;
             color: var(--gray);
@@ -374,60 +440,98 @@ if (isset($_SESSION["cpf"])) {
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .tab-btn:hover {
             border-color: var(--primary);
             color: var(--primary);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.1);
         }
 
         .tab-btn.active {
-            background: var(--primary);
+            background: var(--gradient-primary);
             color: white;
-            border-color: var(--primary);
+            border-color: transparent;
+            box-shadow: 0 5px 20px rgba(67, 97, 238, 0.3);
         }
 
+        /* Main Form Card */
         .form-card {
-            background: white;
+            background: var(--card-bg);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-            padding: 40px;
-            margin-bottom: 40px;
+            padding: 50px;
+            margin-bottom: 50px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--gradient-primary);
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 60px;
         }
 
-        .form-section h3 {
-            color: var(--dark);
-            font-size: 1.3rem;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--light-gray);
+        /* Form Sections */
+        .form-section {
+            position: relative;
+        }
+
+        .section-header {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light-gray);
         }
 
-        .form-section h3 i {
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4361ee20 0%, #7209b720 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
             color: var(--primary);
         }
 
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        /* Form Groups */
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            position: relative;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             color: var(--dark);
-            font-weight: 500;
-            font-size: 0.95rem;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .required::after {
@@ -437,43 +541,74 @@ if (isset($_SESSION["cpf"])) {
 
         .form-control {
             width: 100%;
-            padding: 14px;
-            border: 2px solid var(--light-gray);
-            border-radius: 10px;
+            padding: 18px 20px;
+            background: var(--light);
+            border: 2px solid transparent;
+            border-radius: var(--border-radius-sm);
             font-size: 1rem;
-            transition: var(--transition);
             font-family: 'Inter', sans-serif;
+            transition: var(--transition);
+            color: var(--dark);
         }
 
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+            transform: translateY(-2px);
         }
 
         .form-control[readonly] {
-            background-color: var(--light);
+            background: var(--light-gray);
             cursor: not-allowed;
-        }
-
-        .form-control.error {
-            border-color: var(--danger);
         }
 
         select.form-control {
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' fill='%234361ee' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 15px center;
-            padding-right: 45px;
+            background-position: right 20px center;
+            background-size: 16px;
+            padding-right: 50px;
         }
 
         textarea.form-control {
-            min-height: 120px;
+            min-height: 140px;
             resize: vertical;
+            line-height: 1.6;
         }
 
-        /* NOVO: Estilo para upload de arquivo */
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            gap: 6px;
+        }
+
+        .badge-primary {
+            background: linear-gradient(135deg, #4361ee20 0%, #7209b720 100%);
+            color: var(--primary);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, #38b00020 0%, #70e00020 100%);
+            color: var(--success);
+            border: 1px solid rgba(56, 176, 0, 0.2);
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, #4cc9f020 0%, #4895ef20 100%);
+            color: var(--accent);
+            border: 1px solid rgba(76, 201, 240, 0.2);
+        }
+
+        /* File Upload Styles */
         .file-upload-container {
             position: relative;
             margin-top: 25px;
@@ -481,7 +616,7 @@ if (isset($_SESSION["cpf"])) {
 
         .file-upload-label {
             display: block;
-            padding: 40px 20px;
+            padding: 50px 30px;
             background: var(--light);
             border: 3px dashed var(--light-gray);
             border-radius: var(--border-radius);
@@ -495,17 +630,19 @@ if (isset($_SESSION["cpf"])) {
         .file-upload-label:hover {
             border-color: var(--primary);
             background: rgba(67, 97, 238, 0.05);
+            transform: translateY(-3px);
         }
 
         .file-upload-label.drag-over {
             border-color: var(--primary);
             background: rgba(67, 97, 238, 0.1);
+            border-style: solid;
         }
 
         .file-upload-icon {
-            font-size: 48px;
+            font-size: 56px;
             color: var(--gray);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             transition: var(--transition);
         }
 
@@ -515,33 +652,36 @@ if (isset($_SESSION["cpf"])) {
 
         .file-upload-text h4 {
             color: var(--dark);
-            margin-bottom: 10px;
-            font-size: 1.1rem;
+            margin-bottom: 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
         }
 
         .file-upload-text p {
             color: var(--gray);
-            margin-bottom: 15px;
-            font-size: 0.9rem;
+            margin-bottom: 25px;
+            font-size: 1rem;
+            line-height: 1.6;
         }
 
         .file-upload-btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            background: var(--primary);
+            gap: 10px;
+            padding: 14px 28px;
+            background: var(--gradient-primary);
             color: white;
             border: none;
-            border-radius: 6px;
-            font-weight: 500;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            font-size: 1rem;
             cursor: pointer;
             transition: var(--transition);
         }
 
         .file-upload-btn:hover {
-            background: var(--primary-dark);
             transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(67, 97, 238, 0.3);
         }
 
         .file-input {
@@ -555,61 +695,76 @@ if (isset($_SESSION["cpf"])) {
 
         .file-preview {
             display: none;
-            margin-top: 20px;
-            padding: 20px;
+            margin-top: 25px;
+            padding: 25px;
             background: var(--light);
             border-radius: var(--border-radius);
             border: 2px solid var(--light-gray);
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .file-preview.show {
             display: block;
-            animation: slideIn 0.3s ease;
         }
 
         .file-preview-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .file-preview-title {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--dark);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            font-size: 1.1rem;
         }
 
         .file-preview-title i {
             color: var(--success);
+            font-size: 1.3rem;
         }
 
         .file-remove {
-            background: none;
+            background: transparent;
             border: none;
             color: var(--danger);
             cursor: pointer;
-            font-size: 1.2rem;
-            padding: 5px;
+            font-size: 1.3rem;
+            padding: 8px;
             border-radius: 50%;
             transition: var(--transition);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .file-remove:hover {
             background: rgba(230, 57, 70, 0.1);
+            transform: rotate(90deg);
         }
 
         .file-details {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
         .file-icon {
-            font-size: 24px;
-            color: var(--danger);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
         }
 
         .file-info {
@@ -617,43 +772,49 @@ if (isset($_SESSION["cpf"])) {
         }
 
         .file-name {
-            font-weight: 500;
+            font-weight: 600;
             color: var(--dark);
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            font-size: 1.1rem;
             word-break: break-all;
         }
 
         .file-size {
             color: var(--gray);
-            font-size: 0.85rem;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .file-status {
-            padding: 4px 12px;
+            padding: 8px 20px;
             border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.85rem;
+            font-weight: 700;
         }
 
         .file-status.ready {
-            background: #d4edda;
-            color: #155724;
+            background: linear-gradient(135deg, #38b00020 0%, #70e00020 100%);
+            color: var(--success);
+            border: 1px solid rgba(56, 176, 0, 0.2);
         }
 
         .file-requirements {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
+            background: var(--light);
+            border-radius: var(--border-radius-sm);
+            padding: 25px;
+            margin-top: 25px;
             border-left: 4px solid var(--primary);
         }
 
         .file-requirements h5 {
             color: var(--dark);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            font-size: 1.1rem;
         }
 
         .file-requirements ul {
@@ -662,90 +823,134 @@ if (isset($_SESSION["cpf"])) {
         }
 
         .file-requirements li {
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             color: var(--gray);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            line-height: 1.5;
         }
 
         .file-requirements li i {
             color: var(--success);
-            font-size: 0.8rem;
+            font-size: 0.9rem;
         }
 
+        /* Info Text */
         .info-text {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             color: var(--gray);
-            font-size: 0.85rem;
-            margin-top: 8px;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            line-height: 1.5;
         }
 
         .info-text i {
             color: var(--primary);
+            font-size: 1rem;
         }
 
         .warning-text {
             color: var(--danger);
-            font-weight: 500;
+            font-weight: 600;
+            padding: 12px 20px;
+            background: rgba(230, 57, 70, 0.1);
+            border-radius: var(--border-radius-sm);
+            border-left: 4px solid var(--danger);
         }
 
+        /* Representation Card */
         .representations-grid {
-            display: grid;
-            gap: 20px;
+            margin-top: 20px;
         }
 
         .representation-card {
             background: var(--light);
-            border-radius: 10px;
-            padding: 20px;
+            border-radius: var(--border-radius);
+            padding: 30px;
             border-left: 4px solid var(--primary);
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+
+        .representation-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
         }
 
         .representation-card h4 {
             color: var(--dark);
-            margin-bottom: 15px;
-            font-size: 1.1rem;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .representation-card h4 i {
             color: var(--secondary);
         }
 
+        /* Delegation Info */
+        .delegation-info {
+            background: linear-gradient(135deg, #4cc9f010 0%, #4895ef10 100%);
+            border-radius: var(--border-radius-sm);
+            padding: 20px;
+            margin-top: 15px;
+            border: 1px solid rgba(76, 201, 240, 0.2);
+        }
+
+        /* Submit Section */
         .submit-section {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 2px solid var(--light-gray);
         }
 
         .submit-btn {
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            background: var(--gradient-primary);
             color: white;
             border: none;
-            padding: 16px 45px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 50px;
+            padding: 20px 60px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: var(--border-radius-sm);
             cursor: pointer;
             transition: var(--transition);
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
         }
 
         .submit-btn:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(67, 97, 238, 0.4);
+        }
+
+        .submit-btn:hover:not(:disabled)::before {
+            left: 100%;
         }
 
         .submit-btn:active:not(:disabled) {
-            transform: translateY(-1px);
+            transform: translateY(-2px);
         }
 
         .submit-btn:disabled {
@@ -755,36 +960,40 @@ if (isset($_SESSION["cpf"])) {
             box-shadow: none;
         }
 
+        /* Logo */
         .logo-container {
             text-align: center;
-            margin-top: 40px;
-        }
-
-        .logo {
-            max-width: 150px;
-            height: auto;
-            opacity: 0.8;
+            margin-top: 60px;
+            opacity: 0.7;
             transition: var(--transition);
         }
 
-        .logo:hover {
+        .logo-container:hover {
             opacity: 1;
-            transform: scale(1.05);
         }
 
+        .logo {
+            max-width: 180px;
+            height: auto;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+        }
+
+        /* Messages */
         .message-container {
-            max-width: 600px;
-            margin: 40px auto;
-            padding: 30px;
+            max-width: 700px;
+            margin: 80px auto;
+            padding: 50px;
             border-radius: var(--border-radius);
             text-align: center;
-            animation: slideIn 0.5s ease;
+            animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(30px);
             }
             to {
                 opacity: 1;
@@ -793,50 +1002,54 @@ if (isset($_SESSION["cpf"])) {
         }
 
         .message-success {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            border: 2px solid #155724;
-            color: #155724;
+            background: linear-gradient(135deg, #38b00010 0%, #70e00010 100%);
+            border: 2px solid rgba(56, 176, 0, 0.2);
+            color: var(--success);
         }
 
         .message-error {
-            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-            border: 2px solid #721c24;
-            color: #721c24;
+            background: linear-gradient(135deg, #e6394610 0%, #f7258510 100%);
+            border: 2px solid rgba(230, 57, 70, 0.2);
+            color: var(--danger);
         }
 
         .message-container i {
-            font-size: 3rem;
-            margin-bottom: 20px;
+            font-size: 4rem;
+            margin-bottom: 25px;
         }
 
         .message-container h3 {
-            margin-bottom: 15px;
-            font-size: 1.5rem;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: 700;
         }
 
         .message-container p {
-            margin-bottom: 20px;
-            line-height: 1.6;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            font-size: 1.1rem;
         }
 
         .back-link {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             color: inherit;
             text-decoration: none;
             font-weight: 600;
-            padding: 10px 20px;
+            padding: 14px 28px;
             border-radius: 50px;
             background: rgba(255, 255, 255, 0.3);
             transition: var(--transition);
+            border: 2px solid currentColor;
         }
 
         .back-link:hover {
             background: rgba(255, 255, 255, 0.5);
-            transform: translateX(-5px);
+            transform: translateX(-8px);
         }
 
+        /* Not Authenticated */
         .not-authenticated {
             text-align: center;
             padding: 100px 20px;
@@ -847,98 +1060,103 @@ if (isset($_SESSION["cpf"])) {
         .not-authenticated h2 {
             color: var(--dark);
             margin-bottom: 20px;
-            font-size: 2rem;
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .not-authenticated p {
             color: var(--gray);
-            margin-bottom: 30px;
-            font-size: 1.1rem;
+            margin-bottom: 40px;
+            font-size: 1.2rem;
+            line-height: 1.7;
         }
 
         .auth-link {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            background: var(--primary);
+            gap: 12px;
+            background: var(--gradient-primary);
             color: white;
-            padding: 14px 28px;
-            border-radius: 50px;
+            padding: 18px 36px;
+            border-radius: var(--border-radius-sm);
             text-decoration: none;
             font-weight: 600;
+            font-size: 1.1rem;
             transition: var(--transition);
+            box-shadow: 0 5px 20px rgba(67, 97, 238, 0.3);
         }
 
         .auth-link:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.4);
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .badge-success {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .badge-warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .badge-danger {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .badge-info {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .delegation-info {
-            background: #f0f7ff;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 15px;
-            border-left: 4px solid var(--primary);
-        }
-
-        @media (max-width: 768px) {
+        /* Responsive */
+        @media (max-width: 1024px) {
             .form-grid {
                 grid-template-columns: 1fr;
-                gap: 30px;
+                gap: 40px;
+            }
+            
+            .container {
+                padding: 20px;
             }
             
             .form-card {
-                padding: 25px;
+                padding: 30px;
             }
             
             .header h1 {
-                font-size: 2rem;
+                font-size: 2.5rem;
             }
-            
+        }
+
+        @media (max-width: 768px) {
             .tabs {
                 flex-direction: column;
-                align-items: stretch;
+            }
+            
+            .tab-btn {
+                width: 100%;
+                justify-content: center;
             }
             
             .file-upload-label {
-                padding: 30px 15px;
+                padding: 30px 20px;
             }
             
             .file-details {
                 flex-direction: column;
                 align-items: flex-start;
-                gap: 10px;
+                gap: 15px;
             }
+            
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            
+            .submit-btn {
+                width: 100%;
+                justify-content: center;
+                padding: 20px;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
         }
     </style>
 </head>
@@ -959,27 +1177,29 @@ if (isset($_SESSION["cpf"])) {
                 
             <?php elseif ($mensagem): ?>
                 <div class="message-container message-success">
-                    <i class="fas fa-check-circle"></i>
-                    <h3>Inscrição Enviada!</h3>
+                    <i class="fas fa-check-circle pulse"></i>
+                    <h3>Inscrição Enviada com Sucesso!</h3>
                     <p><?php echo htmlspecialchars($mensagem); ?></p>
-                    <div class="info-text">
+                    <div class="info-text" style="justify-content: center; margin-top: 20px;">
                         <i class="fas fa-info-circle"></i>
                         Seu comprovante de pagamento será analisado pela equipe administrativa.
                     </div>
                     <?php if (isset($id_delegacao) && $id_delegacao != -1): ?>
-                        <div class="info-text">
-                            <i class="fas fa-check"></i>
+                        <div class="info-text" style="justify-content: center;">
+                            <i class="fas fa-users"></i>
                             Inscrito como parte de uma delegação
                         </div>
                     <?php else: ?>
-                        <div class="info-text">
+                        <div class="info-text" style="justify-content: center;">
                             <i class="fas fa-user"></i>
                             Inscrição individual realizada
                         </div>
                     <?php endif; ?>
-                    <a href="inicio.php" class="back-link">
-                        <i class="fas fa-home"></i> Ir para início
-                    </a>
+                    <div style="margin-top: 30px;">
+                        <a href="inicio.php" class="back-link">
+                            <i class="fas fa-home"></i> Ir para início
+                        </a>
+                    </div>
                 </div>
                 
             <?php else: ?>
@@ -988,24 +1208,33 @@ if (isset($_SESSION["cpf"])) {
                     <p>Preencha o formulário abaixo para participar da UNIF</p>
                 </div>
 
-                <div class="tabs">
-                    <button class="tab-btn" onclick="window.location.href='criarDelegacao.php'">
-                        <i class="fas fa-plus-circle"></i> Criar Delegação
-                    </button>
-                    <button class="tab-btn active">
-                        <i class="fas fa-user-graduate"></i> Fazer Inscrição
-                    </button>
+                <div class="tabs-container">
+                    <div class="tabs">
+                        <button class="tab-btn" onclick="window.location.href='criarDelegacao.php'">
+                            <i class="fas fa-plus-circle"></i> Criar Delegação
+                        </button>
+                        <button class="tab-btn active">
+                            <i class="fas fa-user-graduate"></i> Fazer Inscrição
+                        </button>
+                    </div>
                 </div>
 
-                <!-- ALTERAÇÃO AQUI: Adicionado enctype="multipart/form-data" -->
                 <form class="form-card" id="formInscricao" method="POST" action="" enctype="multipart/form-data">
                     <div class="form-grid">
                         <!-- Coluna Esquerda - Delegação -->
                         <div class="form-section">
-                            <h3><i class="fas fa-school"></i> Associação com Delegação</h3>
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-school"></i>
+                                </div>
+                                <h3 class="section-title">Associação com Delegação</h3>
+                            </div>
                             
                             <div class="form-group">
-                                <label class="form-label">Delegação (Opcional)</label>
+                                <label class="form-label">
+                                    <i class="fas fa-users"></i>
+                                    Delegação (Opcional)
+                                </label>
                                 <select name="id_delegacao" id="id_delegacao" class="form-control">
                                     <option value="-1">Nenhuma delegação (inscrição individual)</option>
                                     <?php if (!empty($delegacoes)): ?>
@@ -1050,7 +1279,7 @@ if (isset($_SESSION["cpf"])) {
                                 </div>
                             </div>
                             
-                            <div class="info-text">
+                            <div class="info-text" style="margin-top: 20px;">
                                 <i class="fas fa-plus-circle"></i>
                                 <a href="criarDelegacao.php" style="color: var(--primary); text-decoration: none; font-weight: 600;">
                                     Criar nova delegação
@@ -1060,29 +1289,43 @@ if (isset($_SESSION["cpf"])) {
 
                         <!-- Coluna Direita - Dados do Aluno -->
                         <div class="form-section">
-                            <h3><i class="fas fa-user-graduate"></i> Dados do Aluno</h3>
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-user-graduate"></i>
+                                </div>
+                                <h3 class="section-title">Dados do Aluno</h3>
+                            </div>
                             
                             <div class="form-group">
-                                <label class="form-label required">CPF</label>
+                                <label class="form-label required">
+                                    <i class="fas fa-id-card"></i>
+                                    CPF
+                                </label>
                                 <input type="text" name="cpf" class="form-control" value="<?php echo htmlspecialchars($_SESSION['cpf']); ?>" readonly>
                             </div>
                             
                             <div class="form-group">
-                                <label class="form-label required">Comitê Desejado</label>
+                                <label class="form-label required">
+                                    <i class="fas fa-clipboard-list"></i>
+                                    Comitê Desejado
+                                </label>
                                 <select name="comite_desejado" id="comite_desejado" class="form-control" required onchange="this.form.submit()">
                                     <option value="">Selecione um comitê...</option>
                                     <?php foreach ($comites as $comite): ?>
                                         <option value="<?php echo $comite['id_comite']; ?>"
                                             <?php echo ($comite_selecionado == $comite['id_comite']) ? 'selected' : ''; ?>>
                                             <?php echo htmlspecialchars($comite['nome_comite']); ?>
-                                            <span class="badge badge-success"><?php echo htmlspecialchars($comite['tipo_comite']); ?></span>
+                                            <span class="badge badge-primary"><?php echo htmlspecialchars($comite['tipo_comite']); ?></span>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
                             
                             <div class="form-group">
-                                <label class="form-label">Segunda Opção de Comitê (Opcional)</label>
+                                <label class="form-label">
+                                    <i class="fas fa-list-ol"></i>
+                                    Segunda Opção de Comitê (Opcional)
+                                </label>
                                 <select name="segunda_opcao_comite" id="segunda_opcao_comite" class="form-control">
                                     <option value="">Selecione uma segunda opção...</option>
                                     <?php foreach ($comites as $comite): ?>
@@ -1095,7 +1338,10 @@ if (isset($_SESSION["cpf"])) {
                             </div>
                             
                             <div class="form-group">
-                                <label class="form-label">Terceira Opção de Comitê (Opcional)</label>
+                                <label class="form-label">
+                                    <i class="fas fa-list-ol"></i>
+                                    Terceira Opção de Comitê (Opcional)
+                                </label>
                                 <select name="terceira_opcao_comite" id="terceira_opcao_comite" class="form-control">
                                     <option value="">Selecione uma terceira opção...</option>
                                     <?php foreach ($comites as $comite): ?>
@@ -1106,89 +1352,112 @@ if (isset($_SESSION["cpf"])) {
                                     <?php endforeach; ?>
                                 </select>
                             </div>
-                            
-                            <div class="representations-grid">
-                                <div class="representation-card">
-                                    <h4><i class="fas fa-flag"></i> Representações Disponíveis</h4>
-                                    
-                                    <?php if ($comite_selecionado): ?>
-                                        <?php if (!empty($representacoes_comite)): ?>
-                                            <div class="info-text">
-                                                <i class="fas fa-check-circle"></i>
-                                                <?php echo count($representacoes_comite); ?> representação(ões) disponível(is)
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label class="form-label required">Primeira Opção</label>
-                                                <select name="representacao_desejada" id="representacao_desejada" class="form-control" required>
-                                                    <option value="">Selecione uma representação...</option>
-                                                    <?php foreach ($representacoes_comite as $rep): ?>
-                                                        <option value="<?php echo $rep['id_representacao']; ?>"
-                                                            <?php echo (isset($dados_preenchidos['representacao_desejada']) && $dados_preenchidos['representacao_desejada'] == $rep['id_representacao']) ? 'selected' : ''; ?>>
-                                                            <?php echo htmlspecialchars($rep['nome_representacao']); ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label class="form-label">Segunda Opção (Opcional)</label>
-                                                <select name="segunda_opcao_representacao" id="segunda_opcao_representacao" class="form-control">
-                                                    <option value="">Selecione uma segunda opção...</option>
-                                                    <?php foreach ($representacoes_comite as $rep): ?>
-                                                        <option value="<?php echo $rep['id_representacao']; ?>"
-                                                            <?php echo (isset($dados_preenchidos['segunda_opcao_representacao']) && $dados_preenchidos['segunda_opcao_representacao'] == $rep['id_representacao']) ? 'selected' : ''; ?>>
-                                                            <?php echo htmlspecialchars($rep['nome_representacao']); ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label class="form-label">Terceira Opção (Opcional)</label>
-                                                <select name="terceira_opcao_representacao" id="terceira_opcao_representacao" class="form-control">
-                                                    <option value="">Selecione uma terceira opção...</option>
-                                                    <?php foreach ($representacoes_comite as $rep): ?>
-                                                        <option value="<?php echo $rep['id_representacao']; ?>"
-                                                            <?php echo (isset($dados_preenchidos['terceira_opcao_representacao']) && $dados_preenchidos['terceira_opcao_representacao'] == $rep['id_representacao']) ? 'selected' : ''; ?>>
-                                                            <?php echo htmlspecialchars($rep['nome_representacao']); ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-                                        <?php else: ?>
-                                            <div class="info-text">
-                                                <i class="fas fa-exclamation-triangle"></i>
-                                                Não há representações disponíveis para este comitê no momento
-                                            </div>
-                                            <input type="hidden" name="representacao_desejada" value="0">
-                                        <?php endif; ?>
-                                    <?php else: ?>
+                        </div>
+                    </div>
+
+                    <!-- Representações -->
+                    <div class="form-section" style="margin-top: 40px;">
+                        <div class="representations-grid">
+                            <div class="representation-card">
+                                <h4><i class="fas fa-flag"></i> Representações Disponíveis</h4>
+                                
+                                <?php if ($comite_selecionado): ?>
+                                    <?php if (!empty($representacoes_comite)): ?>
                                         <div class="info-text">
-                                            <i class="fas fa-info-circle"></i>
-                                            Selecione um comitê primeiro para ver as representações disponíveis
+                                            <i class="fas fa-check-circle"></i>
+                                            <?php echo count($representacoes_comite); ?> representação(ões) disponível(is)
                                         </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label required">
+                                                <i class="fas fa-medal"></i>
+                                                Primeira Opção
+                                            </label>
+                                            <select name="representacao_desejada" id="representacao_desejada" class="form-control" required>
+                                                <option value="">Selecione uma representação...</option>
+                                                <?php foreach ($representacoes_comite as $rep): ?>
+                                                    <option value="<?php echo $rep['id_representacao']; ?>"
+                                                        <?php echo (isset($dados_preenchidos['representacao_desejada']) && $dados_preenchidos['representacao_desejada'] == $rep['id_representacao']) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($rep['nome_representacao']); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">
+                                                <i class="fas fa-list-ol"></i>
+                                                Segunda Opção (Opcional)
+                                            </label>
+                                            <select name="segunda_opcao_representacao" id="segunda_opcao_representacao" class="form-control">
+                                                <option value="">Selecione uma segunda opção...</option>
+                                                <?php foreach ($representacoes_comite as $rep): ?>
+                                                    <option value="<?php echo $rep['id_representacao']; ?>"
+                                                        <?php echo (isset($dados_preenchidos['segunda_opcao_representacao']) && $dados_preenchidos['segunda_opcao_representacao'] == $rep['id_representacao']) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($rep['nome_representacao']); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label class="form-label">
+                                                <i class="fas fa-list-ol"></i>
+                                                Terceira Opção (Opcional)
+                                            </label>
+                                            <select name="terceira_opcao_representacao" id="terceira_opcao_representacao" class="form-control">
+                                                <option value="">Selecione uma terceira opção...</option>
+                                                <?php foreach ($representacoes_comite as $rep): ?>
+                                                    <option value="<?php echo $rep['id_representacao']; ?>"
+                                                        <?php echo (isset($dados_preenchidos['terceira_opcao_representacao']) && $dados_preenchidos['terceira_opcao_representacao'] == $rep['id_representacao']) ? 'selected' : ''; ?>>
+                                                        <?php echo htmlspecialchars($rep['nome_representacao']); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="info-text" style="color: var(--warning);">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            Não há representações disponíveis para este comitê no momento
+                                        </div>
+                                        <input type="hidden" name="representacao_desejada" value="0">
                                     <?php endif; ?>
-                                </div>
+                                <?php else: ?>
+                                    <div class="info-text">
+                                        <i class="fas fa-info-circle"></i>
+                                        Selecione um comitê primeiro para ver as representações disponíveis
+                                    </div>
+                                <?php endif; ?>
                             </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label required">Justificativa da Escolha</label>
-                                <textarea name="justificativa" class="form-control" placeholder="Explique por que escolheu esta representação (mínimo 20 caracteres)..."><?php echo isset($dados_preenchidos['justificativa']) ? htmlspecialchars($dados_preenchidos['justificativa']) : ''; ?></textarea>
-                                <div class="info-text">
-                                    <i class="fas fa-edit"></i>
-                                    Sua justificativa será avaliada pela equipe organizadora
-                                </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label required">
+                                <i class="fas fa-edit"></i>
+                                Justificativa da Escolha
+                            </label>
+                            <textarea name="justificativa" class="form-control" placeholder="Explique por que escolheu esta representação (mínimo 20 caracteres)..."><?php echo isset($dados_preenchidos['justificativa']) ? htmlspecialchars($dados_preenchidos['justificativa']) : ''; ?></textarea>
+                            <div class="info-text">
+                                <i class="fas fa-clipboard-check"></i>
+                                Sua justificativa será avaliada pela equipe organizadora
                             </div>
                         </div>
                     </div>
 
-                    <!-- NOVA SEÇÃO: Upload do Comprovante de Pagamento -->
-                    <div class="form-section" style="margin-top: 40px; border-top: 2px solid var(--light-gray); padding-top: 30px;">
-                        <h3><i class="fas fa-file-invoice-dollar"></i> Comprovante de Pagamento</h3>
+                    <!-- Upload do Comprovante de Pagamento -->
+                    <div class="form-section" style="margin-top: 40px;">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <h3 class="section-title">Comprovante de Pagamento</h3>
+                        </div>
                         
                         <div class="form-group">
-                            <label class="form-label required">Comprovante de Pagamento (PDF)</label>
+                            <label class="form-label required">
+                                <i class="fas fa-file-pdf"></i>
+                                Comprovante de Pagamento (PDF)
+                            </label>
                             
                             <div class="file-upload-container">
                                 <label for="comprovante_pagamento" class="file-upload-label" id="fileUploadLabel">
@@ -1239,7 +1508,7 @@ if (isset($_SESSION["cpf"])) {
                                 </ul>
                             </div>
                             
-                            <div class="info-text warning-text">
+                            <div class="warning-text">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 A inscrição só será processada após a análise do comprovante de pagamento.
                             </div>
@@ -1250,7 +1519,7 @@ if (isset($_SESSION["cpf"])) {
                         <button type="button" class="submit-btn" id="submitBtn" onclick="enviarFormulario()">
                             <i class="fas fa-paper-plane"></i> SUBMETER INSCRIÇÃO
                         </button>
-                        <div class="info-text" style="margin-top: 15px;">
+                        <div class="info-text" style="justify-content: center; margin-top: 20px;">
                             <i class="fas fa-shield-alt"></i>
                             Seus dados estão seguros e serão usados apenas para fins de inscrição
                         </div>
@@ -1467,16 +1736,16 @@ if (isset($_SESSION["cpf"])) {
             // Aplicar estilo ao carregar a página
             const delegaçãoSelect = document.getElementById('id_delegacao');
             if (delegaçãoSelect && delegaçãoSelect.value == '-1') {
-                delegaçãoSelect.style.borderLeft = '4px solid #4cc9f0';
+                delegaçãoSelect.style.borderLeft = '4px solid var(--accent)';
             }
             
             // Mudar estilo da delegação baseado na seleção
             if (delegaçãoSelect) {
                 delegaçãoSelect.addEventListener('change', function() {
                     if (this.value == '-1') {
-                        this.style.borderLeft = '4px solid #4cc9f0';
+                        this.style.borderLeft = '4px solid var(--accent)';
                     } else {
-                        this.style.borderLeft = '4px solid #4361ee';
+                        this.style.borderLeft = '4px solid var(--primary)';
                     }
                 });
             }

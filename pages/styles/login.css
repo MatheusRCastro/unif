@@ -1,102 +1,505 @@
-/* Usa o padrão UNIF */
+/* Usa o padrão UNIF - MODERNO COM TONS DE VERDE BANDEIRA */
 .main-content {
   flex: 1;
   min-height: 100vh;
-  background-color: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(3px);
+  background: linear-gradient(135deg, 
+    #006400 0%,    /* Verde escuro bandeira */
+    #008000 25%,   /* Verde bandeira tradicional */
+    #00A000 50%,   /* Verde mais claro */
+    #008000 75%,   /* Verde bandeira novamente */
+    #006400 100%   /* Verde escuro bandeira */
+  );
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Card de login */
+/* Efeito de partículas sutis verdes */
+.main-content::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle, rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+    radial-gradient(circle, rgba(0, 200, 0, 0.05) 2px, transparent 2px);
+  background-size: 60px 60px, 120px 120px;
+  animation: float 25s linear infinite;
+  opacity: 0.4;
+}
+
+/* Outro efeito sutil de brilho */
+.main-content::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 255, 0, 0.1) 0%,
+    rgba(0, 128, 0, 0.05) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-100px, -100px) rotate(360deg); }
+}
+
+/* Card de login moderno - ajustado para contraste com verde */
 .login-box {
-  background: white;
-  width: 360px;
-  padding: 40px 30px;
-  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.98);
+  width: 100%;
+  max-width: 420px;
+  padding: 50px 40px;
+  border-radius: 28px;
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-  animation: fadeIn 0.5s ease;
+  box-shadow: 
+    0 20px 60px rgba(0, 80, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
+    0 30px 80px rgba(0, 128, 0, 0.3);
+  animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  z-index: 1;
 }
 
-/* Logo */
+.login-box:hover {
+  transform: translateY(-8px);
+  box-shadow: 
+    0 30px 80px rgba(0, 100, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.25) inset,
+    0 40px 100px rgba(0, 128, 0, 0.4);
+}
+
+.login-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, 
+    #006400 0%, 
+    #00A000 50%, 
+    #006400 100%
+  );
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+}
+
+/* Logo com efeito moderno sobre fundo verde */
 .login-box img {
-  width: 200px;
-  margin-bottom: 20px;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+  width: 180px;
+  margin-bottom: 30px;
+  filter: 
+    drop-shadow(0 6px 12px rgba(0, 80, 0, 0.4))
+    brightness(1.05)
+    contrast(1.1);
+  transition: transform 0.5s ease;
+  position: relative;
+  z-index: 2;
 }
 
-/* Título */
+.login-box:hover img {
+  transform: scale(1.05) rotate(-2deg);
+}
+
+/* Título moderno com tons verdes */
 .login-box h2 {
-  color: #1a5c1a;
-  font-size: 15px;
-  font-weight: bold;
-  margin-bottom: 20px;
+  color: #006400;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  letter-spacing: -0.5px;
+  background: linear-gradient(45deg, #006400, #00A000, #006400);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: textShine 3s ease-in-out infinite;
+  position: relative;
+  padding-bottom: 12px;
 }
 
-/* Inputs */
+@keyframes textShine {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.login-box h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #006400, #00A000, #006400);
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+/* Inputs modernos com foco verde */
+.input-group {
+  position: relative;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
 .login-box input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  border: 1px solid #bbb;
-  font-size: 14px;
+  padding: 18px 20px 18px 50px;
+  border-radius: 14px;
+  border: 2px solid #c8e6c8;
+  font-size: 16px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 100, 0, 0.1);
 }
 
 .login-box input:focus {
   outline: none;
-  border-color: #1fa51f;
-  box-shadow: 0 0 6px rgba(31, 165, 31, 0.6);
+  border-color: #00A000;
+  box-shadow: 
+    0 0 0 4px rgba(0, 160, 0, 0.2),
+    0 8px 20px rgba(0, 128, 0, 0.25);
+  transform: translateY(-2px);
+  background: white;
 }
 
-/* Redefinir */
+/* Ícones nos inputs - verdes */
+.input-group::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  opacity: 0.7;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.input-group:focus-within::before {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.1);
+}
+
+#email + .input-group::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23006400'%3E%3Cpath d='M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z'/%3E%3C/svg%3E");
+}
+
+#senha + .input-group::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23006400'%3E%3Cpath d='M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z'/%3E%3C/svg%3E");
+}
+
+/* Placeholder moderno */
+.login-box input::placeholder {
+  color: #7a9c7a;
+  font-weight: 400;
+}
+
+/* Redefinir moderno - contraste com verde */
 .recuperar {
   text-align: right;
-  font-size: 12px;
-  margin-bottom: 20px;
+  font-size: 14px;
+  margin-bottom: 30px;
+  position: relative;
 }
 
 .recuperar a {
-  color: red;
+  color: #d32f2f;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  background: rgba(211, 47, 47, 0.05);
 }
 
-/* Botão */
+.recuperar a::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #d32f2f;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.recuperar a:hover {
+  background: rgba(211, 47, 47, 0.1);
+  transform: translateX(4px);
+}
+
+.recuperar a:hover::before {
+  width: 80%;
+}
+
+/* Botão moderno - gradiente verde bandeira */
 .login-box button {
   width: 100%;
-  padding: 12px;
-  border-radius: 30px;
+  padding: 18px;
+  border-radius: 16px;
   border: none;
-  background: linear-gradient(90deg, #000, #1fa51f);
+  background: linear-gradient(135deg, 
+    #006400 0%, 
+    #008000 25%, 
+    #00A000 50%, 
+    #008000 75%, 
+    #006400 100%
+  );
+  background-size: 200% 200%;
   color: white;
-  font-weight: bold;
+  font-weight: 700;
+  font-size: 16px;
   cursor: pointer;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.5px;
+  box-shadow: 
+    0 8px 25px rgba(0, 100, 0, 0.4),
+    0 0 15px rgba(0, 255, 0, 0.3) inset;
+}
+
+.login-box button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: 0.5s;
 }
 
 .login-box button:hover {
-  transform: scale(1.03);
+  background-position: 100% 100%;
+  transform: translateY(-4px);
+  box-shadow: 
+    0 12px 35px rgba(0, 128, 0, 0.6),
+    0 0 20px rgba(0, 255, 0, 0.4) inset;
 }
 
-/* Cadastrar */
+.login-box button:hover::before {
+  left: 100%;
+}
+
+.login-box button:active {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 6px 20px rgba(0, 128, 0, 0.5),
+    0 0 10px rgba(0, 255, 0, 0.2) inset;
+}
+
+/* Cadastrar moderno - link verde */
+.links {
+  margin-top: 25px;
+  padding-top: 25px;
+  border-top: 1px solid rgba(0, 100, 0, 0.1);
+  position: relative;
+}
+
 .links a {
-  color: #0066ff;
-  font-size: 13px;
-  font-weight: bold;
+  color: #008000;
+  font-size: 15px;
+  font-weight: 700;
   text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  background: rgba(0, 128, 0, 0.05);
 }
 
-/* Animação */
-@keyframes fadeIn {
+.links a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 128, 0, 0.1), transparent);
+  transition: 0.5s;
+}
+
+.links a:hover {
+  background: rgba(0, 128, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 128, 0, 0.2);
+  color: #006400;
+}
+
+.links a:hover::before {
+  left: 100%;
+}
+
+/* Mensagens de erro modernas - contraste com verde */
+.erro {
+  display: none;
+  color: #d32f2f;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 8px;
+  padding: 10px 15px;
+  background: rgba(211, 47, 47, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid #d32f2f;
+  animation: shake 0.5s ease;
+  text-align: left;
+  position: relative;
+  padding-left: 40px;
+  border: 1px solid rgba(211, 47, 47, 0.2);
+}
+
+.erro::before {
+  content: '⚠️';
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Animação de entrada */
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(15px);
+    transform: translateY(40px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+  .main-content {
+    padding: 15px;
+  }
+  
+  .login-box {
+    padding: 40px 25px;
+    border-radius: 24px;
+    max-width: 100%;
+  }
+  
+  .login-box img {
+    width: 160px;
+    margin-bottom: 25px;
+  }
+  
+  .login-box input {
+    padding: 16px 20px 16px 45px;
+    font-size: 15px;
+  }
+  
+  .login-box button {
+    padding: 16px;
+    font-size: 15px;
+  }
+  
+  .login-box h2 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Efeito de foco para acessibilidade */
+.login-box input:focus-visible {
+  outline: 2px solid #00A000;
+  outline-offset: 2px;
+}
+
+/* Loading state para o botão */
+.login-box button.loading {
+  position: relative;
+  color: transparent;
+}
+
+.login-box button.loading::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Brilho sutil nos cantos */
+.login-box {
+  position: relative;
+}
+
+.login-box::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(0, 255, 0, 0.1) 0%,
+    rgba(0, 255, 0, 0.05) 25%,
+    transparent 50%
+  );
+  pointer-events: none;
+  z-index: -1;
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.8; }
 }
