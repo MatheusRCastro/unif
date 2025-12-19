@@ -5,49 +5,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - UNIF</title>
+
   <link rel="stylesheet" href="styles/global.css">
   <link rel="stylesheet" href="styles/login.css">
+
   <script src="scripts/login.js" defer></script>
 </head>
 
 <body>
-  <div class="container">
-    <!-- Logo -->
-    <div class="logo">
-      <img src="images/unif.png" alt="Logo UNIF">
-    </div>
 
-    <!-- Formulário de Login -->
-    <div class="formulario">
-      <h2>Entrar na sua conta:</h2>
+  <main class="main-content">
+    <div class="login-box">
 
-      <!-- Form tradicional -->
+      <!-- Logo -->
+      <img src="images/unif.png" alt="Logo UNIF" class="logo">
+
+      <h2>Entrar na sua conta</h2>
+
       <form id="loginForm" action="php/login.php" method="POST">
-        <!-- Campo Email/CPF -->
+
         <input type="text" id="email" name="email" placeholder="E-mail ou CPF" onblur="confereCamposEmail()">
         <span id="emailVazio" class="erro">⚠️ Preencha o campo de e-mail</span>
         <span id="emailInvalido" class="erro">⚠️ E-mail ou CPF inválido</span>
 
-        <!-- Campo Senha -->
         <input type="password" id="senha" name="senha" placeholder="Senha" onblur="confereCamposSenha()">
         <span id="senhaVazia" class="erro">⚠️ Preencha o campo de senha</span>
 
-        <!-- Recuperar senha -->
         <p class="recuperar">
-          Esqueceu sua senha? <a href="esqueciSenha.php">Redefina</a>
+          Esqueceu sua senha? <a href="esqueciSenha.php">Redefinir</a>
         </p>
 
-        <!-- Botão -->
         <button type="button" onclick="buttonConfirmar()">Confirmar</button>
 
-        <!-- Links extras -->
         <p class="links">
-          Já tem conta? <a href="#">Login</a>. <br>
-          Não tem conta? <a href="cadastrounif.html">Cadastrar</a>.
+          Não tem conta? <a href="cadastrounif.html">Cadastrar</a>
         </p>
-      </form>
-    </div>
-  </div>
-</body>
 
+      </form>
+
+    </div>
+  </main>
+
+</body>
 </html>
